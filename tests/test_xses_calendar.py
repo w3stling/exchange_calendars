@@ -1,13 +1,14 @@
 from unittest import TestCase
 
+from trading_calendars.exchange_calendar_xses import XSESExchangeCalendar
+
 from .test_trading_calendar import ExchangeCalendarTestBase
 from .test_utils import T
-from trading_calendars.exchange_calendar_xses import XSESExchangeCalendar
 
 
 class XSESCalendarTestCase(ExchangeCalendarTestBase, TestCase):
 
-    answer_key_filename = 'xses'
+    answer_key_filename = "xses"
     calendar_class = XSESExchangeCalendar
 
     # Singapore stock exchange is open from 9am to 5pm
@@ -36,23 +37,23 @@ class XSESCalendarTestCase(ExchangeCalendarTestBase, TestCase):
     def test_constrain_construction_dates(self):
         # the XSES calendar currently goes from 1999 to 2025, inclusive.
         with self.assertRaises(ValueError) as e:
-            self.calendar_class(T('1985-12-31'), T('2005-01-01'))
+            self.calendar_class(T("1985-12-31"), T("2005-01-01"))
 
         self.assertEqual(
             str(e.exception),
             (
-                'The XSES holidays are only recorded back to 1986,'
-                ' cannot instantiate the XSES calendar back to 1985.'
-            )
+                "The XSES holidays are only recorded back to 1986,"
+                " cannot instantiate the XSES calendar back to 1985."
+            ),
         )
 
         with self.assertRaises(ValueError) as e:
-            self.calendar_class(T('2005-01-01'), T('2021-01-01'))
+            self.calendar_class(T("2005-01-01"), T("2021-01-01"))
 
         self.assertEqual(
             str(e.exception),
             (
-                'The XSES holidays are only recorded to 2020,'
-                ' cannot instantiate the XSES calendar for 2021.'
-            )
+                "The XSES holidays are only recorded to 2020,"
+                " cannot instantiate the XSES calendar for 2021."
+            ),
         )

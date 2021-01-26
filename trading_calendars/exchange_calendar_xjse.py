@@ -14,15 +14,11 @@
 # limitations under the License.
 
 from datetime import time
-from pandas.tseries.offsets import Day
+
 from pandas import Timestamp
-from pandas.tseries.holiday import (
-    Easter,
-    GoodFriday,
-    Holiday,
-    sunday_to_monday,
-)
-from pytz import timezone, UTC
+from pandas.tseries.holiday import Easter, GoodFriday, Holiday, sunday_to_monday
+from pandas.tseries.offsets import Day
+from pytz import UTC, timezone
 
 from .common_holidays import new_years_day
 from .trading_calendar import HolidayCalendar, TradingCalendar
@@ -56,108 +52,110 @@ class XJSEExchangeCalendar(TradingCalendar):
     following trading day may or may not be declared a holiday: if so,
     it should be added to ``adhoc_holidays``.
     """
-    name = 'XJSE'
 
-    tz = timezone('Africa/Johannesburg')
+    name = "XJSE"
 
-    open_times = (
-        (None, time(9, 1)),
-    )
+    tz = timezone("Africa/Johannesburg")
 
-    close_times = (
-        (None, time(17, 00)),
-    )
+    open_times = ((None, time(9, 1)),)
+
+    close_times = ((None, time(17, 00)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            new_years_day(
-                observance=sunday_to_monday,
-            ),
-            Holiday(
-                "Human Rights Day",
-                month=3,
-                day=21,
-                observance=sunday_to_monday,
-            ),
-            GoodFriday,
-            Holiday(
-                "Family Day",
-                month=1,
-                day=1,
-                offset=[Easter(), Day(1)],
-            ),
-            Holiday(
-                "Freedom Day",
-                month=4,
-                day=27,
-                observance=sunday_to_monday,
-            ),
-            Holiday(
-                "Workers' Day",
-                month=5,
-                day=1,
-                observance=sunday_to_monday,
-            ),
-            Holiday(
-                "Youth Day",
-                month=6,
-                day=16,
-                observance=sunday_to_monday,
-            ),
-            Holiday(
-                "National Women's Day",
-                month=8,
-                day=9,
-                observance=sunday_to_monday,
-            ),
-            Holiday(
-                "Heritage Day",
-                month=9,
-                day=24,
-                observance=sunday_to_monday,
-            ),
-            Holiday(
-                "Day of Reconciliation",
-                month=12,
-                day=16,
-                observance=sunday_to_monday,
-            ),
-            Holiday(
-                "Christmas",
-                month=12,
-                day=25,
-                observance=sunday_to_monday,
-            ),
-            Holiday(
-                "Day of Goodwill",
-                month=12,
-                day=26,
-                observance=sunday_to_monday,
-            ),
-        ])
+        return HolidayCalendar(
+            [
+                new_years_day(
+                    observance=sunday_to_monday,
+                ),
+                Holiday(
+                    "Human Rights Day",
+                    month=3,
+                    day=21,
+                    observance=sunday_to_monday,
+                ),
+                GoodFriday,
+                Holiday(
+                    "Family Day",
+                    month=1,
+                    day=1,
+                    offset=[Easter(), Day(1)],
+                ),
+                Holiday(
+                    "Freedom Day",
+                    month=4,
+                    day=27,
+                    observance=sunday_to_monday,
+                ),
+                Holiday(
+                    "Workers' Day",
+                    month=5,
+                    day=1,
+                    observance=sunday_to_monday,
+                ),
+                Holiday(
+                    "Youth Day",
+                    month=6,
+                    day=16,
+                    observance=sunday_to_monday,
+                ),
+                Holiday(
+                    "National Women's Day",
+                    month=8,
+                    day=9,
+                    observance=sunday_to_monday,
+                ),
+                Holiday(
+                    "Heritage Day",
+                    month=9,
+                    day=24,
+                    observance=sunday_to_monday,
+                ),
+                Holiday(
+                    "Day of Reconciliation",
+                    month=12,
+                    day=16,
+                    observance=sunday_to_monday,
+                ),
+                Holiday(
+                    "Christmas",
+                    month=12,
+                    day=25,
+                    observance=sunday_to_monday,
+                ),
+                Holiday(
+                    "Day of Goodwill",
+                    month=12,
+                    day=26,
+                    observance=sunday_to_monday,
+                ),
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
-        return [Timestamp(date, tz=UTC) for date in [
-            # Election holidays
-            '2004-04-14',
-            '2006-03-01',
-            '2009-04-22',
-            '2011-05-18',
-            '2014-05-07',
-            '2016-08-03',
-            '2019-05-08',
-            # In 2008, Human Rights Day fell on the same day as Good
-            # Friday (March 21), so the "Bridge Public Holiday" was
-            # observed on May 2.
-            '2008-05-02',
-            # In 2011 and 2016, Christmas fell on Sunday, which would
-            # ordinarily cause it to be observed on Monday; but Day of
-            # Goodwill fell on Monday, which resulted in only 11
-            # scheduled holidays for the year instead of the usual 12.
-            # In these years, the 27th was declared a bonus holiday: it
-            # may or may not be repeated in 2022 and onward.
-            '2011-12-27',
-            '2016-12-27',
-        ]]
+        return [
+            Timestamp(date, tz=UTC)
+            for date in [
+                # Election holidays
+                "2004-04-14",
+                "2006-03-01",
+                "2009-04-22",
+                "2011-05-18",
+                "2014-05-07",
+                "2016-08-03",
+                "2019-05-08",
+                # In 2008, Human Rights Day fell on the same day as Good
+                # Friday (March 21), so the "Bridge Public Holiday" was
+                # observed on May 2.
+                "2008-05-02",
+                # In 2011 and 2016, Christmas fell on Sunday, which would
+                # ordinarily cause it to be observed on Monday; but Day of
+                # Goodwill fell on Monday, which resulted in only 11
+                # scheduled holidays for the year instead of the usual 12.
+                # In these years, the 27th was declared a bonus holiday: it
+                # may or may not be repeated in 2022 and onward.
+                "2011-12-27",
+                "2016-12-27",
+            ]
+        ]

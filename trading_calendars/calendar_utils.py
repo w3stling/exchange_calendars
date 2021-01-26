@@ -1,11 +1,7 @@
 import itertools
 
 from .always_open import AlwaysOpenCalendar
-from .errors import (
-    CalendarNameCollision,
-    CyclicCalendarAlias,
-    InvalidCalendarName,
-)
+from .errors import CalendarNameCollision, CyclicCalendarAlias, InvalidCalendarName
 from .exchange_calendar_asex import ASEXExchangeCalendar
 from .exchange_calendar_bvmf import BVMFExchangeCalendar
 from .exchange_calendar_cmes import CMESExchangeCalendar
@@ -21,8 +17,8 @@ from .exchange_calendar_xbue import XBUEExchangeCalendar
 from .exchange_calendar_xcbf import XCBFExchangeCalendar
 from .exchange_calendar_xcse import XCSEExchangeCalendar
 from .exchange_calendar_xdub import XDUBExchangeCalendar
-from .exchange_calendar_xfra import XFRAExchangeCalendar
 from .exchange_calendar_xetr import XETRExchangeCalendar
+from .exchange_calendar_xfra import XFRAExchangeCalendar
 from .exchange_calendar_xhel import XHELExchangeCalendar
 from .exchange_calendar_xhkg import XHKGExchangeCalendar
 from .exchange_calendar_xice import XICEExchangeCalendar
@@ -61,86 +57,86 @@ from .weekday_calendar import WeekdayCalendar
 
 _default_calendar_factories = {
     # Exchange calendars.
-    'ASEX': ASEXExchangeCalendar,
-    'BVMF': BVMFExchangeCalendar,
-    'CMES': CMESExchangeCalendar,
-    'IEPA': IEPAExchangeCalendar,
-    'XAMS': XAMSExchangeCalendar,
-    'XASX': XASXExchangeCalendar,
-    'XBKK': XBKKExchangeCalendar,
-    'XBOG': XBOGExchangeCalendar,
-    'XBOM': XBOMExchangeCalendar,
-    'XBRU': XBRUExchangeCalendar,
-    'XBUD': XBUDExchangeCalendar,
-    'XBUE': XBUEExchangeCalendar,
-    'XCBF': XCBFExchangeCalendar,
-    'XCSE': XCSEExchangeCalendar,
-    'XDUB': XDUBExchangeCalendar,
-    'XFRA': XFRAExchangeCalendar,
-    'XETR': XETRExchangeCalendar,
-    'XHEL': XHELExchangeCalendar,
-    'XHKG': XHKGExchangeCalendar,
-    'XICE': XICEExchangeCalendar,
-    'XIDX': XIDXExchangeCalendar,
-    'XIST': XISTExchangeCalendar,
-    'XJSE': XJSEExchangeCalendar,
-    'XKAR': XKARExchangeCalendar,
-    'XKLS': XKLSExchangeCalendar,
-    'XKRX': XKRXExchangeCalendar,
-    'XLIM': XLIMExchangeCalendar,
-    'XLIS': XLISExchangeCalendar,
-    'XLON': XLONExchangeCalendar,
-    'XMAD': XMADExchangeCalendar,
-    'XMEX': XMEXExchangeCalendar,
-    'XMIL': XMILExchangeCalendar,
-    'XMOS': XMOSExchangeCalendar,
-    'XNYS': XNYSExchangeCalendar,
-    'XNZE': XNZEExchangeCalendar,
-    'XOSL': XOSLExchangeCalendar,
-    'XPAR': XPARExchangeCalendar,
-    'XPHS': XPHSExchangeCalendar,
-    'XPRA': XPRAExchangeCalendar,
-    'XSES': XSESExchangeCalendar,
-    'XSGO': XSGOExchangeCalendar,
-    'XSHG': XSHGExchangeCalendar,
-    'XSTO': XSTOExchangeCalendar,
-    'XSWX': XSWXExchangeCalendar,
-    'XTAE': XTAEExchangeCalendar,
-    'XTAI': XTAIExchangeCalendar,
-    'XTKS': XTKSExchangeCalendar,
-    'XTSE': XTSEExchangeCalendar,
-    'XWAR': XWARExchangeCalendar,
-    'XWBO': XWBOExchangeCalendar,
+    "ASEX": ASEXExchangeCalendar,
+    "BVMF": BVMFExchangeCalendar,
+    "CMES": CMESExchangeCalendar,
+    "IEPA": IEPAExchangeCalendar,
+    "XAMS": XAMSExchangeCalendar,
+    "XASX": XASXExchangeCalendar,
+    "XBKK": XBKKExchangeCalendar,
+    "XBOG": XBOGExchangeCalendar,
+    "XBOM": XBOMExchangeCalendar,
+    "XBRU": XBRUExchangeCalendar,
+    "XBUD": XBUDExchangeCalendar,
+    "XBUE": XBUEExchangeCalendar,
+    "XCBF": XCBFExchangeCalendar,
+    "XCSE": XCSEExchangeCalendar,
+    "XDUB": XDUBExchangeCalendar,
+    "XFRA": XFRAExchangeCalendar,
+    "XETR": XETRExchangeCalendar,
+    "XHEL": XHELExchangeCalendar,
+    "XHKG": XHKGExchangeCalendar,
+    "XICE": XICEExchangeCalendar,
+    "XIDX": XIDXExchangeCalendar,
+    "XIST": XISTExchangeCalendar,
+    "XJSE": XJSEExchangeCalendar,
+    "XKAR": XKARExchangeCalendar,
+    "XKLS": XKLSExchangeCalendar,
+    "XKRX": XKRXExchangeCalendar,
+    "XLIM": XLIMExchangeCalendar,
+    "XLIS": XLISExchangeCalendar,
+    "XLON": XLONExchangeCalendar,
+    "XMAD": XMADExchangeCalendar,
+    "XMEX": XMEXExchangeCalendar,
+    "XMIL": XMILExchangeCalendar,
+    "XMOS": XMOSExchangeCalendar,
+    "XNYS": XNYSExchangeCalendar,
+    "XNZE": XNZEExchangeCalendar,
+    "XOSL": XOSLExchangeCalendar,
+    "XPAR": XPARExchangeCalendar,
+    "XPHS": XPHSExchangeCalendar,
+    "XPRA": XPRAExchangeCalendar,
+    "XSES": XSESExchangeCalendar,
+    "XSGO": XSGOExchangeCalendar,
+    "XSHG": XSHGExchangeCalendar,
+    "XSTO": XSTOExchangeCalendar,
+    "XSWX": XSWXExchangeCalendar,
+    "XTAE": XTAEExchangeCalendar,
+    "XTAI": XTAIExchangeCalendar,
+    "XTKS": XTKSExchangeCalendar,
+    "XTSE": XTSEExchangeCalendar,
+    "XWAR": XWARExchangeCalendar,
+    "XWBO": XWBOExchangeCalendar,
     # Miscellaneous calendars.
-    'us_futures': QuantopianUSFuturesCalendar,
-    '24/7': AlwaysOpenCalendar,
-    '24/5': WeekdayCalendar,
+    "us_futures": QuantopianUSFuturesCalendar,
+    "24/7": AlwaysOpenCalendar,
+    "24/5": WeekdayCalendar,
 }
 _default_calendar_aliases = {
-    'NYSE': 'XNYS',
-    'NASDAQ': 'XNYS',
-    'BATS': 'XNYS',
-    'FWB': 'XFRA',
-    'LSE': 'XLON',
-    'TSX': 'XTSE',
-    'BMF': 'BVMF',
-    'CME': 'CMES',
-    'CBOT': 'CMES',
-    'COMEX': 'CMES',
-    'NYMEX': 'CMES',
-    'ICE': 'IEPA',
-    'ICEUS': 'IEPA',
-    'NYFE': 'IEPA',
-    'CFE': 'XCBF',
-    'JKT': 'XIDX',
-    'SIX': 'XSWX',
-    'JPX': 'XTKS',
-    'ASX': 'XASX',
-    'HKEX': 'XHKG',
-    'OSE': 'XOSL',
-    'BSE': 'XBOM',
-    'SSE': 'XSHG',
-    'TASE': 'XTAE',
+    "NYSE": "XNYS",
+    "NASDAQ": "XNYS",
+    "BATS": "XNYS",
+    "FWB": "XFRA",
+    "LSE": "XLON",
+    "TSX": "XTSE",
+    "BMF": "BVMF",
+    "CME": "CMES",
+    "CBOT": "CMES",
+    "COMEX": "CMES",
+    "NYMEX": "CMES",
+    "ICE": "IEPA",
+    "ICEUS": "IEPA",
+    "NYFE": "IEPA",
+    "CFE": "XCBF",
+    "JKT": "XIDX",
+    "SIX": "XSWX",
+    "JPX": "XTKS",
+    "ASX": "XASX",
+    "HKEX": "XHKG",
+    "OSE": "XOSL",
+    "BSE": "XBOM",
+    "SSE": "XSHG",
+    "TASE": "XTAE",
 }
 
 default_calendar_names = sorted(_default_calendar_factories.keys())
@@ -162,6 +158,7 @@ class TradingCalendarDispatcher(object):
     aliases : dict[str -> str]
         Calendar name aliases.
     """
+
     def __init__(self, calendars, calendar_factories, aliases):
         self._calendars = calendars
         self._calendar_factories = dict(calendar_factories)
@@ -213,7 +210,7 @@ class TradingCalendarDispatcher(object):
                 itertools.chain(
                     self._calendars.keys(),
                     self._calendar_factories.keys(),
-                    self._aliases.keys()
+                    self._aliases.keys(),
                 )
             )
         )
@@ -349,9 +346,7 @@ class TradingCalendarDispatcher(object):
             # something strange has happened.
             if name in seen:
                 seen.append(name)
-                raise CyclicCalendarAlias(
-                    cycle=" -> ".join(repr(k) for k in seen)
-                )
+                raise CyclicCalendarAlias(cycle=" -> ".join(repr(k) for k in seen))
 
         return name
 

@@ -9,33 +9,14 @@ These were originally added in
 https://github.com/rsheftel/pandas_market_calendars/pull/30
 """
 
-from pandas import (
-    Timestamp,
-    DateOffset,
-)
+from dateutil.relativedelta import MO, TH, TU
+from pandas import DateOffset, Timestamp
+from pandas.tseries.holiday import Holiday, nearest_workday, sunday_to_monday
+from pandas.tseries.offsets import Day
 from pytz import UTC
 
-from pandas.tseries.holiday import (
-    Holiday,
-    sunday_to_monday,
-    nearest_workday,
-)
-
-from dateutil.relativedelta import (
-    MO,
-    TH,
-    TU,
-)
-from pandas.tseries.offsets import Day
-
 from .common_holidays import new_years_day
-from .trading_calendar import (
-    MONDAY,
-    TUESDAY,
-    WEDNESDAY,
-    THURSDAY,
-    FRIDAY,
-)
+from .trading_calendar import FRIDAY, MONDAY, THURSDAY, TUESDAY, WEDNESDAY
 
 
 def following_tuesday_every_four_years_observance(dt):

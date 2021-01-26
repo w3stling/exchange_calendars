@@ -1,25 +1,27 @@
 from unittest import TestCase
+
 import pandas as pd
 from pytz import UTC
 
-from .test_trading_calendar import ExchangeCalendarTestBase
 from trading_calendars.exchange_calendar_xtks import XTKSExchangeCalendar
+from trading_calendars.trading_calendar import SUNDAY, WEDNESDAY
 from trading_calendars.xtks_holidays import (
     AutumnalEquinoxes,
     ChildrensDay,
     CitizensHolidaySilverWeek,
-    ConstitutionMemorialDayThrough2006,
     ConstitutionMemorialDay2007Onwards,
+    ConstitutionMemorialDayThrough2006,
     EmperorAkihitoBirthday,
     GreeneryDay2007Onwards,
-    RespectForTheAgedDay2003Onwards
+    RespectForTheAgedDay2003Onwards,
 )
-from trading_calendars.trading_calendar import WEDNESDAY, SUNDAY
+
+from .test_trading_calendar import ExchangeCalendarTestBase
 
 
 class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
 
-    answer_key_filename = 'xtks'
+    answer_key_filename = "xtks"
     calendar_class = XTKSExchangeCalendar
 
     MAX_SESSION_HOURS = 6
@@ -54,14 +56,11 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         # from 2000 to 2006 May 4 was an unnamed citizen's holiday because
         # it was between Constitution Memorial Day and Children's Day
         consitution_memorial_days = ConstitutionMemorialDayThrough2006.dates(
-            '2000-01-01', '2007-01-01'
+            "2000-01-01", "2007-01-01"
         )
-        childrens_days = ChildrensDay.dates(
-            '2000-01-01', '2007-01-01'
-        )
+        childrens_days = ChildrensDay.dates("2000-01-01", "2007-01-01")
 
-        for cm_day, childrens_day in zip(consitution_memorial_days,
-                                         childrens_days):
+        for cm_day, childrens_day in zip(consitution_memorial_days, childrens_days):
 
             # if there is only one day between Constitution Memorial
             # Day and Children's Day, that day should be a holiday
@@ -76,22 +75,18 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
 
         # from 2007 onwards, Greenery Day was moved to May 4
         consitution_memorial_days = ConstitutionMemorialDay2007Onwards.dates(
-            '2007-01-01', '2019-01-01'
+            "2007-01-01", "2019-01-01"
         )
-        greenery_days = GreeneryDay2007Onwards.dates(
-            '2007-01-01', '2019-01-01'
-        )
-        childrens_days = ChildrensDay.dates(
-            '2007-01-01', '2019-01-01'
-        )
+        greenery_days = GreeneryDay2007Onwards.dates("2007-01-01", "2019-01-01")
+        childrens_days = ChildrensDay.dates("2007-01-01", "2019-01-01")
 
         # In 2008, Greenery Day is on a Sunday, and Children's Day
         # is on a Monday, so Greenery Day should be observed on Tuesday
         #       May 2008
         # Su Mo Tu We Th Fr Sa
         #  4  5  6  7  8  9 10
-        self.assertIn(pd.Timestamp('2008-05-05'), childrens_days)
-        self.assertIn(pd.Timestamp('2008-05-06'), greenery_days)
+        self.assertIn(pd.Timestamp("2008-05-05"), childrens_days)
+        self.assertIn(pd.Timestamp("2008-05-06"), greenery_days)
 
         # In 2009, Consitution Memorial Day should be observed on Wednesday,
         # since it is the next weekday that is not a holiday
@@ -99,9 +94,9 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         # Su Mo Tu We Th Fr Sa
         #                 1  2
         #  3  4  5  6  7  8  9
-        self.assertIn(pd.Timestamp('2009-05-04'), greenery_days)
-        self.assertIn(pd.Timestamp('2009-05-05'), childrens_days)
-        self.assertIn(pd.Timestamp('2009-05-06'), consitution_memorial_days)
+        self.assertIn(pd.Timestamp("2009-05-04"), greenery_days)
+        self.assertIn(pd.Timestamp("2009-05-05"), childrens_days)
+        self.assertIn(pd.Timestamp("2009-05-06"), consitution_memorial_days)
 
         # In 2012, Children's Day should not be observed because it falls
         # on a Saturday
@@ -109,16 +104,16 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         # Su Mo Tu We Th Fr Sa
         #        1  2  3  4  5
         #  6  7  8  9 10 11 12
-        self.assertIn(pd.Timestamp('2012-05-03'), consitution_memorial_days)
-        self.assertIn(pd.Timestamp('2012-05-04'), greenery_days)
+        self.assertIn(pd.Timestamp("2012-05-03"), consitution_memorial_days)
+        self.assertIn(pd.Timestamp("2012-05-04"), greenery_days)
 
         # In 2013, May 3 and 6 should be a holiday
         #       May 2013
         # Su Mo Tu We Th Fr Sa
         #           1  2  3  4
         #  5  6  7  8  9 10 11
-        self.assertIn(pd.Timestamp('2013-05-03'), consitution_memorial_days)
-        self.assertIn(pd.Timestamp('2013-05-06'), childrens_days)
+        self.assertIn(pd.Timestamp("2013-05-03"), consitution_memorial_days)
+        self.assertIn(pd.Timestamp("2013-05-06"), childrens_days)
 
     def test_silver_week(self):
         def day_before(dt):
@@ -132,12 +127,10 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
                 silver_week_citizens_holidays.append(day_before(equinox))
 
         expected_silver_week_holidays = CitizensHolidaySilverWeek
-        self.assertEqual(silver_week_citizens_holidays,
-                         expected_silver_week_holidays)
+        self.assertEqual(silver_week_citizens_holidays, expected_silver_week_holidays)
 
         respect_for_the_aged_days = RespectForTheAgedDay2003Onwards.dates(
-            '2003-01-01',
-            AutumnalEquinoxes[-1]
+            "2003-01-01", AutumnalEquinoxes[-1]
         )
 
         for citizens_holiday in silver_week_citizens_holidays:
@@ -145,34 +138,31 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
             # the day before the citizen's holiday should be Respect
             # for the Aged Day
             respect_for_the_aged_day = day_before(citizens_holiday)
-            self.assertNotIn(respect_for_the_aged_day,
-                             self.calendar.all_sessions)
+            self.assertNotIn(respect_for_the_aged_day, self.calendar.all_sessions)
             self.assertIn(respect_for_the_aged_day, respect_for_the_aged_days)
 
     def test_emperors_birthday(self):
 
         # The Emperor's birthday should be celebrated every year except
         # for 2019
-        expected_birthdays = EmperorAkihitoBirthday.dates(
-            '1990-01-01', '2020-01-01'
-        )
+        expected_birthdays = EmperorAkihitoBirthday.dates("1990-01-01", "2020-01-01")
 
         for year in range(1990, 2019):
-            birthday = pd.Timestamp('{}-12-23'.format(year))
+            birthday = pd.Timestamp("{}-12-23".format(year))
             if birthday.dayofweek == SUNDAY:
                 birthday += pd.Timedelta(days=1)
 
             self.assertIn(birthday, expected_birthdays)
 
-        self.assertNotIn(pd.Timestamp('2019-12-23'), expected_birthdays)
+        self.assertNotIn(pd.Timestamp("2019-12-23"), expected_birthdays)
 
     def test_mountain_day(self):
         # Mountain Day was not celebrated prior to 2016.
-        self.assertIn(pd.Timestamp('2015-08-11'), self.calendar.all_sessions)
+        self.assertIn(pd.Timestamp("2015-08-11"), self.calendar.all_sessions)
 
         # First celebrated and observed in 2016.
         self.assertNotIn(
-            pd.Timestamp('2016-08-11'),
+            pd.Timestamp("2016-08-11"),
             self.calendar.all_sessions,
         )
 
@@ -186,17 +176,17 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         #
         # Falls on a Sunday in 2019, so it is observed on Monday.
         self.assertNotIn(
-            pd.Timestamp('2019-08-12'),
+            pd.Timestamp("2019-08-12"),
             self.calendar.all_sessions,
         )
 
     def test_2019_adhocs(self):
         # Check if adhoc holidays in 2019 are observed
         expected_holidays = [
-            pd.Timestamp('2019-04-30', tz=UTC),  # Abdication Day
-            pd.Timestamp('2019-05-01', tz=UTC),  # Accession Day
-            pd.Timestamp('2019-05-02', tz=UTC),  # Citizen's Holiday
-            pd.Timestamp('2019-10-22', tz=UTC),  # Enthronment Ceremony
+            pd.Timestamp("2019-04-30", tz=UTC),  # Abdication Day
+            pd.Timestamp("2019-05-01", tz=UTC),  # Accession Day
+            pd.Timestamp("2019-05-02", tz=UTC),  # Citizen's Holiday
+            pd.Timestamp("2019-10-22", tz=UTC),  # Enthronment Ceremony
         ]
 
         for holiday_label in expected_holidays:
@@ -217,7 +207,7 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
             pd.Timestamp("2020-05-04", tz=UTC),  # Greenery Day
             pd.Timestamp("2020-05-05", tz=UTC),  # Children's Day
             pd.Timestamp("2020-05-06", tz=UTC),  # Constitution Memorial Day
-                                                 # observed
+            # observed
             pd.Timestamp("2020-07-23", tz=UTC),  # Marine Day
             pd.Timestamp("2020-07-24", tz=UTC),  # Sports Day
             pd.Timestamp("2020-08-10", tz=UTC),  # Mountain Day

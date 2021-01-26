@@ -14,29 +14,27 @@
 # limitations under the License.
 
 from datetime import time
+
 import pandas as pd
 from pandas.tseries.holiday import (
+    MO,
     DateOffset,
     EasterMonday,
     GoodFriday,
     Holiday,
-    MO,
     previous_friday,
     weekend_to_monday,
 )
 from pytz import timezone
 
 from .common_holidays import (
-    new_years_day,
-    christmas,
-    weekend_christmas,
     boxing_day,
+    christmas,
+    new_years_day,
     weekend_boxing_day,
+    weekend_christmas,
 )
-from .trading_calendar import (
-    TradingCalendar,
-    HolidayCalendar,
-)
+from .trading_calendar import HolidayCalendar, TradingCalendar
 
 # Regular Holidays
 # ----------------
@@ -54,7 +52,7 @@ MayBank_pre_1995 = Holiday(
     month=5,
     offset=DateOffset(weekday=MO(1)),
     day=1,
-    end_date=pd.Timestamp('1994-12-31'),
+    end_date=pd.Timestamp("1994-12-31"),
 )
 
 # Early May bank holiday post-1995 and pre-2020
@@ -63,8 +61,8 @@ MayBank_post_1995_pre_2020 = Holiday(
     month=5,
     offset=DateOffset(weekday=MO(1)),
     day=1,
-    start_date=pd.Timestamp('1996-01-01'),
-    end_date=pd.Timestamp('2019-12-31'),
+    start_date=pd.Timestamp("1996-01-01"),
+    end_date=pd.Timestamp("2019-12-31"),
 )
 
 # Early May bank holiday post 2020
@@ -73,7 +71,7 @@ MayBank_post_2020 = Holiday(
     month=5,
     offset=DateOffset(weekday=MO(1)),
     day=1,
-    start_date=pd.Timestamp('2021-01-01')
+    start_date=pd.Timestamp("2021-01-01"),
 )
 
 
@@ -87,7 +85,7 @@ SpringBank_pre_2002 = Holiday(
     month=5,
     day=31,
     offset=DateOffset(weekday=MO(-1)),
-    end_date=pd.Timestamp('2001-12-31'),
+    end_date=pd.Timestamp("2001-12-31"),
 )
 
 SpringBank_post_2002_pre_2012 = Holiday(
@@ -95,8 +93,8 @@ SpringBank_post_2002_pre_2012 = Holiday(
     month=5,
     day=31,
     offset=DateOffset(weekday=MO(-1)),
-    start_date=pd.Timestamp('2003-01-01'),
-    end_date=pd.Timestamp('2011-12-31'),
+    start_date=pd.Timestamp("2003-01-01"),
+    end_date=pd.Timestamp("2011-12-31"),
 )
 
 SpringBank_post_2012 = Holiday(
@@ -104,7 +102,7 @@ SpringBank_post_2012 = Holiday(
     month=5,
     day=31,
     offset=DateOffset(weekday=MO(-1)),
-    start_date=pd.Timestamp('2013-01-01'),
+    start_date=pd.Timestamp("2013-01-01"),
 )
 
 # Summer bank holiday
@@ -128,7 +126,7 @@ WeekendBoxingDay = weekend_boxing_day()
 # If Christmas Eve falls on a weekday, that day is a half day.
 # If it falls on a weekend, the preceding Friday is a half day.
 ChristmasEve = Holiday(
-    'Christmas Eve',
+    "Christmas Eve",
     month=12,
     day=24,
     observance=previous_friday,
@@ -141,14 +139,14 @@ NewYearsEvePre1999 = Holiday(
     month=12,
     day=31,
     observance=previous_friday,
-    end_date=pd.Timestamp('1999-01-01')
+    end_date=pd.Timestamp("1999-01-01"),
 )
 NewYearsEvePost2000 = Holiday(
     "New Year's Eve",
     month=12,
     day=31,
     observance=previous_friday,
-    start_date=pd.Timestamp('2000-01-01')
+    start_date=pd.Timestamp("2000-01-01"),
 )
 
 
@@ -175,72 +173,76 @@ class XLONExchangeCalendar(TradingCalendar):
     - Christmas Eve
     - New Year's Eve
     """
+
     regular_early_close = time(12, 30)
 
-    name = 'XLON'
+    name = "XLON"
 
-    tz = timezone('Europe/London')
+    tz = timezone("Europe/London")
 
-    open_times = (
-        (None, time(8, 1)),
-    )
+    open_times = ((None, time(8, 1)),)
 
-    close_times = (
-        (None, time(16, 30)),
-    )
+    close_times = ((None, time(16, 30)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            LSENewYearsDay,
-            GoodFriday,
-            EasterMonday,
-            MayBank_pre_1995,
-            MayBank_post_1995_pre_2020,
-            MayBank_post_2020,
-            SpringBank_pre_2002,
-            SpringBank_post_2002_pre_2012,
-            SpringBank_post_2012,
-            SummerBank,
-            Christmas,
-            WeekendChristmas,
-            BoxingDay,
-            WeekendBoxingDay
-        ])
+        return HolidayCalendar(
+            [
+                LSENewYearsDay,
+                GoodFriday,
+                EasterMonday,
+                MayBank_pre_1995,
+                MayBank_post_1995_pre_2020,
+                MayBank_post_2020,
+                SpringBank_pre_2002,
+                SpringBank_post_2002_pre_2012,
+                SpringBank_post_2012,
+                SummerBank,
+                Christmas,
+                WeekendChristmas,
+                BoxingDay,
+                WeekendBoxingDay,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
         return [
             # VE-Day Anniversary
-            pd.Timestamp("1995-05-08", tz='UTC'),  # 50th Anniversary
-            pd.Timestamp("2020-05-08", tz='UTC'),  # 75th Anniversary
+            pd.Timestamp("1995-05-08", tz="UTC"),  # 50th Anniversary
+            pd.Timestamp("2020-05-08", tz="UTC"),  # 75th Anniversary
             # Queen Elizabeth II Jubilees
             # Silver Jubilee
-            pd.Timestamp("1977-06-07", tz='UTC'),
+            pd.Timestamp("1977-06-07", tz="UTC"),
             # Golden Jubilee
-            pd.Timestamp("2002-06-03", tz='UTC'),
-            pd.Timestamp("2002-06-04", tz='UTC'),
+            pd.Timestamp("2002-06-03", tz="UTC"),
+            pd.Timestamp("2002-06-04", tz="UTC"),
             # Diamond Jubilee
-            pd.Timestamp("2012-06-04", tz='UTC'),
-            pd.Timestamp("2012-06-05", tz='UTC'),
+            pd.Timestamp("2012-06-04", tz="UTC"),
+            pd.Timestamp("2012-06-05", tz="UTC"),
             # Royal Weddings
             # Wedding Day of Princess Anne and Mark Phillips
-            pd.Timestamp("1973-11-14", tz='UTC'),
+            pd.Timestamp("1973-11-14", tz="UTC"),
             # Wedding Day of Prince Charles and Diana Spencer
-            pd.Timestamp("1981-07-29", tz='UTC'),
+            pd.Timestamp("1981-07-29", tz="UTC"),
             # Wedding Day of Prince William and Catherine Middleton
-            pd.Timestamp("2011-04-29", tz='UTC'),
+            pd.Timestamp("2011-04-29", tz="UTC"),
             # Miscellaneous
             # Eve of 3rd Millenium A.D.
-            pd.Timestamp("1999-12-31", tz='UTC'),
+            pd.Timestamp("1999-12-31", tz="UTC"),
         ]
 
     @property
     def special_closes(self):
         return [
-            (self.regular_early_close, HolidayCalendar([
-                ChristmasEve,
-                NewYearsEvePre1999,
-                NewYearsEvePost2000,
-            ]))
+            (
+                self.regular_early_close,
+                HolidayCalendar(
+                    [
+                        ChristmasEve,
+                        NewYearsEvePre1999,
+                        NewYearsEvePost2000,
+                    ]
+                ),
+            )
         ]

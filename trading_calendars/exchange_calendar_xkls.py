@@ -15,33 +15,31 @@
 
 from datetime import time
 from itertools import chain
+
 import pandas as pd
 from pytz import timezone
 
-from .trading_calendar import (
-    TradingCalendar,
-    HolidayCalendar,
-)
+from .trading_calendar import HolidayCalendar, TradingCalendar
 from .xkls_holidays import (
-    NewYearsDay,
-    Thaipusam,
-    FederalTerritoryDay,
     ChineseNewYear,
     ChineseNewYearDay2,
     ChineseNewYearsHalfDay,
-    LabourDay,
-    WesakDay,
-    NuzulAlQuran,
+    ChristmasDay,
+    Deepavali,
+    EidAlAdha,
     EidAlFitrDay1,
     EidAlFitrDay2,
     EidAlFitrHalfDay,
-    EidAlAdha,
-    NationalDay,
-    Muharram,
+    FederalTerritoryDay,
+    LabourDay,
     MalaysiaDay,
-    Deepavali,
     MuhammadBirthday,
-    ChristmasDay,
+    Muharram,
+    NationalDay,
+    NewYearsDay,
+    NuzulAlQuran,
+    Thaipusam,
+    WesakDay,
     misc_adhoc,
 )
 
@@ -77,48 +75,49 @@ class XKLSExchangeCalendar(TradingCalendar):
     TODO: XKLS takes a two hour lunch break from 12:30-2:30pm, but we are
     ignoring this for now.
     """
-    name = 'XKLS'
 
-    tz = timezone('Asia/Kuala_Lumpur')
+    name = "XKLS"
 
-    open_times = (
-        (None, time(9, 1)),
-    )
+    tz = timezone("Asia/Kuala_Lumpur")
 
-    close_times = (
-        (None, time(17, 00)),
-    )
+    open_times = ((None, time(9, 1)),)
+
+    close_times = ((None, time(17, 00)),)
 
     regular_early_close = time(12, 30)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            FederalTerritoryDay,
-            LabourDay,
-            NationalDay,
-            MalaysiaDay,
-            ChristmasDay,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                FederalTerritoryDay,
+                LabourDay,
+                NationalDay,
+                MalaysiaDay,
+                ChristmasDay,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
 
-        return list(chain(
-            misc_adhoc,
-            ChineseNewYear,
-            ChineseNewYearDay2,
-            NuzulAlQuran,
-            EidAlFitrDay1,
-            EidAlFitrDay2,
-            EidAlAdha,
-            Muharram,
-            MuhammadBirthday,
-            Deepavali,
-            Thaipusam,
-            WesakDay,
-        ))
+        return list(
+            chain(
+                misc_adhoc,
+                ChineseNewYear,
+                ChineseNewYearDay2,
+                NuzulAlQuran,
+                EidAlFitrDay1,
+                EidAlFitrDay2,
+                EidAlAdha,
+                Muharram,
+                MuhammadBirthday,
+                Deepavali,
+                Thaipusam,
+                WesakDay,
+            )
+        )
 
     @property
     def special_closes_adhoc(self):
@@ -127,17 +126,15 @@ class XKLSExchangeCalendar(TradingCalendar):
 
         collisions = [
             # Chinese New Year's Eve was a holiday until 2005
-            pd.Timestamp('1997-02-07'),
-            pd.Timestamp('1998-01-28'),
-            pd.Timestamp('2002-02-11'),
-            pd.Timestamp('2003-01-31'),
-            pd.Timestamp('2004-01-21'),
+            pd.Timestamp("1997-02-07"),
+            pd.Timestamp("1998-01-28"),
+            pd.Timestamp("2002-02-11"),
+            pd.Timestamp("2003-01-31"),
+            pd.Timestamp("2004-01-21"),
             # Eid al-Fitr Eve was a holiday in 2003
-            pd.Timestamp('2003-11-24'),
+            pd.Timestamp("2003-11-24"),
         ]
 
         early_close_days = list(set(early_close_days) - set(collisions))
 
-        return [
-            (self.regular_early_close, early_close_days)
-        ]
+        return [(self.regular_early_close, early_close_days)]

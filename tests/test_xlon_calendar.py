@@ -1,14 +1,16 @@
 from unittest import TestCase
+
 import pandas as pd
 from pytz import UTC
 
-from .test_trading_calendar import ExchangeCalendarTestBase
 from trading_calendars.exchange_calendar_xlon import XLONExchangeCalendar
+
+from .test_trading_calendar import ExchangeCalendarTestBase
 
 
 class XLONCalendarTestCase(ExchangeCalendarTestBase, TestCase):
 
-    answer_key_filename = 'xlon'
+    answer_key_filename = "xlon"
     calendar_class = XLONExchangeCalendar
 
     # The XLON exchange is open from 8:00 am to 4:30 pm.
@@ -35,8 +37,7 @@ class XLONCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         ]
 
         for early_close_session_label in early_closes_2012:
-            self.assertIn(early_close_session_label,
-                          self.calendar.early_closes)
+            self.assertIn(early_close_session_label, self.calendar.early_closes)
 
     def test_special_holidays(self):
         # Spring Bank 2002
@@ -65,10 +66,7 @@ class XLONCalendarTestCase(ExchangeCalendarTestBase, TestCase):
             self.calendar.all_sessions,
         )
         # VE Day
-        self.assertNotIn(
-            pd.Timestamp("2020-05-08", tz=UTC),
-            self.calendar.all_sessions
-        )
+        self.assertNotIn(pd.Timestamp("2020-05-08", tz=UTC), self.calendar.all_sessions)
 
     def test_special_non_holidays(self):
         # May Bank Holiday was instead observed on VE Day
@@ -83,17 +81,16 @@ class XLONCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         half_days = [
             # In Dec 2010, Christmas Eve and NYE are on Friday,
             # so they should be half days
-            pd.Timestamp('2010-12-24', tz='Europe/London'),
-            pd.Timestamp('2010-12-31', tz='Europe/London'),
+            pd.Timestamp("2010-12-24", tz="Europe/London"),
+            pd.Timestamp("2010-12-31", tz="Europe/London"),
             # In Dec 2011, Christmas Eve and NYE were both on a Saturday,
             # so the preceding Fridays (the 23rd and 30th) are half days
-            pd.Timestamp('2011-12-23', tz='Europe/London'),
-            pd.Timestamp('2011-12-30', tz='Europe/London'),
+            pd.Timestamp("2011-12-23", tz="Europe/London"),
+            pd.Timestamp("2011-12-30", tz="Europe/London"),
         ]
 
         for half_day in half_days:
             half_day_close_time = self.calendar.next_close(half_day)
             self.assertEqual(
-                half_day_close_time,
-                half_day + pd.Timedelta(hours=12, minutes=30)
+                half_day_close_time, half_day + pd.Timedelta(hours=12, minutes=30)
             )

@@ -1,55 +1,50 @@
 from datetime import time
 from itertools import chain
-import pandas as pd
-from pytz import timezone
-from pytz import UTC
 
-from .trading_calendar import (
-    TradingCalendar,
-    HolidayCalendar,
-    end_default,
-)
+import pandas as pd
+from pytz import UTC, timezone
+
+from .trading_calendar import HolidayCalendar, TradingCalendar, end_default
 from .xtks_holidays import (
-    NewYearsHolidayDec31,
-    NewYearsHolidayJan1,
-    NewYearsHolidayJan2,
-    NewYearsHolidayJan3,
-    ComingOfAgeDay,
-    NationalFoundationDay,
-    VernalEquinoxes,
-    GreeneryDayThrough2006,
-    ShowaDay,
-    ConstitutionMemorialDayThrough2006,
-    ConstitutionMemorialDay2007Onwards,
-    GreeneryDay2007Onwards,
-    CitizensHolidayGoldenWeek,
+    AutumnalEquinoxes,
     ChildrensDay,
-    MarineDayThrough2002,
+    CitizensHolidayGoldenWeek,
+    CitizensHolidaySilverWeek,
+    ComingOfAgeDay,
+    ConstitutionMemorialDay2007Onwards,
+    ConstitutionMemorialDayThrough2006,
+    CultureDay,
+    EmperorAkihitoBirthday,
+    EmperorNaruhitoBirthday,
+    GreeneryDay2007Onwards,
+    GreeneryDayThrough2006,
+    HealthAndSportsDay2020,
+    HealthAndSportsDay2021,
+    HealthAndSportsDay2022Onwards,
+    HealthAndSportsDayThrough2019,
+    LaborThanksgivingDay,
     MarineDay2003OnwardsThrough2019,
     MarineDay2020,
     MarineDay2021,
     MarineDay2022Onwards,
-    MountainDayThrough2019,
+    MarineDayThrough2002,
+    Misc2019Holidays,
     MountainDay2020,
     MountainDay2021,
     MountainDay2022Onwards,
-    AutumnalEquinoxes,
-    CitizensHolidaySilverWeek,
-    RespectForTheAgedDayThrough2002,
+    MountainDayThrough2019,
+    NationalFoundationDay,
+    NewYearsHolidayDec31,
+    NewYearsHolidayJan1,
+    NewYearsHolidayJan2,
+    NewYearsHolidayJan3,
     RespectForTheAgedDay2003Onwards,
-    HealthAndSportsDayThrough2019,
-    HealthAndSportsDay2020,
-    HealthAndSportsDay2021,
-    HealthAndSportsDay2022Onwards,
-    CultureDay,
-    LaborThanksgivingDay,
-    EmperorAkihitoBirthday,
-    EmperorNaruhitoBirthday,
-    Misc2019Holidays
+    RespectForTheAgedDayThrough2002,
+    ShowaDay,
+    VernalEquinoxes,
 )
 
-
-XTKS_START_DEFAULT = pd.Timestamp('2000-01-01', tz=UTC)
+XTKS_START_DEFAULT = pd.Timestamp("2000-01-01", tz=UTC)
 
 
 class XTKSExchangeCalendar(TradingCalendar):
@@ -82,65 +77,66 @@ class XTKSExchangeCalendar(TradingCalendar):
     - Labor Thanksgiving Day (Nov. 23)
     - Emperor's Birthday (Dec. 23)
     """
+
     def __init__(self, start=XTKS_START_DEFAULT, end=end_default):
         # because we are not tracking holiday info farther back than 2000,
         # make the default start date 01-01-2000
         super(XTKSExchangeCalendar, self).__init__(start=start, end=end)
 
-    name = 'XTKS'
+    name = "XTKS"
 
-    tz = timezone('Asia/Tokyo')
+    tz = timezone("Asia/Tokyo")
 
-    open_times = (
-        (None, time(9, 1)),
-    )
+    open_times = ((None, time(9, 1)),)
 
-    close_times = (
-        (None, time(15)),
-    )
+    close_times = ((None, time(15)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsHolidayDec31,
-            NewYearsHolidayJan1,
-            NewYearsHolidayJan2,
-            NewYearsHolidayJan3,
-            ComingOfAgeDay,
-            NationalFoundationDay,
-            GreeneryDayThrough2006,
-            ShowaDay,
-            ConstitutionMemorialDayThrough2006,
-            ConstitutionMemorialDay2007Onwards,
-            GreeneryDay2007Onwards,
-            CitizensHolidayGoldenWeek,
-            ChildrensDay,
-            MarineDayThrough2002,
-            MarineDay2003OnwardsThrough2019,
-            MarineDay2020,
-            MarineDay2021,
-            MarineDay2022Onwards,
-            MountainDayThrough2019,
-            MountainDay2020,
-            MountainDay2021,
-            MountainDay2022Onwards,
-            RespectForTheAgedDayThrough2002,
-            RespectForTheAgedDay2003Onwards,
-            HealthAndSportsDayThrough2019,
-            HealthAndSportsDay2020,
-            HealthAndSportsDay2021,
-            HealthAndSportsDay2022Onwards,
-            CultureDay,
-            LaborThanksgivingDay,
-            EmperorAkihitoBirthday,
-            EmperorNaruhitoBirthday,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsHolidayDec31,
+                NewYearsHolidayJan1,
+                NewYearsHolidayJan2,
+                NewYearsHolidayJan3,
+                ComingOfAgeDay,
+                NationalFoundationDay,
+                GreeneryDayThrough2006,
+                ShowaDay,
+                ConstitutionMemorialDayThrough2006,
+                ConstitutionMemorialDay2007Onwards,
+                GreeneryDay2007Onwards,
+                CitizensHolidayGoldenWeek,
+                ChildrensDay,
+                MarineDayThrough2002,
+                MarineDay2003OnwardsThrough2019,
+                MarineDay2020,
+                MarineDay2021,
+                MarineDay2022Onwards,
+                MountainDayThrough2019,
+                MountainDay2020,
+                MountainDay2021,
+                MountainDay2022Onwards,
+                RespectForTheAgedDayThrough2002,
+                RespectForTheAgedDay2003Onwards,
+                HealthAndSportsDayThrough2019,
+                HealthAndSportsDay2020,
+                HealthAndSportsDay2021,
+                HealthAndSportsDay2022Onwards,
+                CultureDay,
+                LaborThanksgivingDay,
+                EmperorAkihitoBirthday,
+                EmperorNaruhitoBirthday,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
-        return list(chain(
-            VernalEquinoxes,
-            AutumnalEquinoxes,
-            CitizensHolidaySilverWeek,
-            Misc2019Holidays,
-        ))
+        return list(
+            chain(
+                VernalEquinoxes,
+                AutumnalEquinoxes,
+                CitizensHolidaySilverWeek,
+                Misc2019Holidays,
+            )
+        )

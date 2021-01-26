@@ -15,40 +15,40 @@
 
 from datetime import time
 
-from pandas.tseries.holiday import Holiday, GoodFriday, EasterMonday
+from pandas.tseries.holiday import EasterMonday, GoodFriday, Holiday
 from pytz import timezone
 
 from .common_holidays import (
-    new_years_day,
-    whit_monday,
-    european_labour_day,
-    christmas_eve,
-    christmas,
     boxing_day,
+    christmas,
+    christmas_eve,
+    european_labour_day,
+    new_years_day,
     new_years_eve,
+    whit_monday,
 )
-from .trading_calendar import HolidayCalendar, TradingCalendar, WEEKDAYS
+from .trading_calendar import WEEKDAYS, HolidayCalendar, TradingCalendar
 
 NewYearsDay = new_years_day()
 
-WhitMonday = whit_monday(end_date='2002')
+WhitMonday = whit_monday(end_date="2002")
 
 LabourDay = european_labour_day()
 
 BastilleDay = Holiday(
-    'Bastille Day',
+    "Bastille Day",
     month=7,
     day=14,
-    end_date='2002',
+    end_date="2002",
 )
 
 ChristmasEve = christmas_eve(days_of_week=WEEKDAYS)
 Christmas = christmas()
 BoxingDay = boxing_day()
 
-NewYearsEveBefore2002 = new_years_eve(end_date='2002')
+NewYearsEveBefore2002 = new_years_eve(end_date="2002")
 NewYearsEveInOrAfter2002 = new_years_eve(
-    start_date='2002',
+    start_date="2002",
     days_of_week=WEEKDAYS,
 )
 
@@ -78,37 +78,36 @@ class XPARExchangeCalendar(TradingCalendar):
       - Netherlands
       - Portugal
     """
+
     # Source: https://www.euronext.com/en/calendars-hours
     regular_early_close = time(14, 5)
 
     @property
     def name(self):
         # Euronext Paris
-        return 'XPAR'
+        return "XPAR"
 
-    tz = timezone('Europe/Paris')
+    tz = timezone("Europe/Paris")
 
-    open_times = (
-        (None, time(9, 1)),
-    )
+    open_times = ((None, time(9, 1)),)
 
-    close_times = (
-        (None, time(17, 30)),
-    )
+    close_times = ((None, time(17, 30)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            GoodFriday,
-            EasterMonday,
-            WhitMonday,
-            LabourDay,
-            BastilleDay,
-            Christmas,
-            BoxingDay,
-            NewYearsEveBefore2002,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                GoodFriday,
+                EasterMonday,
+                WhitMonday,
+                LabourDay,
+                BastilleDay,
+                Christmas,
+                BoxingDay,
+                NewYearsEveBefore2002,
+            ]
+        )
 
     @property
     def special_closes(self):

@@ -14,30 +14,28 @@
 # limitations under the License.
 
 from datetime import time
+
 from pandas.tseries.holiday import (
+    MO,
     DateOffset,
     Easter,
     GoodFriday,
     Holiday,
-    MO,
     previous_friday,
 )
 from pandas.tseries.offsets import Day
 from pytz import timezone
 
 from .common_holidays import (
+    christmas,
     epiphany,
+    european_labour_day,
     immaculate_conception,
     maundy_thursday,
     new_years_day,
     new_years_eve,
-    european_labour_day,
-    christmas,
 )
-from .trading_calendar import (
-    TradingCalendar,
-    HolidayCalendar,
-)
+from .trading_calendar import HolidayCalendar, TradingCalendar
 
 # Used for "first Monday on or after date"
 next_monday_offset = DateOffset(weekday=MO(1))
@@ -79,10 +77,7 @@ MondayAfterSacredHeart = Holiday(
 )
 
 StPeterAndStPaulDay = Holiday(
-    "St. Peter and St. Paul Day",
-    month=6,
-    day=29,
-    offset=next_monday_offset
+    "St. Peter and St. Paul Day", month=6, day=29, offset=next_monday_offset
 )
 
 ColombiaIndependenceDay = Holiday(
@@ -105,7 +100,7 @@ AssumptionDay = Holiday(
 )
 
 DiaDeLaRaza = Holiday(
-    'Dia de la Raza',
+    "Dia de la Raza",
     month=10,
     day=12,
     offset=next_monday_offset,
@@ -162,40 +157,39 @@ class XBOGExchangeCalendar(TradingCalendar):
     Early Closes:
     - None
     """
-    name = 'XBOG'
+
+    name = "XBOG"
 
     # Though Bogota uses Colombia Standard Time, XBOG uses
     # US Eastern for trading times
-    tz = timezone('America/New_York')
+    tz = timezone("America/New_York")
 
-    open_times = (
-        (None, time(9, 31)),
-    )
+    open_times = ((None, time(9, 31)),)
 
-    close_times = (
-        (None, time(16)),
-    )
+    close_times = ((None, time(16)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            Epiphany,
-            StJosephsDay,
-            MaundyThursday,
-            GoodFriday,
-            LabourDay,
-            MondayAfterAscensionDay,
-            MondayAfterCorpusChristi,
-            MondayAfterSacredHeart,
-            StPeterAndStPaulDay,
-            ColombiaIndependenceDay,
-            BattleOfBoyaca,
-            AssumptionDay,
-            DiaDeLaRaza,
-            AllSaintsDay,
-            CartagenaIndependenceDay,
-            ImmaculateConception,
-            ChristmasDay,
-            LastTradingDay,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                Epiphany,
+                StJosephsDay,
+                MaundyThursday,
+                GoodFriday,
+                LabourDay,
+                MondayAfterAscensionDay,
+                MondayAfterCorpusChristi,
+                MondayAfterSacredHeart,
+                StPeterAndStPaulDay,
+                ColombiaIndependenceDay,
+                BattleOfBoyaca,
+                AssumptionDay,
+                DiaDeLaRaza,
+                AllSaintsDay,
+                CartagenaIndependenceDay,
+                ImmaculateConception,
+                ChristmasDay,
+                LastTradingDay,
+            ]
+        )

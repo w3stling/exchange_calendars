@@ -16,22 +16,18 @@
 from datetime import time
 
 import pandas as pd
-from pandas.tseries.holiday import (
-    Holiday,
-    GoodFriday,
-    EasterMonday,
-)
-from pytz import timezone, UTC
+from pandas.tseries.holiday import EasterMonday, GoodFriday, Holiday
+from pytz import UTC, timezone
 
 from .common_holidays import (
-    new_years_day,
+    all_saints_day,
+    boxing_day,
+    christmas,
+    christmas_eve,
+    corpus_christi,
     epiphany,
     european_labour_day,
-    corpus_christi,
-    all_saints_day,
-    christmas_eve,
-    christmas,
-    boxing_day,
+    new_years_day,
     new_years_eve,
 )
 from .trading_calendar import HolidayCalendar, TradingCalendar
@@ -47,7 +43,7 @@ def not_2004(datetime_index):
 
 NewYearsDay = new_years_day()
 
-Epiphany = epiphany(start_date='2011')
+Epiphany = epiphany(start_date="2011")
 
 LabourDay = european_labour_day()
 
@@ -77,7 +73,7 @@ ChristmasEve = christmas_eve(observance=not_2004)
 Christmas = christmas()
 BoxingDay = boxing_day()
 
-NewYearsEve = new_years_eve(start_date='2011')
+NewYearsEve = new_years_eve(start_date="2011")
 
 
 class XWARExchangeCalendar(TradingCalendar):
@@ -109,44 +105,43 @@ class XWARExchangeCalendar(TradingCalendar):
     Early Closes:
       - None
     """
-    name = 'XWAR'
 
-    tz = timezone('Europe/Warsaw')
+    name = "XWAR"
 
-    open_times = (
-        (None, time(9, 1)),
-    )
-    close_times = (
-        (None, time(17)),
-    )
+    tz = timezone("Europe/Warsaw")
+
+    open_times = ((None, time(9, 1)),)
+    close_times = ((None, time(17)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            Epiphany,
-            GoodFriday,
-            EasterMonday,
-            LabourDay,
-            May3ConstitutionDay,
-            CorpusChristi,
-            ArmedForcesDay,
-            AllSaintsDay,
-            IndependenceDay,
-            ChristmasEve,
-            Christmas,
-            BoxingDay,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                Epiphany,
+                GoodFriday,
+                EasterMonday,
+                LabourDay,
+                May3ConstitutionDay,
+                CorpusChristi,
+                ArmedForcesDay,
+                AllSaintsDay,
+                IndependenceDay,
+                ChristmasEve,
+                Christmas,
+                BoxingDay,
+                NewYearsEve,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
         return [
-            pd.Timestamp('2005-04-08', tz=UTC),  # Pope's Funeral.
-            pd.Timestamp('2007-12-31', tz=UTC),  # New Year's Eve (adhoc).
-            pd.Timestamp('2008-05-02', tz=UTC),  # Exchange Holiday.
-            pd.Timestamp('2009-01-02', tz=UTC),  # Exchange Holiday.
-            pd.Timestamp('2013-04-16', tz=UTC),  # Exchange Holiday.
-            pd.Timestamp('2018-01-02', tz=UTC),  # Exchange Holiday.
-            pd.Timestamp('2018-11-12', tz=UTC),  # Independence Holiday.
+            pd.Timestamp("2005-04-08", tz=UTC),  # Pope's Funeral.
+            pd.Timestamp("2007-12-31", tz=UTC),  # New Year's Eve (adhoc).
+            pd.Timestamp("2008-05-02", tz=UTC),  # Exchange Holiday.
+            pd.Timestamp("2009-01-02", tz=UTC),  # Exchange Holiday.
+            pd.Timestamp("2013-04-16", tz=UTC),  # Exchange Holiday.
+            pd.Timestamp("2018-01-02", tz=UTC),  # Exchange Holiday.
+            pd.Timestamp("2018-11-12", tz=UTC),  # Independence Holiday.
         ]

@@ -15,15 +15,15 @@
 
 from datetime import time
 
-from pandas.tseries.holiday import Holiday, GoodFriday, EasterMonday
+from pandas.tseries.holiday import EasterMonday, GoodFriday, Holiday
 from pytz import timezone
 
 from .common_holidays import (
-    new_years_day,
-    european_labour_day,
-    christmas_eve,
-    christmas,
     boxing_day,
+    christmas,
+    christmas_eve,
+    european_labour_day,
+    new_years_day,
     new_years_eve,
 )
 from .trading_calendar import HolidayCalendar, TradingCalendar
@@ -32,7 +32,7 @@ NewYearsDay = new_years_day()
 
 LabourDay = european_labour_day()
 
-Ferragosto = Holiday('Ferragosto', month=8, day=15)
+Ferragosto = Holiday("Ferragosto", month=8, day=15)
 
 ChristmasEve = christmas_eve()
 Christmas = christmas()
@@ -62,29 +62,28 @@ class XMILExchangeCalendar(TradingCalendar):
     Early Closes:
       - None
     """
-    name = 'XMIL'
+
+    name = "XMIL"
 
     # Rome is the same timezone as Milan.
-    tz = timezone('Europe/Rome')
+    tz = timezone("Europe/Rome")
 
-    open_times = (
-        (None, time(9, 1)),
-    )
+    open_times = ((None, time(9, 1)),)
 
-    close_times = (
-        (None, time(17, 30)),
-    )
+    close_times = ((None, time(17, 30)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            GoodFriday,
-            EasterMonday,
-            LabourDay,
-            Ferragosto,
-            ChristmasEve,
-            Christmas,
-            BoxingDay,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                GoodFriday,
+                EasterMonday,
+                LabourDay,
+                Ferragosto,
+                ChristmasEve,
+                Christmas,
+                BoxingDay,
+                NewYearsEve,
+            ]
+        )

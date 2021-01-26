@@ -16,28 +16,28 @@
 from datetime import time
 
 from pandas.tseries.holiday import (
-    USPresidentsDay,
+    GoodFriday,
     USLaborDay,
+    USPresidentsDay,
     USThanksgivingDay,
-    GoodFriday
 )
 from pytz import timezone
 
-# Useful resources for making changes to this file:
-# http://www.cmegroup.com/tools-information/holiday-calendar.html
-
-from .trading_calendar import TradingCalendar, HolidayCalendar
+from .trading_calendar import HolidayCalendar, TradingCalendar
 from .us_holidays import (
-    USNewYearsDay,
     Christmas,
     ChristmasEveBefore1993,
     ChristmasEveInOrAfter1993,
     USBlackFridayInOrAfter1993,
-    USNationalDaysofMourning,
+    USIndependenceDay,
     USMartinLutherKingJrAfter1998,
     USMemorialDay,
-    USIndependenceDay
+    USNationalDaysofMourning,
+    USNewYearsDay,
 )
+
+# Useful resources for making changes to this file:
+# http://www.cmegroup.com/tools-information/holiday-calendar.html
 
 
 class CMESExchangeCalendar(TradingCalendar):
@@ -52,17 +52,14 @@ class CMESExchangeCalendar(TradingCalendar):
     - Good Friday
     - Christmas
     """
-    name = 'CME'
 
-    tz = timezone('America/Chicago')
+    name = "CME"
 
-    open_times = (
-        (None, time(17, 1)),
-    )
+    tz = timezone("America/Chicago")
 
-    close_times = (
-        (None, time(17)),
-    )
+    open_times = ((None, time(17, 1)),)
+
+    close_times = ((None, time(17)),)
 
     @property
     def open_offset(self):
@@ -80,11 +77,13 @@ class CMESExchangeCalendar(TradingCalendar):
         # For now, we will treat the CME as having a single calendar, and just
         # go with the most conservative hours - and treat July 4 as an early
         # close at noon.
-        return HolidayCalendar([
-            USNewYearsDay,
-            GoodFriday,
-            Christmas,
-        ])
+        return HolidayCalendar(
+            [
+                USNewYearsDay,
+                GoodFriday,
+                Christmas,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
@@ -92,17 +91,21 @@ class CMESExchangeCalendar(TradingCalendar):
 
     @property
     def special_closes(self):
-        return [(
-            time(12),
-            HolidayCalendar([
-                USMartinLutherKingJrAfter1998,
-                USPresidentsDay,
-                USMemorialDay,
-                USLaborDay,
-                USIndependenceDay,
-                USThanksgivingDay,
-                USBlackFridayInOrAfter1993,
-                ChristmasEveBefore1993,
-                ChristmasEveInOrAfter1993,
-            ])
-        )]
+        return [
+            (
+                time(12),
+                HolidayCalendar(
+                    [
+                        USMartinLutherKingJrAfter1998,
+                        USPresidentsDay,
+                        USMemorialDay,
+                        USLaborDay,
+                        USIndependenceDay,
+                        USThanksgivingDay,
+                        USBlackFridayInOrAfter1993,
+                        ChristmasEveBefore1993,
+                        ChristmasEveInOrAfter1993,
+                    ]
+                ),
+            )
+        ]

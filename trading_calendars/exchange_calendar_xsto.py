@@ -16,35 +16,35 @@
 from datetime import time
 
 from pandas.tseries.holiday import (
-    Holiday,
-    GoodFriday,
+    FR,
+    DateOffset,
     Easter,
     EasterMonday,
-    DateOffset,
-    FR,
+    GoodFriday,
+    Holiday,
 )
 from pandas.tseries.offsets import Day
 from pytz import timezone
 
 from .common_holidays import (
-    new_years_day,
-    epiphany,
-    maundy_thursday,
     ascension_day,
-    whit_monday,
-    european_labour_day,
-    midsummer_eve,
-    christmas_eve,
-    christmas,
     boxing_day,
+    christmas,
+    christmas_eve,
+    epiphany,
+    european_labour_day,
+    maundy_thursday,
+    midsummer_eve,
+    new_years_day,
     new_years_eve,
+    whit_monday,
 )
-from .trading_calendar import HolidayCalendar, TradingCalendar, WEEKDAYS
+from .trading_calendar import WEEKDAYS, HolidayCalendar, TradingCalendar
 
 NewYearsDay = new_years_day()
 
 DayBeforeEpiphany = Holiday(
-    'Day Before Epiphany',
+    "Day Before Epiphany",
     month=1,
     day=5,
     days_of_week=WEEKDAYS,
@@ -52,7 +52,7 @@ DayBeforeEpiphany = Holiday(
 Epiphany = epiphany()
 
 DayBeforeLabourDay = Holiday(
-    'Day Before Labour Day',
+    "Day Before Labour Day",
     month=4,
     day=30,
     days_of_week=WEEKDAYS,
@@ -61,15 +61,15 @@ LabourDay = european_labour_day()
 
 MaundyThursday = maundy_thursday(days_of_week=WEEKDAYS)
 DayBeforeAscensionDay = Holiday(
-    'Day Before Ascension Day',
+    "Day Before Ascension Day",
     month=1,
     day=1,
     offset=[Easter(), Day(38)],
 )
 AscensionDay = ascension_day()
-WhitMonday = whit_monday(end_date='2005')
+WhitMonday = whit_monday(end_date="2005")
 
-NationalDay = Holiday('Sweden National Day', month=6, day=6, start_date='2004')
+NationalDay = Holiday("Sweden National Day", month=6, day=6, start_date="2004")
 
 MidsummerEve = midsummer_eve()
 
@@ -119,45 +119,46 @@ class XSTOExchangeCalendar(TradingCalendar):
       - Day before Ascension Day
       - All Saints' Eve
     """
-    name = 'XSTO'
-    tz = timezone('Europe/Stockholm')
-    open_times = (
-        (None, time(9, 1)),
-    )
-    close_times = (
-        (None, time(17, 30)),
-    )
+
+    name = "XSTO"
+    tz = timezone("Europe/Stockholm")
+    open_times = ((None, time(9, 1)),)
+    close_times = ((None, time(17, 30)),)
     regular_early_close = time(13)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            Epiphany,
-            GoodFriday,
-            EasterMonday,
-            LabourDay,
-            AscensionDay,
-            WhitMonday,
-            NationalDay,
-            MidsummerEve,
-            ChristmasEve,
-            Christmas,
-            BoxingDay,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                Epiphany,
+                GoodFriday,
+                EasterMonday,
+                LabourDay,
+                AscensionDay,
+                WhitMonday,
+                NationalDay,
+                MidsummerEve,
+                ChristmasEve,
+                Christmas,
+                BoxingDay,
+                NewYearsEve,
+            ]
+        )
 
     @property
     def special_closes(self):
         return [
             (
                 self.regular_early_close,
-                HolidayCalendar([
-                    DayBeforeEpiphany,
-                    MaundyThursday,
-                    DayBeforeLabourDay,
-                    DayBeforeAscensionDay,
-                    AllSaintsEve,
-                ]),
+                HolidayCalendar(
+                    [
+                        DayBeforeEpiphany,
+                        MaundyThursday,
+                        DayBeforeLabourDay,
+                        DayBeforeAscensionDay,
+                        AllSaintsEve,
+                    ]
+                ),
             ),
         ]

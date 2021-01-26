@@ -1,34 +1,32 @@
 from datetime import time
 from itertools import chain
+
 import pandas as pd
 from pandas.tseries.holiday import (
-    Holiday,
-    DateOffset,
     MO,
+    DateOffset,
+    GoodFriday,
+    Holiday,
     weekend_to_monday,
-    GoodFriday
 )
-from pytz import timezone
-from pytz import UTC
-
-from .trading_calendar import (
-    TradingCalendar,
-    HolidayCalendar,
-    MONDAY,
-    TUESDAY,
-    WEDNESDAY,
-    THURSDAY,
-    FRIDAY,
-)
+from pytz import UTC, timezone
 
 from .common_holidays import (
-    new_years_day,
-    christmas,
-    weekend_christmas,
     boxing_day,
+    christmas,
+    new_years_day,
     weekend_boxing_day,
+    weekend_christmas,
 )
-
+from .trading_calendar import (
+    FRIDAY,
+    MONDAY,
+    THURSDAY,
+    TUESDAY,
+    WEDNESDAY,
+    HolidayCalendar,
+    TradingCalendar,
+)
 
 # New Year's Day
 XTSENewYearsDay = new_years_day(observance=weekend_to_monday)
@@ -39,46 +37,46 @@ FamilyDay = Holiday(
     month=2,
     day=1,
     offset=DateOffset(weekday=MO(3)),
-    start_date='2008-01-01',
+    start_date="2008-01-01",
 )
 # Victoria Day
 VictoriaDay = Holiday(
-    'Victoria Day',
+    "Victoria Day",
     month=5,
     day=24,
     offset=DateOffset(weekday=MO(-1)),
 )
 # Canada Day
 CanadaDay = Holiday(
-    'Canada Day',
+    "Canada Day",
     month=7,
     day=1,
     observance=weekend_to_monday,
 )
 # Civic Holiday
 CivicHoliday = Holiday(
-    'Civic Holiday',
+    "Civic Holiday",
     month=8,
     day=1,
     offset=DateOffset(weekday=MO(1)),
 )
 # Labor Day
 LaborDay = Holiday(
-    'Labor Day',
+    "Labor Day",
     month=9,
     day=1,
     offset=DateOffset(weekday=MO(1)),
 )
 # Canadian Thanksgiving
 CanadianThanksgiving = Holiday(
-    'Canadian Thanksgiving',
+    "Canadian Thanksgiving",
     month=10,
     day=1,
     offset=DateOffset(weekday=MO(2)),
 )
 
 ChristmasEveEarlyClose2010Onwards = Holiday(
-    'Christmas Eve Early Close',
+    "Christmas Eve Early Close",
     month=12,
     day=24,
     days_of_week=(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY),
@@ -93,7 +91,7 @@ BoxingDay = boxing_day()
 
 WeekendBoxingDay = weekend_boxing_day()
 
-September11ClosingsCanada = pd.date_range('2001-09-11', '2001-09-12', tz=UTC)
+September11ClosingsCanada = pd.date_range("2001-09-11", "2001-09-12", tz=UTC)
 
 
 class XTSEExchangeCalendar(TradingCalendar):
@@ -127,46 +125,43 @@ class XTSEExchangeCalendar(TradingCalendar):
 
     regular_early_close = time(13)
 
-    name = 'XTSE'
+    name = "XTSE"
 
-    tz = timezone('America/Toronto')
+    tz = timezone("America/Toronto")
 
-    open_times = (
-        (None, time(9, 31)),
-    )
+    open_times = ((None, time(9, 31)),)
 
-    close_times = (
-        (None, time(16)),
-    )
+    close_times = ((None, time(16)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            XTSENewYearsDay,
-            FamilyDay,
-            GoodFriday,
-            VictoriaDay,
-            CanadaDay,
-            CivicHoliday,
-            LaborDay,
-            CanadianThanksgiving,
-            Christmas,
-            WeekendChristmas,
-            BoxingDay,
-            WeekendBoxingDay
-        ])
+        return HolidayCalendar(
+            [
+                XTSENewYearsDay,
+                FamilyDay,
+                GoodFriday,
+                VictoriaDay,
+                CanadaDay,
+                CivicHoliday,
+                LaborDay,
+                CanadianThanksgiving,
+                Christmas,
+                WeekendChristmas,
+                BoxingDay,
+                WeekendBoxingDay,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
         # NOTE: change the name of this property
-        return list(chain(
-            September11ClosingsCanada
-        ))
+        return list(chain(September11ClosingsCanada))
 
     @property
     def special_closes(self):
         return [
-            (self.regular_early_close, HolidayCalendar([
-                ChristmasEveEarlyClose2010Onwards
-            ]))
+            (
+                self.regular_early_close,
+                HolidayCalendar([ChristmasEveEarlyClose2010Onwards]),
+            )
         ]
