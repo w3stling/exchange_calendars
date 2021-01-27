@@ -14,30 +14,21 @@
 # limitations under the License.
 
 from datetime import time
+
 from pandas import Timestamp
-from pandas.tseries.holiday import (
-    EasterMonday,
-    GoodFriday,
-    Holiday,
-    previous_workday
-)
-from pytz import timezone
-from pytz import UTC
+from pandas.tseries.holiday import EasterMonday, GoodFriday, Holiday, previous_workday
+from pytz import UTC, timezone
 
 from .common_holidays import (
-    new_years_day,
-    european_labour_day,
-    whit_monday,
-    christmas_eve,
-    christmas,
     boxing_day,
+    christmas,
+    christmas_eve,
+    european_labour_day,
+    new_years_day,
     new_years_eve,
-
+    whit_monday,
 )
-from .trading_calendar import (
-    TradingCalendar,
-    HolidayCalendar
-)
+from .trading_calendar import HolidayCalendar, TradingCalendar
 
 # Regular Holidays
 # ----------------
@@ -47,19 +38,16 @@ EuropeanLabourDay = european_labour_day()
 
 # Whit Monday observed in 2007, before it became regularly observed
 # starting in 2015.
-WhitMonday2007AdHoc = Timestamp('2007-05-28', tz=UTC)
+WhitMonday2007AdHoc = Timestamp("2007-05-28", tz=UTC)
 
-WhitMonday = whit_monday(start_date='2015-01-01')
+WhitMonday = whit_monday(start_date="2015-01-01")
 
 DayOfGermanUnity = Holiday(
-    "Day of German Unity",
-    month=10,
-    day=3,
-    start_date='2014-01-01'
+    "Day of German Unity", month=10, day=3, start_date="2014-01-01"
 )
 
 # Reformation Day was a German national holiday in 2017.
-ReformationDay500thAnniversaryAdHoc = Timestamp('2017-10-31', tz=UTC)
+ReformationDay500thAnniversaryAdHoc = Timestamp("2017-10-31", tz=UTC)
 
 ChristmasEve = christmas_eve()
 
@@ -77,7 +65,7 @@ LastWorkingDay = Holiday(
     "Last Working Day of Year Early Close",
     month=12,
     day=31,
-    start_date='2010-01-01',
+    start_date="2010-01-01",
     observance=previous_workday,
 )
 
@@ -104,34 +92,33 @@ class XETRExchangeCalendar(TradingCalendar):
     Early Closes:
     - Last working day before Dec. 31
     """
+
     regular_early_close = time(14, 00)
 
-    name = 'XETR'
+    name = "XETR"
 
-    tz = timezone('CET')
+    tz = timezone("CET")
 
-    open_times = (
-        (None, time(9, 1)),
-    )
+    open_times = ((None, time(9, 1)),)
 
-    close_times = (
-        (None, time(17, 30)),
-    )
+    close_times = ((None, time(17, 30)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            GoodFriday,
-            EasterMonday,
-            EuropeanLabourDay,
-            WhitMonday,
-            DayOfGermanUnity,
-            ChristmasEve,
-            Christmas,
-            BoxingDay,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                GoodFriday,
+                EasterMonday,
+                EuropeanLabourDay,
+                WhitMonday,
+                DayOfGermanUnity,
+                ChristmasEve,
+                Christmas,
+                BoxingDay,
+                NewYearsEve,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
@@ -143,7 +130,12 @@ class XETRExchangeCalendar(TradingCalendar):
     @property
     def special_closes(self):
         return [
-            (self.regular_early_close, HolidayCalendar([
-                LastWorkingDay,
-            ]))
+            (
+                self.regular_early_close,
+                HolidayCalendar(
+                    [
+                        LastWorkingDay,
+                    ]
+                ),
+            )
         ]

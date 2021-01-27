@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .trading_calendar import TradingCalendar
 from .calendar_utils import (
     clear_calendars,
     deregister_calendar,
@@ -24,19 +23,21 @@ from .calendar_utils import (
     register_calendar_type,
     resolve_alias,
 )
+from .trading_calendar import TradingCalendar
 
 __all__ = [
-    'clear_calendars',
-    'deregister_calendar',
-    'get_calendar',
-    'get_calendar_names',
-    'register_calendar',
-    'register_calendar_alias',
-    'register_calendar_type',
-    'resolve_alias',
-    'TradingCalendar',
+    "clear_calendars",
+    "deregister_calendar",
+    "get_calendar",
+    "get_calendar_names",
+    "register_calendar",
+    "register_calendar_alias",
+    "register_calendar_type",
+    "resolve_alias",
+    "TradingCalendar",
 ]
 
 from ._version import get_versions
-__version__ = get_versions()['version']
+
+__version__ = get_versions()["version"]
 del get_versions

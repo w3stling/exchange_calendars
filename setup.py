@@ -13,10 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from setuptools import (
-    find_packages,
-    setup,
-)
+from setuptools import find_packages, setup
 
 import versioneer
 
@@ -32,17 +29,14 @@ LICENSE = "Apache License, Version 2.0"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 2",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 2.7",
-    "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "License :: OSI Approved :: Apache Software License",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Mathematics",
-    "Operating System :: OS Independent"
+    "Operating System :: OS Independent",
 ]
 
 reqs = [
@@ -51,19 +45,18 @@ reqs = [
     "pyluach",
     "python-dateutil",
     "pytz",
-    "six",
     "toolz",
 ]
 
-with open('README.md') as f:
+with open("README.md") as f:
     LONG_DESCRIPTION = f.read()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     setup(
         name=DISTNAME,
         entry_points={
-            'console_scripts': [
-                'tcal = trading_calendars.tcal:main',
+            "console_scripts": [
+                "tcal = trading_calendars.tcal:main",
             ],
         },
         cmdclass=versioneer.get_cmdclass(),
@@ -75,10 +68,8 @@ if __name__ == '__main__':
         url=URL,
         classifiers=classifiers,
         long_description=LONG_DESCRIPTION,
-        long_description_content_type='text/markdown',
-        packages=find_packages(
-            include=['trading_calendars', 'trading_calendars.*']
-        ),
+        long_description_content_type="text/markdown",
+        packages=find_packages(include=["trading_calendars", "trading_calendars.*"]),
         install_requires=reqs,
         extras_require={
             "dev": [
@@ -87,6 +78,7 @@ if __name__ == '__main__':
                 "pytest-benchmark",
                 "parameterized",
                 "pytest-xdist",
+                "pip-tools",
             ],
         },
     )

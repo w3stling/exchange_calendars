@@ -15,7 +15,7 @@
 from trading_calendars.utils.memoize import lazyval
 
 
-class ZiplineCalendarError(Exception):
+class CalendarError(Exception):
     msg = None
 
     def __init__(self, **kwargs):
@@ -33,37 +33,37 @@ class ZiplineCalendarError(Exception):
     __repr__ = __str__
 
 
-class InvalidCalendarName(ZiplineCalendarError):
+class InvalidCalendarName(CalendarError):
     """
     Raised when a calendar with an invalid name is requested.
     """
-    msg = (
-        "The requested TradingCalendar, {calendar_name}, does not exist."
-    )
+
+    msg = "The requested TradingCalendar, {calendar_name}, does not exist."
 
 
-class CalendarNameCollision(ZiplineCalendarError):
+class CalendarNameCollision(CalendarError):
     """
     Raised when the static calendar registry already has a calendar with a
     given name.
     """
-    msg = (
-        "A calendar with the name {calendar_name} is already registered."
-    )
+
+    msg = "A calendar with the name {calendar_name} is already registered."
 
 
-class CyclicCalendarAlias(ZiplineCalendarError):
+class CyclicCalendarAlias(CalendarError):
     """
     Raised when calendar aliases form a cycle.
     """
+
     msg = "Cycle in calendar aliases: [{cycle}]"
 
 
-class ScheduleFunctionWithoutCalendar(ZiplineCalendarError):
+class ScheduleFunctionWithoutCalendar(CalendarError):
     """
     Raised when schedule_function is called but there is not a calendar to be
     used in the construction of an event rule.
     """
+
     # TODO update message when new TradingSchedules are built
     msg = (
         "To use schedule_function, the TradingAlgorithm must be running on an "
@@ -71,10 +71,11 @@ class ScheduleFunctionWithoutCalendar(ZiplineCalendarError):
     )
 
 
-class ScheduleFunctionInvalidCalendar(ZiplineCalendarError):
+class ScheduleFunctionInvalidCalendar(CalendarError):
     """
     Raised when schedule_function is called with an invalid calendar argument.
     """
+
     msg = (
         "Invalid calendar '{given_calendar}' passed to schedule_function. "
         "Allowed options are {allowed_calendars}."

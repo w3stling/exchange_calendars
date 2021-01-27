@@ -18,34 +18,23 @@
 # http://www.TeAra.govt.nz/en/public-holidays/print (accessed 22 December 2019)
 
 from datetime import time
-from pytz import UTC
-from pandas import Timestamp
 
+from pandas import Timestamp
 from pandas.tseries.holiday import (
+    MO,
     DateOffset,
     EasterMonday,
     GoodFriday,
     Holiday,
-    MO,
     next_monday,
     next_monday_or_tuesday,
     previous_workday,
     weekend_to_monday,
 )
-from pytz import timezone
+from pytz import UTC, timezone
 
-from .common_holidays import (
-    new_years_day,
-    anzac_day,
-    christmas,
-    boxing_day,
-)
-
-from .trading_calendar import (
-    TradingCalendar,
-    HolidayCalendar
-)
-
+from .common_holidays import anzac_day, boxing_day, christmas, new_years_day
+from .trading_calendar import HolidayCalendar, TradingCalendar
 
 # Prior to 2015, Waitangi Day and Anzac Day are not "Mondayized",
 # that is, if they occur on the weekend, there is no make-up.
@@ -122,17 +111,17 @@ BusinessDayPriorToNewYearsDay = Holiday(
 )
 
 # Further ad-hoc holidays and closures sourced from gaps in index series
-XMAS22DEC86 = Timestamp('1986-12-22', tz=UTC)
-XMAS23DEC86 = Timestamp('1986-12-23', tz=UTC)
-XMAS24DEC86 = Timestamp('1986-12-24', tz=UTC)
-XMAS29DEC86 = Timestamp('1986-12-29', tz=UTC)
-XMAS30DEC86 = Timestamp('1986-12-30', tz=UTC)
-XMAS31DEC86 = Timestamp('1986-12-31', tz=UTC)
-XMAS24DEC90 = Timestamp('1990-12-24', tz=UTC)
-XMAS31DEC90 = Timestamp('1990-12-31', tz=UTC)
-XMAS27DEC91 = Timestamp('1991-12-27', tz=UTC)
-NYDX03JAN92 = Timestamp('1992-01-03', tz=UTC)
-XMAS31DEC99 = Timestamp('1999-12-31', tz=UTC)
+XMAS22DEC86 = Timestamp("1986-12-22", tz=UTC)
+XMAS23DEC86 = Timestamp("1986-12-23", tz=UTC)
+XMAS24DEC86 = Timestamp("1986-12-24", tz=UTC)
+XMAS29DEC86 = Timestamp("1986-12-29", tz=UTC)
+XMAS30DEC86 = Timestamp("1986-12-30", tz=UTC)
+XMAS31DEC86 = Timestamp("1986-12-31", tz=UTC)
+XMAS24DEC90 = Timestamp("1990-12-24", tz=UTC)
+XMAS31DEC90 = Timestamp("1990-12-31", tz=UTC)
+XMAS27DEC91 = Timestamp("1991-12-27", tz=UTC)
+NYDX03JAN92 = Timestamp("1992-01-03", tz=UTC)
+XMAS31DEC99 = Timestamp("1999-12-31", tz=UTC)
 
 
 class XNZEExchangeCalendar(TradingCalendar):
@@ -158,52 +147,60 @@ class XNZEExchangeCalendar(TradingCalendar):
     - Business Day prior to Christmas Day
     - Business Day prior to New Year's Day
     """
+
     regular_early_close = time(12, 45)
 
-    name = 'XNZE'
+    name = "XNZE"
 
-    tz = timezone('NZ')
+    tz = timezone("NZ")
 
-    open_times = (
-        (None, time(10, 1)),
-    )
+    open_times = ((None, time(10, 1)),)
 
-    close_times = (
-        (None, time(16, 45)),
-    )
+    close_times = ((None, time(16, 45)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            DayAfterNewYearsDay,
-            WaitangiDayNonMondayized,
-            WaitangiDay,
-            GoodFriday,
-            EasterMonday,
-            AnzacDayNonMondayized,
-            AnzacDay,
-            QueensBirthday,
-            LabourDay,
-            Christmas,
-            BoxingDay,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                DayAfterNewYearsDay,
+                WaitangiDayNonMondayized,
+                WaitangiDay,
+                GoodFriday,
+                EasterMonday,
+                AnzacDayNonMondayized,
+                AnzacDay,
+                QueensBirthday,
+                LabourDay,
+                Christmas,
+                BoxingDay,
+            ]
+        )
 
     # add extra ad-hoc holidays
     @property
     def adhoc_holidays(self):
-        return [XMAS22DEC86, XMAS23DEC86, XMAS24DEC86, XMAS29DEC86,
-                XMAS30DEC86, XMAS31DEC86, XMAS24DEC90, XMAS31DEC90,
-                XMAS27DEC91, NYDX03JAN92, XMAS31DEC99]
+        return [
+            XMAS22DEC86,
+            XMAS23DEC86,
+            XMAS24DEC86,
+            XMAS29DEC86,
+            XMAS30DEC86,
+            XMAS31DEC86,
+            XMAS24DEC90,
+            XMAS31DEC90,
+            XMAS27DEC91,
+            NYDX03JAN92,
+            XMAS31DEC99,
+        ]
 
     @property
     def special_closes(self):
         return [
             (
                 self.regular_early_close,
-                HolidayCalendar([
-                    BusinessDayPriorToChristmasDay,
-                    BusinessDayPriorToNewYearsDay
-                ])
+                HolidayCalendar(
+                    [BusinessDayPriorToChristmasDay, BusinessDayPriorToNewYearsDay]
+                ),
             )
         ]

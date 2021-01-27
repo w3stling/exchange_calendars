@@ -14,14 +14,32 @@
 # limitations under the License.
 
 from datetime import time
+
 import pandas as pd
-from pytz import timezone, UTC
-from .trading_calendar import TradingCalendar, HolidayCalendar
-from .tase_holidays import (Purim, PassoverEve, Passover, Passover2Eve,
-                            Passover2, PentecostEve, Pentecost, FastDay,
-                            MemorialDay, IndependenceDay, NewYearsEve, NewYear,
-                            NewYear2, YomKippurEve, YomKippur, SukkothEve,
-                            Sukkoth, SimchatTorahEve, SimchatTorah)
+from pytz import UTC, timezone
+
+from .tase_holidays import (
+    FastDay,
+    IndependenceDay,
+    MemorialDay,
+    NewYear,
+    NewYear2,
+    NewYearsEve,
+    Passover,
+    Passover2,
+    Passover2Eve,
+    PassoverEve,
+    Pentecost,
+    PentecostEve,
+    Purim,
+    SimchatTorah,
+    SimchatTorahEve,
+    Sukkoth,
+    SukkothEve,
+    YomKippur,
+    YomKippurEve,
+)
+from .trading_calendar import HolidayCalendar, TradingCalendar
 
 # All holidays are defined as ad-hoc holidays for each year since there is
 # currently no support for Hebrew calendar holiday rules in pandas.
@@ -67,60 +85,59 @@ class XTAEExchangeCalendar(TradingCalendar):
     Daylight Saving time period the clock will be UTC+3, and UTC+2 for the rest
     of the year.
     """  # noqa
-    start_date = pd.Timestamp('2019-01-01', tz=UTC)
 
-    name = 'XTAE'
+    start_date = pd.Timestamp("2019-01-01", tz=UTC)
 
-    tz = timezone('Asia/Tel_Aviv')
+    name = "XTAE"
 
-    open_times = (
-        (None, time(10, 0)),
-    )
+    tz = timezone("Asia/Tel_Aviv")
 
-    close_times = (
-        (None, time(17, 15)),
-    )
+    open_times = ((None, time(10, 0)),)
+
+    close_times = ((None, time(17, 15)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            Purim,
-            PassoverEve,
-            Passover,
-            Passover2Eve,
-            Passover2,
-            MemorialDay,
-            IndependenceDay,
-            PentecostEve,
-            Pentecost,
-            FastDay,
-            NewYearsEve,
-            NewYear,
-            NewYear2,
-            YomKippurEve,
-            YomKippur,
-            SukkothEve,
-            Sukkoth,
-            SimchatTorahEve,
-            SimchatTorah
-        ])
+        return HolidayCalendar(
+            [
+                Purim,
+                PassoverEve,
+                Passover,
+                Passover2Eve,
+                Passover2,
+                MemorialDay,
+                IndependenceDay,
+                PentecostEve,
+                Pentecost,
+                FastDay,
+                NewYearsEve,
+                NewYear,
+                NewYear2,
+                YomKippurEve,
+                YomKippur,
+                SukkothEve,
+                Sukkoth,
+                SimchatTorahEve,
+                SimchatTorah,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
         return [
             # 2019
             # Election Day
-            pd.Timestamp('2019-04-09', tz='Asia/Jerusalem'),
+            pd.Timestamp("2019-04-09", tz="Asia/Jerusalem"),
             # Election Day
-            pd.Timestamp('2019-09-17', tz='Asia/Jerusalem'),
+            pd.Timestamp("2019-09-17", tz="Asia/Jerusalem"),
             # 2020
             # Election Day
-            pd.Timestamp('2020-03-02', tz='Asia/Jerusalem'),
+            pd.Timestamp("2020-03-02", tz="Asia/Jerusalem"),
             # 2021
             # Election Day
-            pd.Timestamp('2021-03-23', tz='Asia/Jerusalem')
+            pd.Timestamp("2021-03-23", tz="Asia/Jerusalem"),
         ]
 
     @property
     def weekmask(self):
-        return '1111001'
+        return "1111001"

@@ -2,6 +2,7 @@ import itertools
 
 import pandas as pd
 from pytz import UTC
+
 from trading_calendars import get_calendar
 from trading_calendars.calendar_utils import (
     TradingCalendarDispatcher,

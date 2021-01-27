@@ -15,24 +15,19 @@
 
 from datetime import time
 
-from pandas.tseries.holiday import (
-    Holiday,
-    GoodFriday,
-    Easter,
-    EasterMonday,
-)
+from pandas.tseries.holiday import Easter, EasterMonday, GoodFriday, Holiday
 from pandas.tseries.offsets import Day
 from pytz import timezone
 
 from .common_holidays import (
-    new_years_day,
-    maundy_thursday,
     ascension_day,
-    whit_monday,
-    christmas_eve,
-    christmas,
     boxing_day,
+    christmas,
+    christmas_eve,
+    maundy_thursday,
+    new_years_day,
     new_years_eve,
+    whit_monday,
 )
 from .trading_calendar import HolidayCalendar, TradingCalendar
 
@@ -40,22 +35,22 @@ NewYearsDay = new_years_day()
 
 MaundyThursday = maundy_thursday()
 GeneralPrayerDay = Holiday(
-    'General Prayer Day',
+    "General Prayer Day",
     month=1,
     day=1,
     offset=[Easter(), Day(26)],
 )
 AscensionDay = ascension_day()
 BankHoliday = Holiday(
-    'Bank Holiday',
+    "Bank Holiday",
     month=1,
     day=1,
     offset=[Easter(), Day(40)],
-    start_date='2009',
+    start_date="2009",
 )
 WhitMonday = whit_monday()
 
-ConstitutionDay = Holiday('Constitution Day', month=6, day=5)
+ConstitutionDay = Holiday("Constitution Day", month=6, day=5)
 
 ChristmasEve = christmas_eve()
 Christmas = christmas()
@@ -89,29 +84,28 @@ class XCSEExchangeCalendar(TradingCalendar):
     Early Closes:
       - None
     """
-    name = 'XCSE'
-    tz = timezone('Europe/Copenhagen')
-    open_times = (
-        (None, time(9, 1)),
-    )
-    close_times = (
-        (None, time(17)),
-    )
+
+    name = "XCSE"
+    tz = timezone("Europe/Copenhagen")
+    open_times = ((None, time(9, 1)),)
+    close_times = ((None, time(17)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            MaundyThursday,
-            GoodFriday,
-            EasterMonday,
-            GeneralPrayerDay,
-            AscensionDay,
-            BankHoliday,
-            WhitMonday,
-            ConstitutionDay,
-            ChristmasEve,
-            Christmas,
-            BoxingDay,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                MaundyThursday,
+                GoodFriday,
+                EasterMonday,
+                GeneralPrayerDay,
+                AscensionDay,
+                BankHoliday,
+                WhitMonday,
+                ConstitutionDay,
+                ChristmasEve,
+                Christmas,
+                BoxingDay,
+                NewYearsEve,
+            ]
+        )

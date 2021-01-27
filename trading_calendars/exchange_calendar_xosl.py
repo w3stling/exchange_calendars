@@ -15,33 +15,33 @@
 
 from datetime import time
 
-from pandas.tseries.holiday import Holiday, GoodFriday, EasterMonday
+from pandas.tseries.holiday import EasterMonday, GoodFriday, Holiday
 from pytz import timezone
 
 from .common_holidays import (
-    new_years_day,
+    ascension_day,
+    boxing_day,
+    christmas,
+    christmas_eve,
+    european_labour_day,
     holy_wednesday,
     maundy_thursday,
-    ascension_day,
-    whit_monday,
-    european_labour_day,
-    christmas_eve,
-    christmas,
-    boxing_day,
+    new_years_day,
     new_years_eve,
+    whit_monday,
 )
-from .trading_calendar import HolidayCalendar, TradingCalendar, WEEKDAYS
+from .trading_calendar import WEEKDAYS, HolidayCalendar, TradingCalendar
 
 NewYearsDay = new_years_day()
 
-HolyWednesday = holy_wednesday(start_date='2011', days_of_week=WEEKDAYS)
+HolyWednesday = holy_wednesday(start_date="2011", days_of_week=WEEKDAYS)
 MaundyThursday = maundy_thursday()
 AscensionDay = ascension_day()
 WhitMonday = whit_monday()
 
 LabourDay = european_labour_day()
 
-ConstitutionDay = Holiday('Constitution Day', month=5, day=17)
+ConstitutionDay = Holiday("Constitution Day", month=5, day=17)
 
 ChristmasEve = christmas_eve()
 Christmas = christmas()
@@ -74,32 +74,31 @@ class XOSLExchangeCalendar(TradingCalendar):
     Early Closes:
       - Holy Wednesday
     """
-    name = 'XOSL'
-    tz = timezone('Europe/Oslo')
-    open_times = (
-        (None, time(9, 1)),
-    )
-    close_times = (
-        (None, time(16, 20)),
-    )
+
+    name = "XOSL"
+    tz = timezone("Europe/Oslo")
+    open_times = ((None, time(9, 1)),)
+    close_times = ((None, time(16, 20)),)
     regular_early_close = time(13)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            MaundyThursday,
-            GoodFriday,
-            EasterMonday,
-            LabourDay,
-            AscensionDay,
-            ConstitutionDay,
-            WhitMonday,
-            ChristmasEve,
-            Christmas,
-            BoxingDay,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                MaundyThursday,
+                GoodFriday,
+                EasterMonday,
+                LabourDay,
+                AscensionDay,
+                ConstitutionDay,
+                WhitMonday,
+                ChristmasEve,
+                Christmas,
+                BoxingDay,
+                NewYearsEve,
+            ]
+        )
 
     @property
     def special_closes(self):

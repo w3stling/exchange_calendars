@@ -1,14 +1,8 @@
-from dateutil.relativedelta import MO
 from datetime import timedelta
-from pandas import (
-    Timestamp,
-    DateOffset,
-)
 
-from pandas.tseries.holiday import (
-    Holiday,
-    sunday_to_monday,
-)
+from dateutil.relativedelta import MO
+from pandas import DateOffset, Timestamp
+from pandas.tseries.holiday import Holiday, sunday_to_monday
 
 from .common_holidays import new_years_day
 from .trading_calendar import SUNDAY
@@ -67,28 +61,28 @@ NationalFoundationDay = Holiday(
 # For the list of equinoxes going back to 2000, see:
 # https://www.timeanddate.com/holidays/japan/
 VernalEquinoxes = [
-    Timestamp('2000-03-20'),
-    Timestamp('2001-03-20'),
-    Timestamp('2002-03-21'),
-    Timestamp('2003-03-21'),
-    Timestamp('2004-03-20'),
-    Timestamp('2005-03-21'),
-    Timestamp('2006-03-21'),
-    Timestamp('2007-03-21'),
-    Timestamp('2008-03-20'),
-    Timestamp('2009-03-20'),
-    Timestamp('2010-03-22'),
-    Timestamp('2011-03-21'),
-    Timestamp('2012-03-20'),
-    Timestamp('2013-03-20'),
-    Timestamp('2014-03-21'),
-    Timestamp('2015-03-21'),
-    Timestamp('2016-03-21'),
-    Timestamp('2017-03-20'),
-    Timestamp('2018-03-21'),
-    Timestamp('2019-03-21'),
-    Timestamp('2020-03-20'),
-    Timestamp('2021-03-20'),
+    Timestamp("2000-03-20"),
+    Timestamp("2001-03-20"),
+    Timestamp("2002-03-21"),
+    Timestamp("2003-03-21"),
+    Timestamp("2004-03-20"),
+    Timestamp("2005-03-21"),
+    Timestamp("2006-03-21"),
+    Timestamp("2007-03-21"),
+    Timestamp("2008-03-20"),
+    Timestamp("2009-03-20"),
+    Timestamp("2010-03-22"),
+    Timestamp("2011-03-21"),
+    Timestamp("2012-03-20"),
+    Timestamp("2013-03-20"),
+    Timestamp("2014-03-21"),
+    Timestamp("2015-03-21"),
+    Timestamp("2016-03-21"),
+    Timestamp("2017-03-20"),
+    Timestamp("2018-03-21"),
+    Timestamp("2019-03-21"),
+    Timestamp("2020-03-20"),
+    Timestamp("2021-03-20"),
 ]
 
 # The Golden Week holidays (late April - early May) are listed in reverse
@@ -114,15 +108,12 @@ GreeneryDay2007Onwards = Holiday(
     "Greenery Day",
     month=5,
     day=4,
-    start_date='2007-01-01',
+    start_date="2007-01-01",
     observance=sunday_to_tuesday,
 )
 
 CitizensHolidayGoldenWeek = Holiday(
-    "Citizen's Holiday Golden Week",
-    month=5,
-    day=4,
-    end_date='2007-01-01'
+    "Citizen's Holiday Golden Week", month=5, day=4, end_date="2007-01-01"
 )
 
 # In 2007, April 29 was changed from Greenery Day to Showa Day,
@@ -131,7 +122,7 @@ GreeneryDayThrough2006 = Holiday(
     "Greenery Day",
     month=4,
     day=29,
-    end_date='2007-01-01',
+    end_date="2007-01-01",
     observance=sunday_to_monday,
 )
 
@@ -139,7 +130,7 @@ ShowaDay = Holiday(
     "Showa Day",
     month=4,
     day=29,
-    start_date='2007-01-01',
+    start_date="2007-01-01",
     observance=sunday_to_monday,
 )
 
@@ -148,7 +139,7 @@ ConstitutionMemorialDay2007Onwards = Holiday(
     "Constitution Memorial Day",
     month=5,
     day=3,
-    start_date='2007-01-01',
+    start_date="2007-01-01",
     observance=sunday_to_wednesday,
 )
 
@@ -157,7 +148,7 @@ ConstitutionMemorialDayThrough2006 = Holiday(
     "Constituion Memorial Day",
     month=5,
     day=3,
-    end_date='2007-01-01',
+    end_date="2007-01-01",
     observance=sunday_to_tuesday,
 )
 
@@ -166,7 +157,7 @@ MarineDayThrough2002 = Holiday(
     "Marine Day (through 2002)",
     month=7,
     day=20,
-    end_date='2003-01-01',
+    end_date="2003-01-01",
     observance=sunday_to_monday,
 )
 
@@ -175,8 +166,8 @@ MarineDay2003OnwardsThrough2019 = Holiday(
     month=7,
     day=1,
     offset=DateOffset(weekday=MO(3)),
-    start_date='2003-01-01',
-    end_date='2020-01-01',
+    start_date="2003-01-01",
+    end_date="2020-01-01",
 )
 
 # Changed due to Tokyo Olympics
@@ -199,15 +190,15 @@ MarineDay2022Onwards = Holiday(
     month=7,
     day=1,
     offset=DateOffset(weekday=MO(3)),
-    start_date='2022-01-01',
+    start_date="2022-01-01",
 )
 
 MountainDayThrough2019 = Holiday(
     "Mountain Day (through 2019)",
     month=8,
     day=11,
-    start_date='2016-01-01',
-    end_date='2020-01-01',
+    start_date="2016-01-01",
+    end_date="2020-01-01",
     observance=sunday_to_monday,
 )
 
@@ -236,28 +227,28 @@ MountainDay2022Onwards = Holiday(
 
 # See note on equinoxes above VernalEquinoxes
 AutumnalEquinoxes = [
-    Timestamp('2000-09-23'),
-    Timestamp('2001-09-24'),
-    Timestamp('2002-09-23'),
-    Timestamp('2003-09-23'),
-    Timestamp('2004-09-23'),
-    Timestamp('2005-09-23'),
-    Timestamp('2006-09-23'),
-    Timestamp('2007-09-24'),
-    Timestamp('2008-09-23'),
-    Timestamp('2009-09-23'),
-    Timestamp('2010-09-23'),
-    Timestamp('2011-09-23'),
-    Timestamp('2012-09-22'),
-    Timestamp('2013-09-23'),
-    Timestamp('2014-09-23'),
-    Timestamp('2015-09-23'),
-    Timestamp('2016-09-22'),
-    Timestamp('2017-09-23'),
-    Timestamp('2018-09-24'),
-    Timestamp('2019-09-23'),
-    Timestamp('2020-09-22'),
-    Timestamp('2021-09-23'),
+    Timestamp("2000-09-23"),
+    Timestamp("2001-09-24"),
+    Timestamp("2002-09-23"),
+    Timestamp("2003-09-23"),
+    Timestamp("2004-09-23"),
+    Timestamp("2005-09-23"),
+    Timestamp("2006-09-23"),
+    Timestamp("2007-09-24"),
+    Timestamp("2008-09-23"),
+    Timestamp("2009-09-23"),
+    Timestamp("2010-09-23"),
+    Timestamp("2011-09-23"),
+    Timestamp("2012-09-22"),
+    Timestamp("2013-09-23"),
+    Timestamp("2014-09-23"),
+    Timestamp("2015-09-23"),
+    Timestamp("2016-09-22"),
+    Timestamp("2017-09-23"),
+    Timestamp("2018-09-24"),
+    Timestamp("2019-09-23"),
+    Timestamp("2020-09-22"),
+    Timestamp("2021-09-23"),
 ]
 
 # If the Autumnal Equinox falls on a Wednesday, the Tuesday before
@@ -265,15 +256,15 @@ AutumnalEquinoxes = [
 # the Aged Day and the Autumnal Equinox. For more info, see:
 # https://en.wikipedia.org/wiki/Silver_Week
 CitizensHolidaySilverWeek = [
-    Timestamp('2009-09-22'),
-    Timestamp('2015-09-22'),
+    Timestamp("2009-09-22"),
+    Timestamp("2015-09-22"),
 ]
 
 RespectForTheAgedDayThrough2002 = Holiday(
     "Respect for the Aged Day (through 2002)",
     month=9,
     day=15,
-    end_date='2003-01-01',
+    end_date="2003-01-01",
     observance=sunday_to_monday,
 )
 
@@ -282,7 +273,7 @@ RespectForTheAgedDay2003Onwards = Holiday(
     month=9,
     day=1,
     offset=DateOffset(weekday=MO(3)),
-    start_date='2003-01-01',
+    start_date="2003-01-01",
 )
 
 HealthAndSportsDayThrough2019 = Holiday(
@@ -356,8 +347,8 @@ NewYearsHolidayDec31 = Holiday(
 )
 
 Misc2019Holidays = [
-    Timestamp('2019-04-30'),  # Abdication Day
-    Timestamp('2019-05-01'),  # Accession Day
-    Timestamp('2019-05-02'),  # Citizen's Holiday
-    Timestamp('2019-10-22'),  # Enthronement Ceremony
+    Timestamp("2019-04-30"),  # Abdication Day
+    Timestamp("2019-05-01"),  # Accession Day
+    Timestamp("2019-05-02"),  # Citizen's Holiday
+    Timestamp("2019-10-22"),  # Enthronement Ceremony
 ]

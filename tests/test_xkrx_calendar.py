@@ -1,14 +1,14 @@
 from unittest import TestCase
 
+from trading_calendars.exchange_calendar_xkrx import XKRXExchangeCalendar
+
 from .test_trading_calendar import NoDSTExchangeCalendarTestBase
 from .test_utils import T
-
-from trading_calendars.exchange_calendar_xkrx import XKRXExchangeCalendar
 
 
 class XKRXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):
 
-    answer_key_filename = 'xkrx'
+    answer_key_filename = "xkrx"
     calendar_class = XKRXExchangeCalendar
 
     # Korea exchange is open from 9am to 3:30pm
@@ -42,25 +42,25 @@ class XKRXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):
     def test_constrain_construction_dates(self):
         # the XKRX calendar currently goes from 1986 to 2021, inclusive.
         with self.assertRaises(ValueError) as e:
-            self.calendar_class(T('1985-12-31'), T('2005-01-01'))
+            self.calendar_class(T("1985-12-31"), T("2005-01-01"))
 
         self.assertEqual(
             str(e.exception),
             (
-                'The XKRX holidays are only recorded back to 1986,'
-                ' cannot instantiate the XKRX calendar back to 1985.'
-            )
+                "The XKRX holidays are only recorded back to 1986,"
+                " cannot instantiate the XKRX calendar back to 1985."
+            ),
         )
 
         with self.assertRaises(ValueError) as e:
-            self.calendar_class(T('2005-01-01'), T('2022-01-03'))
+            self.calendar_class(T("2005-01-01"), T("2022-01-03"))
 
         self.assertEqual(
             str(e.exception),
             (
-                'The XKRX holidays are only recorded to 2021,'
-                ' cannot instantiate the XKRX calendar for 2022.'
-            )
+                "The XKRX holidays are only recorded to 2021,"
+                " cannot instantiate the XKRX calendar for 2022."
+            ),
         )
 
     def test_holidays_fall_on_weekend(self):
@@ -68,7 +68,7 @@ class XKRXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):
         # not be made up during the week.
         expected_holidays = [
             # Memorial Day on Sunday
-            T('2010-06-06'),
+            T("2010-06-06"),
         ]
 
         for session_label in expected_holidays:
@@ -77,12 +77,12 @@ class XKRXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):
         expected_sessions = [
             # National Foundation Day on a Saturday, so check
             # Friday and Monday surrounding it
-            T('2015-10-02'),
-            T('2015-10-05'),
+            T("2015-10-02"),
+            T("2015-10-05"),
             # Christmas Day on a Saturday
             # Same as Foundation Day idea
-            T('2010-12-24'),
-            T('2010-12-27'),
+            T("2010-12-24"),
+            T("2010-12-27"),
         ]
 
         for session_label in expected_sessions:
@@ -94,13 +94,13 @@ class XKRXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):
             # Chuseok (Korean Thanksgiving) falls on Sunday through Wednesday
             # but Wednesday (below) the exchange is closed; meant to give
             # people an extra day off rather than letting the Sunday count
-            T('2014-09-10'),
+            T("2014-09-10"),
             # Chuseok (Korean Thanksgiving) falls on Saturday through Tuesday
             # but Tuesday (below) the exchange is closed; meant to give
             # people an extra day off rather than letting the Saturday count
-            T('2015-09-29'),
+            T("2015-09-29"),
             # Chuseok again; similar reasoning as above
-            T('2017-10-06'),
+            T("2017-10-06"),
         ]
 
         for session_label in expected_holidays:
@@ -108,10 +108,8 @@ class XKRXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):
 
     def test_hangeul_day_2013_onwards(self):
 
-        expected_hangeul_day = T('2013-10-09')
-        unexpected_hangeul_day = T('2012-10-09')
+        expected_hangeul_day = T("2013-10-09")
+        unexpected_hangeul_day = T("2012-10-09")
 
         self.assertTrue(expected_hangeul_day not in self.calendar.all_sessions)
-        self.assertTrue(
-            unexpected_hangeul_day in self.calendar.all_sessions
-        )
+        self.assertTrue(unexpected_hangeul_day in self.calendar.all_sessions)

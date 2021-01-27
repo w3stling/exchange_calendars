@@ -14,29 +14,21 @@
 # limitations under the License.
 
 from datetime import time, timedelta
-from pandas.tseries.holiday import (
-    Easter,
-    EasterMonday,
-    Holiday,
-)
+
+from pandas.tseries.holiday import Easter, EasterMonday, Holiday
 from pandas.tseries.offsets import Day
 from pytz import timezone
 
 from .common_holidays import (
-    new_years_day,
-    new_years_eve,
-    european_labour_day,
+    all_saints_day,
     christmas,
     christmas_eve,
-    all_saints_day,
+    european_labour_day,
+    new_years_day,
+    new_years_eve,
     whit_monday,
 )
-from .trading_calendar import (
-    TradingCalendar,
-    HolidayCalendar,
-    TUESDAY,
-    THURSDAY,
-)
+from .trading_calendar import THURSDAY, TUESDAY, HolidayCalendar, TradingCalendar
 
 
 def four_day_weekend(dt):
@@ -54,19 +46,12 @@ def four_day_weekend(dt):
 NewYearsDay = new_years_day(observance=four_day_weekend)
 
 NationalHoliday1 = Holiday(
-    'National Holiday 1',
-    month=3,
-    day=15,
-    observance=four_day_weekend
+    "National Holiday 1", month=3, day=15, observance=four_day_weekend
 )
 
 # Need custom start year so can't use pandas GoodFriday
 GoodFriday = Holiday(
-    "Good Friday",
-    month=1,
-    day=1,
-    offset=[Easter(), Day(-2)],
-    start_date='2012'
+    "Good Friday", month=1, day=1, offset=[Easter(), Day(-2)], start_date="2012"
 )
 
 LabourDay = european_labour_day(observance=four_day_weekend)
@@ -81,7 +66,7 @@ StStephensDay = Holiday(
 )
 
 NationalHoliday2 = Holiday(
-    'National Holiday 2',
+    "National Holiday 2",
     month=10,
     day=23,
     observance=four_day_weekend,
@@ -98,17 +83,17 @@ ChristmasDay = christmas()
 # but starting in 2013 if the 26th falls on a Thursday then the
 # 27th (Friday) is also taken off
 SecondDayOfChristmas = Holiday(
-    'Second Day of Christmas (w/ no added Friday off)',
+    "Second Day of Christmas (w/ no added Friday off)",
     month=12,
     day=26,
-    end_date='2013',
+    end_date="2013",
 )
 
 SecondDayOfChristmasAddFriday = Holiday(
-    'Second Day of Christmas (w/ added Friday off)',
+    "Second Day of Christmas (w/ added Friday off)",
     month=12,
     day=26,
-    start_date='2013',
+    start_date="2013",
     observance=four_day_weekend,
 )
 
@@ -117,7 +102,7 @@ SecondDayOfChristmasAddFriday = Holiday(
 # weekend rule (when Jan 1 falls on a Tuesday).
 # Also, when NYE starts being observed as a holiday it does NOT follow
 # the four day weekend rule (no 30ths are holidays)
-NewYearsEve = new_years_eve(start_date='2011')
+NewYearsEve = new_years_eve(start_date="2011")
 
 
 class XBUDExchangeCalendar(TradingCalendar):
@@ -145,33 +130,32 @@ class XBUDExchangeCalendar(TradingCalendar):
     Early Closes:
     - None
     """
-    name = 'XBUD'
 
-    tz = timezone('Europe/Budapest')
+    name = "XBUD"
 
-    open_times = (
-        (None, time(9, 1)),
-    )
+    tz = timezone("Europe/Budapest")
 
-    close_times = (
-        (None, time(17, 00)),
-    )
+    open_times = ((None, time(9, 1)),)
+
+    close_times = ((None, time(17, 00)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            NationalHoliday1,
-            GoodFriday,
-            EasterMonday,
-            LabourDay,
-            WhitMonday,
-            StStephensDay,
-            NationalHoliday2,
-            AllSaintsDay,
-            ChristmasEve,
-            ChristmasDay,
-            SecondDayOfChristmas,
-            SecondDayOfChristmasAddFriday,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                NationalHoliday1,
+                GoodFriday,
+                EasterMonday,
+                LabourDay,
+                WhitMonday,
+                StStephensDay,
+                NationalHoliday2,
+                AllSaintsDay,
+                ChristmasEve,
+                ChristmasDay,
+                SecondDayOfChristmas,
+                SecondDayOfChristmasAddFriday,
+                NewYearsEve,
+            ]
+        )

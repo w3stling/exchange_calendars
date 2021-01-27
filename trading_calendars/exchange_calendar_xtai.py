@@ -15,6 +15,7 @@
 
 from datetime import time, timedelta
 from itertools import chain
+
 import pandas as pd
 from pandas.tseries.holiday import (
     Holiday,
@@ -25,23 +26,20 @@ from pandas.tseries.holiday import (
 )
 from pytz import timezone
 
-from .common_holidays import (
-    european_labour_day,
-    new_years_day,
-)
+from .common_holidays import european_labour_day, new_years_day
 from .lunisolar_holidays import (
     chinese_lunar_new_year_dates,
-    qingming_festival_dates,
     dragon_boat_festival_dates,
     mid_autumn_festival_dates,
+    qingming_festival_dates,
 )
 from .trading_calendar import (
-    TradingCalendar,
-    HolidayCalendar,
-    TUESDAY,
-    THURSDAY,
     SATURDAY,
     SUNDAY,
+    THURSDAY,
+    TUESDAY,
+    HolidayCalendar,
+    TradingCalendar,
 )
 
 
@@ -50,11 +48,7 @@ def before_chinese_new_year_offset(holidays):
     For Holidays that come before Chinese New Year, we subtract a day
     and then move any weekends to previous friday.
     """
-    return pd.to_datetime(
-        holidays.map(
-            lambda d: previous_friday(d)
-        )
-    )
+    return pd.to_datetime(holidays.map(lambda d: previous_friday(d)))
 
 
 def chinese_new_year_offset(holidays):
@@ -62,11 +56,7 @@ def chinese_new_year_offset(holidays):
     For Holidays on or after Chinese New Year, we add a day
     and then move any weekends to next monday.
     """
-    return pd.to_datetime(
-        holidays.map(
-            lambda d: next_monday(d)
-        )
-    )
+    return pd.to_datetime(holidays.map(lambda d: next_monday(d)))
 
 
 def nearest_workday_after_2013(dt):
@@ -81,11 +71,7 @@ def manual_nearest_workday(holidays):
     Nearest workday observance rule for Chinese lunar calendar holidays.
     The nearest workday rule seems to start in 2014 for these holidays.
     """
-    return pd.to_datetime(
-        holidays.map(
-            lambda d: nearest_workday_after_2013(d)
-        )
-    )
+    return pd.to_datetime(holidays.map(lambda d: nearest_workday_after_2013(d)))
 
 
 def manual_extra_days(holidays):
@@ -94,13 +80,11 @@ def manual_extra_days(holidays):
     The four day weekend rule seem to start in 2007 for these holidays.
     """
     friday_extras = [
-        d + timedelta(1) for d in holidays
-        if d.weekday() == THURSDAY and d.year > 2006
+        d + timedelta(1) for d in holidays if d.weekday() == THURSDAY and d.year > 2006
     ]
 
     monday_extras = [
-        d - timedelta(1) for d in holidays
-        if d.weekday() == TUESDAY and d.year > 2006
+        d - timedelta(1) for d in holidays if d.weekday() == TUESDAY and d.year > 2006
     ]
 
     return pd.to_datetime(friday_extras + monday_extras)
@@ -135,7 +119,7 @@ def taiwan_makeup_rule(holidays):
 NewYearsDay = new_years_day(observance=taiwan_makeup_rule)
 
 PeaceMemorialDay = Holiday(
-    'Peace Memorial Day',
+    "Peace Memorial Day",
     month=2,
     day=28,
     observance=taiwan_makeup_rule,
@@ -145,14 +129,14 @@ WomenAndChildrensDay = Holiday(
     "Women and Children's Day",
     month=4,
     day=4,
-    start_date='2011',
+    start_date="2011",
     observance=taiwan_makeup_rule,
 )
 
 LabourDay = european_labour_day(observance=sunday_to_monday)
 
 NationalDay = Holiday(
-    'National Day of the Republic of China',
+    "National Day of the Republic of China",
     month=10,
     day=10,
     observance=taiwan_makeup_rule,
@@ -192,70 +176,76 @@ mid_autumn_festival_extras = manual_extra_days(mid_autumn_festival)
 
 # Taiwan takes multiple days off before and after chinese new year,
 # and sometimes it is unclear precisely which days will be holidays.
-chinese_new_year_extras = pd.to_datetime([
-    '2002-02-07',
-    '2002-02-15',
-    '2003-01-29',
-    '2004-01-19',
-    '2005-02-04',
-    '2006-02-02',
-    '2007-02-22',
-    '2007-02-23',
-    '2008-02-04',
-    '2009-01-29',
-    '2009-01-30',
-    '2010-02-18',
-    '2010-02-19',
-    '2011-01-31',
-    '2012-01-26',
-    '2012-01-27',
-    '2013-02-14',
-    '2013-02-15',
-    '2014-01-28',
-    '2015-02-16',
-    '2016-02-11',
-    '2016-02-12',
-    '2017-01-25',
-    '2018-02-13',
-    '2019-01-31',
-    '2019-02-08',
-    '2020-01-21',
-    '2020-01-22',
-])
+chinese_new_year_extras = pd.to_datetime(
+    [
+        "2002-02-07",
+        "2002-02-15",
+        "2003-01-29",
+        "2004-01-19",
+        "2005-02-04",
+        "2006-02-02",
+        "2007-02-22",
+        "2007-02-23",
+        "2008-02-04",
+        "2009-01-29",
+        "2009-01-30",
+        "2010-02-18",
+        "2010-02-19",
+        "2011-01-31",
+        "2012-01-26",
+        "2012-01-27",
+        "2013-02-14",
+        "2013-02-15",
+        "2014-01-28",
+        "2015-02-16",
+        "2016-02-11",
+        "2016-02-12",
+        "2017-01-25",
+        "2018-02-13",
+        "2019-01-31",
+        "2019-02-08",
+        "2020-01-21",
+        "2020-01-22",
+    ]
+)
 
 # Some abnormal observances of regularly observed holidays.
-extra_holidays = pd.to_datetime([
-    '2020-04-02',  # Tomb Sweeping Day
-    '2016-04-05',  # Tomb Sweeping Day
-    '2012-12-31',  # New Year's Eve
-    '2012-02-27',  # Peace Memorial Day
-    '2009-01-02',  # New Year's Day
-    '2006-10-09',  # National Day
-    '2005-09-01',  # Bank Holiday
-])
+extra_holidays = pd.to_datetime(
+    [
+        "2020-04-02",  # Tomb Sweeping Day
+        "2016-04-05",  # Tomb Sweeping Day
+        "2012-12-31",  # New Year's Eve
+        "2012-02-27",  # Peace Memorial Day
+        "2009-01-02",  # New Year's Day
+        "2006-10-09",  # National Day
+        "2005-09-01",  # Bank Holiday
+    ]
+)
 
-typhoons = pd.to_datetime([
-    '2019-09-30',
-    '2019-08-09',
-    '2016-09-28',
-    '2016-09-27',
-    '2016-07-08',
-    '2015-09-29',
-    '2015-07-10',
-    '2014-07-23',
-    '2013-08-21',
-    '2012-08-02',
-    '2009-08-07',
-    '2008-09-29',
-    '2008-07-28',
-    '2007-09-18',
-    '2005-08-05',
-    '2005-07-18',
-    '2004-10-25',
-    '2004-08-25',
-    '2004-08-24',
-    '2002-09-06',
-])
+typhoons = pd.to_datetime(
+    [
+        "2019-09-30",
+        "2019-08-09",
+        "2016-09-28",
+        "2016-09-27",
+        "2016-07-08",
+        "2015-09-29",
+        "2015-07-10",
+        "2014-07-23",
+        "2013-08-21",
+        "2012-08-02",
+        "2009-08-07",
+        "2008-09-29",
+        "2008-07-28",
+        "2007-09-18",
+        "2005-08-05",
+        "2005-07-18",
+        "2004-10-25",
+        "2004-08-25",
+        "2004-08-24",
+        "2002-09-06",
+    ]
+)
 
 
 class XTAIExchangeCalendar(TradingCalendar):
@@ -281,43 +271,44 @@ class XTAIExchangeCalendar(TradingCalendar):
     Early Closes:
     - None
     """
-    name = 'XTAI'
 
-    tz = timezone('Asia/Taipei')
+    name = "XTAI"
 
-    open_times = (
-        (None, time(9, 1)),
-    )
+    tz = timezone("Asia/Taipei")
 
-    close_times = (
-        (None, time(13, 30)),
-    )
+    open_times = ((None, time(9, 1)),)
+
+    close_times = ((None, time(13, 30)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            PeaceMemorialDay,
-            WomenAndChildrensDay,
-            LabourDay,
-            NationalDay,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                PeaceMemorialDay,
+                WomenAndChildrensDay,
+                LabourDay,
+                NationalDay,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
-        return list(chain(
-            extra_holidays,
-            typhoons,
-            chinese_new_years_eve,
-            chinese_new_years_eve_2,
-            chinese_new_year,
-            chinese_new_year_2,
-            chinese_new_year_3,
-            chinese_new_year_extras,
-            tomb_sweeping_day,
-            tomb_sweeping_day_extras,
-            dragon_boat_festival,
-            dragon_boat_festival_extras,
-            mid_autumn_festival,
-            mid_autumn_festival_extras,
-        ))
+        return list(
+            chain(
+                extra_holidays,
+                typhoons,
+                chinese_new_years_eve,
+                chinese_new_years_eve_2,
+                chinese_new_year,
+                chinese_new_year_2,
+                chinese_new_year_3,
+                chinese_new_year_extras,
+                tomb_sweeping_day,
+                tomb_sweeping_day_extras,
+                dragon_boat_festival,
+                dragon_boat_festival_extras,
+                mid_autumn_festival,
+                mid_autumn_festival_extras,
+            )
+        )

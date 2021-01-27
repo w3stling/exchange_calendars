@@ -1,14 +1,16 @@
 from unittest import TestCase
+
 import pandas as pd
 from pytz import UTC
 
-from .test_trading_calendar import ExchangeCalendarTestBase
 from trading_calendars.exchange_calendar_xswx import XSWXExchangeCalendar
+
+from .test_trading_calendar import ExchangeCalendarTestBase
 
 
 class XSWXCalendarTestCase(ExchangeCalendarTestBase, TestCase):
 
-    answer_key_filename = 'xswx'
+    answer_key_filename = "xswx"
     calendar_class = XSWXExchangeCalendar
 
     # The XSWX is open from 9:00 am to 5:30 pm.

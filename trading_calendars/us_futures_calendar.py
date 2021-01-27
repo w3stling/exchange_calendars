@@ -2,17 +2,11 @@ from datetime import time
 
 from pandas import Timedelta, Timestamp
 from pandas.tseries.holiday import GoodFriday
-from pytz import timezone
-from pytz import UTC
+from pytz import UTC, timezone
 
-from trading_calendars import TradingCalendar
-from trading_calendars.trading_calendar import (
-    HolidayCalendar, end_default
-)
-from trading_calendars.us_holidays import (
-    USNewYearsDay,
-    Christmas
-)
+from .trading_calendar import TradingCalendar
+from trading_calendars.trading_calendar import HolidayCalendar, end_default
+from trading_calendars.us_holidays import Christmas, USNewYearsDay
 
 # Number of hours of offset between the open and close times dictated by this
 # calendar versus the 6:31am to 5:00pm times over which we want to simulate
@@ -41,23 +35,18 @@ class QuantopianUSFuturesCalendar(TradingCalendar):
     In order to align the hours of each session, we ignore the Sunday
     CME Pre-Open hour (5-6pm).
     """
+
     # XXX: Override the default TradingCalendar start and end dates with ones
     # further in the future. This is a stopgap for memory issues caused by
     # upgrading to pandas 18. This calendar is the most severely affected,
     # since it has the most total minutes of any of the zipline calendars.
-    def __init__(self,
-                 start=Timestamp('2000-01-01', tz=UTC),
-                 end=end_default):
+    def __init__(self, start=Timestamp("2000-01-01", tz=UTC), end=end_default):
         super(QuantopianUSFuturesCalendar, self).__init__(start=start, end=end)
 
-    name = 'us_futures'
-    tz = timezone('America/New_York')
-    open_times = (
-        (None, time(18, 1)),
-    )
-    close_times = (
-        (None, time(18)),
-    )
+    name = "us_futures"
+    tz = timezone("America/New_York")
+    open_times = ((None, time(18, 1)),)
+    close_times = ((None, time(18)),)
     open_offset = -1
 
     def execution_time_from_open(self, open_dates):
@@ -68,8 +57,10 @@ class QuantopianUSFuturesCalendar(TradingCalendar):
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            USNewYearsDay,
-            GoodFriday,
-            Christmas,
-        ])
+        return HolidayCalendar(
+            [
+                USNewYearsDay,
+                GoodFriday,
+                Christmas,
+            ]
+        )

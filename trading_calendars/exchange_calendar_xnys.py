@@ -17,14 +17,10 @@ from datetime import time
 from itertools import chain
 
 from pandas import DatetimeIndex
-from pandas.tseries.holiday import (
-    GoodFriday,
-    USLaborDay,
-)
-from pytz import timezone
-from pytz import UTC
+from pandas.tseries.holiday import GoodFriday, USLaborDay
+from pytz import UTC, timezone
 
-from .trading_calendar import TradingCalendar, HolidayCalendar
+from .trading_calendar import HolidayCalendar, TradingCalendar
 from .us_holidays import (
     August45VictoryOverJapan,
     Christmas,
@@ -235,7 +231,10 @@ class XNYSExchangeCalendar(TradingCalendar):
             (
                 time(14),
                 HolidayCalendar(
-                    [ChristmasEveBefore1993, USBlackFridayBefore1993, ]
+                    [
+                        ChristmasEveBefore1993,
+                        USBlackFridayBefore1993,
+                    ]
                 ),
             ),
         ]
@@ -246,7 +245,12 @@ class XNYSExchangeCalendar(TradingCalendar):
             (
                 self.regular_early_close,
                 DatetimeIndex(
-                    ["1997-12-26", "1999-12-31", "2003-12-26", ], tz=UTC,
+                    [
+                        "1997-12-26",
+                        "1999-12-31",
+                        "2003-12-26",
+                    ],
+                    tz=UTC,
                 ),
             )
         ]

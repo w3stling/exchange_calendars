@@ -1,24 +1,15 @@
-from datetime import datetime, date
-from pyluach import dates, hebrewcal
-from pandas.tseries.holiday import Holiday, Day
+from datetime import date, datetime
+
+import pandas as pd
+from pandas._libs.tslibs.conversion import localize_pydatetime
+from pandas.tseries.holiday import Day, Holiday
 from pandas.tseries.offsets import Easter
+from pyluach import dates, hebrewcal
 
 try:
     from pandas._libs.tslibs.offsets import apply_wraps
 except ImportError:
     from pandas.tseries.offsets import apply_wraps
-
-try:
-    from pandas._libs.tslibs.conversion import localize_pydatetime
-except ImportError:
-    from pandas.tslib import _localize_pydatetime as localize_pydatetime
-
-try:
-    from pandas._libs.tslibs.timestamps import _Timestamp
-    HAVE_TIMESTAMP = True
-except ImportError:
-    HAVE_TIMESTAMP = False
-
 
 # Auxiliary functions to get Hebrew dates for holidays observed by TASE for a
 # given Hebrew calendar year. These are just the raw dates with no adjustments
@@ -212,9 +203,8 @@ def _is_normalized(dt):
     if dt.hour != 0 or dt.minute != 0 or dt.second != 0 or dt.microsecond != 0:
         # Regardless of whether dt is datetime vs Timestamp
         return False
-    if HAVE_TIMESTAMP:
-        if isinstance(dt, _Timestamp):
-            return dt.nanosecond == 0
+    if isinstance(dt, pd.Timestamp):
+        return dt.nanosecond == 0
     return True
 
 
@@ -261,11 +251,14 @@ class _HolidayOffset(Easter):
     def is_on_offset(self, dt):
         if self.normalize and not _is_normalized(dt):
             return False
-        return date(dt.year, dt.month, dt.day) \
+        return (
+            date(dt.year, dt.month, dt.day)
             == self.holiday(dt.year).to_pydate()
+        )
 
 
 # DateOffset subclasses for holidays observed by TASE.
+
 
 class _Purim(_HolidayOffset):
     @property
@@ -323,31 +316,41 @@ class _SimchatTorah(_HolidayOffset):
 
 # Holiday instances for holidays observed by TASE.
 Purim = Holiday("Purim", month=1, day=1, offset=[_Purim()])
-PassoverEve = Holiday("Passover Eve", month=1, day=1,
-                      offset=[_Passover(), Day(-1)])
+PassoverEve = Holiday(
+    "Passover Eve", month=1, day=1, offset=[_Passover(), Day(-1)]
+)
 Passover = Holiday("Passover", month=1, day=1, offset=[_Passover()])
-Passover2Eve = Holiday("Passover II Eve", month=1, day=1,
-                       offset=[_Passover(), Day(5)])
-Passover2 = Holiday("Passover II", month=1, day=1,
-                    offset=[_Passover(), Day(6)])
-PentecostEve = Holiday("Pentecost Eve", month=1, day=1,
-                       offset=[_Pentecost(), Day(-1)])
+Passover2Eve = Holiday(
+    "Passover II Eve", month=1, day=1, offset=[_Passover(), Day(5)]
+)
+Passover2 = Holiday(
+    "Passover II", month=1, day=1, offset=[_Passover(), Day(6)]
+)
+PentecostEve = Holiday(
+    "Pentecost Eve", month=1, day=1, offset=[_Pentecost(), Day(-1)]
+)
 Pentecost = Holiday("Pentecost", month=1, day=1, offset=[_Pentecost()])
 FastDay = Holiday("Tisha B'Av", month=1, day=1, offset=[_FastDay()])
 MemorialDay = Holiday("Memorial Day", month=1, day=1, offset=[_MemorialDay()])
-IndependenceDay = Holiday("Independence Day", month=1, day=1,
-                          offset=[_MemorialDay(), Day(1)])
-NewYearsEve = Holiday("New Year's Eve", month=1, day=1,
-                      offset=[_NewYear(), Day(-1)])
+IndependenceDay = Holiday(
+    "Independence Day", month=1, day=1, offset=[_MemorialDay(), Day(1)]
+)
+NewYearsEve = Holiday(
+    "New Year's Eve", month=1, day=1, offset=[_NewYear(), Day(-1)]
+)
 NewYear = Holiday("New Year", month=1, day=1, offset=[_NewYear()])
 NewYear2 = Holiday("New Year II", month=1, day=1, offset=[_NewYear(), Day(1)])
-YomKippurEve = Holiday("Yom Kippur Eve", month=1, day=1,
-                       offset=[_YomKippur(), Day(-1)])
+YomKippurEve = Holiday(
+    "Yom Kippur Eve", month=1, day=1, offset=[_YomKippur(), Day(-1)]
+)
 YomKippur = Holiday("Yom Kippur", month=1, day=1, offset=[_YomKippur()])
-SukkothEve = Holiday("Sukkoth Eve", month=1, day=1,
-                     offset=[_Sukkoth(), Day(-1)])
+SukkothEve = Holiday(
+    "Sukkoth Eve", month=1, day=1, offset=[_Sukkoth(), Day(-1)]
+)
 Sukkoth = Holiday("Sukkoth", month=1, day=1, offset=[_Sukkoth()])
-SimchatTorahEve = Holiday("Simchat Torah Eve", month=1, day=1,
-                          offset=[_SimchatTorah(), Day(-1)])
-SimchatTorah = Holiday("Simchat Torah", month=1, day=1,
-                       offset=[_SimchatTorah()])
+SimchatTorahEve = Holiday(
+    "Simchat Torah Eve", month=1, day=1, offset=[_SimchatTorah(), Day(-1)]
+)
+SimchatTorah = Holiday(
+    "Simchat Torah", month=1, day=1, offset=[_SimchatTorah()]
+)

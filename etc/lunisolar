@@ -25,10 +25,10 @@ import re
 
 import click
 import novas.compat as novas
-from novas.compat import eph_manager
 import numpy as np
 import pandas as pd
 import toolz
+from novas.compat import eph_manager
 
 
 @contextlib.contextmanager

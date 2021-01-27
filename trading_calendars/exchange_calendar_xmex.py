@@ -16,60 +16,59 @@
 from datetime import time
 
 import pandas as pd
-from pandas.tseries.holiday import GoodFriday, Holiday, MO
+from pandas.tseries.holiday import MO, GoodFriday, Holiday
 from pandas.tseries.offsets import DateOffset
-from pytz import timezone, UTC
+from pytz import UTC, timezone
 
 from .common_holidays import (
-    new_years_day,
-    maundy_thursday,
-    european_labour_day,
     christmas,
+    european_labour_day,
+    maundy_thursday,
+    new_years_day,
 )
 from .trading_calendar import HolidayCalendar, TradingCalendar
-
 
 NewYearsDay = new_years_day()
 
 # Starting in 2007 Constitution Day is observed on the first Monday of Feb.
-ConstitutionDay = Holiday('Constitution Day', month=2, day=5, end_date='2007')
+ConstitutionDay = Holiday("Constitution Day", month=2, day=5, end_date="2007")
 ConstitutionDayObserved = Holiday(
-    'Constitution Day Observed',
+    "Constitution Day Observed",
     month=2,
     day=1,
     offset=DateOffset(weekday=MO(1)),
-    start_date='2007',
+    start_date="2007",
 )
 
 # Starting in 2007 Juarez's Birthay is observed on the third Monday of March.
-JuarezBirthday = Holiday("Juarez's Birthday", month=3, day=21, end_date='2007')
+JuarezBirthday = Holiday("Juarez's Birthday", month=3, day=21, end_date="2007")
 JuarezBirthdayObserved = Holiday(
     "Juarez's Birthday Observed",
     month=3,
     day=1,
     offset=DateOffset(weekday=MO(3)),
-    start_date='2007',
+    start_date="2007",
 )
 
 MaundyThursday = maundy_thursday()
 
 LabourDay = european_labour_day()
 
-IndependenceDay = Holiday('Independence Day', month=9, day=16)
+IndependenceDay = Holiday("Independence Day", month=9, day=16)
 
-AllSoulsDay = Holiday("All Souls' Day", month=11, day=2, start_date='2006')
+AllSoulsDay = Holiday("All Souls' Day", month=11, day=2, start_date="2006")
 
 # Starting in 2007 Revolution Day is observed on the third Monday of November.
-RevolutionDay = Holiday('Revolution Day', month=11, day=20, end_date='2007')
+RevolutionDay = Holiday("Revolution Day", month=11, day=20, end_date="2007")
 RevolutionDayObserved = Holiday(
-    'Revolution Day Observed',
+    "Revolution Day Observed",
     month=11,
     day=1,
     offset=DateOffset(weekday=MO(3)),
-    start_date='2007',
+    start_date="2007",
 )
 
-BankingHoliday = Holiday('Banking Holiday', month=12, day=12)
+BankingHoliday = Holiday("Banking Holiday", month=12, day=12)
 
 Christmas = christmas()
 
@@ -101,38 +100,37 @@ class XMEXExchangeCalendar(TradingCalendar):
     Early Closes:
       - None
     """
-    name = 'XMEX'
-    tz = timezone('America/Mexico_City')
 
-    open_times = (
-        (None, time(8, 31)),
-    )
-    close_times = (
-        (None, time(15)),
-    )
+    name = "XMEX"
+    tz = timezone("America/Mexico_City")
+
+    open_times = ((None, time(8, 31)),)
+    close_times = ((None, time(15)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            ConstitutionDay,
-            ConstitutionDayObserved,
-            JuarezBirthday,
-            JuarezBirthdayObserved,
-            MaundyThursday,
-            GoodFriday,
-            LabourDay,
-            IndependenceDay,
-            AllSoulsDay,
-            RevolutionDay,
-            RevolutionDayObserved,
-            BankingHoliday,
-            Christmas,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                ConstitutionDay,
+                ConstitutionDayObserved,
+                JuarezBirthday,
+                JuarezBirthdayObserved,
+                MaundyThursday,
+                GoodFriday,
+                LabourDay,
+                IndependenceDay,
+                AllSoulsDay,
+                RevolutionDay,
+                RevolutionDayObserved,
+                BankingHoliday,
+                Christmas,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
         return [
             # Bicentennial Celebration.
-            pd.Timestamp('2010-09-17', tz=UTC),
+            pd.Timestamp("2010-09-17", tz=UTC),
         ]

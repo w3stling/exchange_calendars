@@ -1,9 +1,11 @@
 from unittest import TestCase
+
 import pandas as pd
 from pytz import UTC
 
-from .test_trading_calendar import ExchangeCalendarTestBase
 from trading_calendars.exchange_calendar_xcbf import XCBFExchangeCalendar
+
+from .test_trading_calendar import ExchangeCalendarTestBase
 
 
 class XCBFCalendarTestCase(ExchangeCalendarTestBase, TestCase):
@@ -23,20 +25,24 @@ class XCBFCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         # thanksgiving day: nov 24
         # christmas (observed): dec 26
         # new years (observed): jan 2 2017
-        for day in ["2016-01-01", "2016-01-18", "2016-02-15", "2016-05-30",
-                    "2016-07-04", "2016-09-05", "2016-11-24", "2016-12-26",
-                    "2017-01-02"]:
-            self.assertFalse(
-                self.calendar.is_session(pd.Timestamp(day, tz=UTC))
-            )
+        for day in [
+            "2016-01-01",
+            "2016-01-18",
+            "2016-02-15",
+            "2016-05-30",
+            "2016-07-04",
+            "2016-09-05",
+            "2016-11-24",
+            "2016-12-26",
+            "2017-01-02",
+        ]:
+            self.assertFalse(self.calendar.is_session(pd.Timestamp(day, tz=UTC)))
 
     def test_good_friday_rule(self):
         # Good friday is a holiday unless Christmas Day or New Years Day is on
         # a Friday
         for day in ["2015-04-03", "2016-03-25"]:
-            self.assertTrue(
-                self.calendar.is_session(pd.Timestamp(day, tz=UTC))
-            )
+            self.assertTrue(self.calendar.is_session(pd.Timestamp(day, tz=UTC)))
 
     def test_2016_early_closes(self):
         # only early close is day after thanksgiving: nov 25
@@ -44,9 +50,7 @@ class XCBFCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         self.assertTrue(dt in self.calendar.early_closes)
 
         market_close = self.calendar.schedule.loc[dt].market_close
-        market_close = market_close.tz_localize(UTC).tz_convert(
-            self.calendar.tz
-        )
+        market_close = market_close.tz_localize(UTC).tz_convert(self.calendar.tz)
         self.assertEqual(12, market_close.hour)
         self.assertEqual(15, market_close.minute)
 
@@ -56,8 +60,11 @@ class XCBFCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         # - apr 27 1994
         # - june 11 2004
         # - jan 2 2007
-        for day in ["1994-04-27", "2004-06-11", "2007-01-02",
-                    "2012-10-29", "2012-10-30"]:
-            self.assertFalse(
-                self.calendar.is_session(pd.Timestamp(day, tz=UTC))
-            )
+        for day in [
+            "1994-04-27",
+            "2004-06-11",
+            "2007-01-02",
+            "2012-10-29",
+            "2012-10-30",
+        ]:
+            self.assertFalse(self.calendar.is_session(pd.Timestamp(day, tz=UTC)))

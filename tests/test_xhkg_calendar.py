@@ -1,16 +1,18 @@
 from datetime import time
 from unittest import TestCase
+
 import pandas as pd
 from pytz import UTC
 
+from trading_calendars.exchange_calendar_xhkg import XHKGExchangeCalendar
+
 from .test_trading_calendar import ExchangeCalendarTestBase
 from .test_utils import T
-from trading_calendars.exchange_calendar_xhkg import XHKGExchangeCalendar
 
 
 class XHKGCalendarTestCase(ExchangeCalendarTestBase, TestCase):
 
-    answer_key_filename = 'xhkg'
+    answer_key_filename = "xhkg"
     calendar_class = XHKGExchangeCalendar
 
     MAX_SESSION_HOURS = 6.5
@@ -24,32 +26,32 @@ class XHKGCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         # range should fail.
 
         with self.assertRaises(ValueError) as e:
-            self.calendar_class(T('1958-12-31'), T('2000-01-01'))
+            self.calendar_class(T("1958-12-31"), T("2000-01-01"))
 
         self.assertEqual(
             str(e.exception),
             (
-                'the lunisolar holidays have only been computed back to 1960,'
-                ' cannot instantiate the XHKG calendar back to 1958'
+                "the lunisolar holidays have only been computed back to 1960,"
+                " cannot instantiate the XHKG calendar back to 1958"
             ),
         )
 
         with self.assertRaises(ValueError) as e:
-            self.calendar_class(T('2000-01-01'), T('2050-01-03'))
+            self.calendar_class(T("2000-01-01"), T("2050-01-03"))
 
         self.assertEqual(
             str(e.exception),
             (
-                'the lunisolar holidays have only been computed through 2049,'
-                ' cannot instantiate the XHKG calendar in 2050'
+                "the lunisolar holidays have only been computed through 2049,"
+                " cannot instantiate the XHKG calendar in 2050"
             ),
         )
 
     def test_session_break(self):
         # Test that the calendar correctly reports itself as closed during
         # session break
-        normal_minute = pd.Timestamp('2003-01-27 03:30:00')
-        break_minute = pd.Timestamp('2003-01-27 04:30:00')
+        normal_minute = pd.Timestamp("2003-01-27 03:30:00")
+        break_minute = pd.Timestamp("2003-01-27 04:30:00")
 
         self.assertTrue(self.calendar.is_open_on_minute(normal_minute))
         self.assertFalse(self.calendar.is_open_on_minute(break_minute))
@@ -59,22 +61,15 @@ class XHKGCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         )
 
         current_session_label = self.calendar.minute_to_session_label(
-            normal_minute,
-            direction="none"
+            normal_minute, direction="none"
         )
         self.assertEqual(
             current_session_label,
-            self.calendar.minute_to_session_label(
-                break_minute,
-                direction="previous"
-            )
+            self.calendar.minute_to_session_label(break_minute, direction="previous"),
         )
         self.assertEqual(
             current_session_label,
-            self.calendar.minute_to_session_label(
-                break_minute,
-                direction="next"
-            )
+            self.calendar.minute_to_session_label(break_minute, direction="next"),
         )
 
     def test_lunar_new_year_2003(self):
@@ -100,14 +95,14 @@ class XHKGCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         # 23 24 25 26 27 28  1
         #  2
 
-        start_session = pd.Timestamp('2003-01-27', tz=UTC)
-        end_session = pd.Timestamp('2003-02-28', tz=UTC)
+        start_session = pd.Timestamp("2003-01-27", tz=UTC)
+        end_session = pd.Timestamp("2003-02-28", tz=UTC)
         sessions = self.calendar.sessions_in_range(start_session, end_session)
 
         holidays = pd.to_datetime(
             # prior to 2011, lunar new years eve is a holiday if new years is
             # a Saturday
-            ['2003-01-31', '2003-02-03'],
+            ["2003-01-31", "2003-02-03"],
             utc=True,
         )
         for holiday in holidays:
@@ -136,23 +131,23 @@ class XHKGCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         #  4  5  6  7  8  9 10
         # 11 12 13 14 15 16
 
-        start_session = pd.Timestamp('2018-02-12', tz=UTC)
-        end_session = pd.Timestamp('2018-03-15', tz=UTC)
+        start_session = pd.Timestamp("2018-02-12", tz=UTC)
+        end_session = pd.Timestamp("2018-03-15", tz=UTC)
         closes = self.calendar.session_closes_in_range(
             start_session,
             end_session,
         )
 
         full_holidays = pd.to_datetime(
-            ['2018-02-16', '2018-02-19'],
+            ["2018-02-16", "2018-02-19"],
             utc=True,
         )
         for holiday in full_holidays:
             self.assertNotIn(holiday, closes.index)
 
         self.assertEqual(
-            closes.loc['2018-02-15'],
-            pd.Timestamp('2018-02-15 12:00', tz='Asia/Hong_Kong'),
+            closes.loc["2018-02-15"],
+            pd.Timestamp("2018-02-15 12:00", tz="Asia/Hong_Kong"),
         )
 
     def test_full_year_with_lunar_leap_year(self):
@@ -242,56 +237,44 @@ class XHKGCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         # 17
         full_holidays = [
             # New Year's Day (Sunday to Monday observance)
-            T('2017-01-02'),
-
+            T("2017-01-02"),
             # Lunar New Year
-            T('2017-01-30'),
-            T('2017-01-31'),
-
+            T("2017-01-30"),
+            T("2017-01-31"),
             # Qingming Festival (based off qingming solar term, not lunar
             # cycle)
-            T('2017-04-04'),
-
+            T("2017-04-04"),
             # Good Friday
-            T('2017-04-14'),
-
+            T("2017-04-14"),
             # Easter Monday
-            T('2017-04-17'),
-
+            T("2017-04-17"),
             # Labour Day
-            T('2017-05-01'),
-
+            T("2017-05-01"),
             # Buddha's Birthday (The 8th day of the 4th lunar month)
-            T('2017-05-03'),
-
+            T("2017-05-03"),
             # Tuen Ng Festival (also known as Dragon Boat Festival. The 5th day
             # of the 5th lunar month, then Sunday to Monday observance)
-            T('2017-05-30'),
-
+            T("2017-05-30"),
             # National Day (Sunday to Monday observance)
-            T('2017-10-02'),
-
+            T("2017-10-02"),
             # The day following the Mid-Autumn Festival (Mid-Autumn Festival
             # is the 15th day of the 8th lunar month. This market holiday is
             # next day because the festival is celebrated at night)
-            T('2017-10-05'),
-
+            T("2017-10-05"),
             # Christmas Day
-            T('2017-12-25'),
-
+            T("2017-12-25"),
             # The day after Christmas
-            T('2017-12-25'),
+            T("2017-12-25"),
         ]
 
         half_days = [
             # Lunar New Year's Eve
-            T('2017-01-27'),
-
+            T("2017-01-27"),
             # Christmas Eve and New Year's Eve are both Sunday this year
         ]
 
-        start_session = pd.Timestamp('2017-01-02', tz=UTC)
-        end_session = pd.Timestamp('2017-12-29', tz=UTC)
+        start_session = pd.Timestamp("2017-01-02", tz=UTC)
+        end_session = pd.Timestamp("2017-12-29", tz=UTC)
         closes = self.calendar.session_closes_in_range(
             start_session,
             end_session,
@@ -301,13 +284,12 @@ class XHKGCalendarTestCase(ExchangeCalendarTestBase, TestCase):
             self.assertNotIn(holiday, closes)
 
         for half_day in half_days:
-            close_time = (
-                half_day.tz_convert(None).tz_localize('Asia/Hong_Kong') +
-                pd.Timedelta(hours=12)
-            )
+            close_time = half_day.tz_convert(None).tz_localize(
+                "Asia/Hong_Kong"
+            ) + pd.Timedelta(hours=12)
             self.assertEqual(close_time, closes[half_day])
 
         local_time_close = closes.drop(half_days).dt.tz_convert(
-            'Asia/Hong_Kong',
+            "Asia/Hong_Kong",
         )
         self.assertEqual({time(16)}, set(local_time_close.dt.time))

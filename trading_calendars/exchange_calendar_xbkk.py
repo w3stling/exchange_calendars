@@ -20,32 +20,32 @@ from pytz import timezone
 
 from .trading_calendar import HolidayCalendar, TradingCalendar
 from .xbkk_holidays import (
-    NewYearsDay,
     ChakriMemorialDay,
+    ChulalongkornDay,
+    CoronationDay2016AndBefore,
+    CoronationDay2019AndAfter,
+    HalfYearHoliday,
+    HMKingsBirthday,
+    HMQueenMothersBirthday,
+    HMQueensBirthday,
+    KingBhumibolsBirthday,
+    LabourDay,
+    NewYearsDay,
+    NewYearsEve,
     SongkranFestival1,
     SongkranFestival2,
     SongkranFestival3,
-    LabourDay,
-    CoronationDay2016AndBefore,
-    CoronationDay2019AndAfter,
-    HMQueensBirthday,
-    HMKingsBirthday,
-    HMQueenMothersBirthday,
-    HalfYearHoliday,
-    ThePassingOfKingBhumibol,
-    ChulalongkornDay,
-    KingBhumibolsBirthday,
     ThailandConstitutionDay,
-    NewYearsEve,
-    makha_bucha,
-    vesak,
+    ThePassingOfKingBhumibol,
     asanha_bucha,
-    new_years_bridge_days,
     asanha_bucha_bridge_days,
-    queens_birthday_bridge_days,
     coronation_bridge_days,
-    vesak_bridge_days,
+    makha_bucha,
     misc_adhoc,
+    new_years_bridge_days,
+    queens_birthday_bridge_days,
+    vesak,
+    vesak_bridge_days,
 )
 
 
@@ -77,39 +77,38 @@ class XBKKExchangeCalendar(TradingCalendar):
     Early Closes:
       - None
     """
-    name = 'XBKK'
 
-    tz = timezone('Asia/Bangkok')
+    name = "XBKK"
 
-    open_times = (
-        (None, time(10, 1)),
-    )
+    tz = timezone("Asia/Bangkok")
 
-    close_times = (
-        (None, time(16, 30)),
-    )
+    open_times = ((None, time(10, 1)),)
+
+    close_times = ((None, time(16, 30)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            ChakriMemorialDay,
-            SongkranFestival1,
-            SongkranFestival2,
-            SongkranFestival3,
-            LabourDay,
-            CoronationDay2016AndBefore,
-            CoronationDay2019AndAfter,
-            HMQueensBirthday,
-            HMKingsBirthday,
-            HMQueenMothersBirthday,
-            HalfYearHoliday,
-            ThePassingOfKingBhumibol,
-            ChulalongkornDay,
-            KingBhumibolsBirthday,
-            ThailandConstitutionDay,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                ChakriMemorialDay,
+                SongkranFestival1,
+                SongkranFestival2,
+                SongkranFestival3,
+                LabourDay,
+                CoronationDay2016AndBefore,
+                CoronationDay2019AndAfter,
+                HMQueensBirthday,
+                HMKingsBirthday,
+                HMQueenMothersBirthday,
+                HalfYearHoliday,
+                ThePassingOfKingBhumibol,
+                ChulalongkornDay,
+                KingBhumibolsBirthday,
+                ThailandConstitutionDay,
+                NewYearsEve,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):

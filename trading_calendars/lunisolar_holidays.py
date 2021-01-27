@@ -5,7 +5,6 @@ See trading_calendars/etc/lunisolar for code to calculate
 
 import pandas as pd
 
-
 # Precomputed Chinese Lunar Year dates.
 # Also called Spring Festival
 #

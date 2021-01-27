@@ -17,52 +17,40 @@ from datetime import time
 
 import pandas as pd
 from pandas.tseries.holiday import (
-    Holiday,
-    Easter,
     Day,
+    Easter,
     GoodFriday,
+    Holiday,
     previous_friday,
 )
 from pytz import timezone
 
 from .common_holidays import corpus_christi
-from .trading_calendar import (
-    TradingCalendar,
-    HolidayCalendar
-)
+from .trading_calendar import HolidayCalendar, TradingCalendar
 
 # Universal Confraternization (new years day)
 ConfUniversal = Holiday(
-    'Dia da Confraternizacao Universal',
+    "Dia da Confraternizacao Universal",
     month=1,
     day=1,
 )
 # Sao Paulo city birthday
 AniversarioSaoPaulo = Holiday(
-    'Aniversario de Sao Paulo',
+    "Aniversario de Sao Paulo",
     month=1,
     day=25,
 )
 # Carnival Monday
 CarnavalSegunda = Holiday(
-    'Carnaval Segunda',
-    month=1,
-    day=1,
-    offset=[Easter(), Day(-48)]
+    "Carnaval Segunda", month=1, day=1, offset=[Easter(), Day(-48)]
 )
 # Carnival Tuesday
 CarnavalTerca = Holiday(
-    'Carnaval Terca',
-    month=1,
-    day=1,
-    offset=[Easter(), Day(-47)]
+    "Carnaval Terca", month=1, day=1, offset=[Easter(), Day(-47)]
 )
 # Ash Wednesday (short day)
 QuartaCinzas = Holiday(
-    'Quarta Cinzas',
-    month=1,
-    day=1,
-    offset=[Easter(), Day(-46)]
+    "Quarta Cinzas", month=1, day=1, offset=[Easter(), Day(-46)]
 )
 # Good Friday
 SextaPaixao = GoodFriday
@@ -70,87 +58,76 @@ SextaPaixao = GoodFriday
 CorpusChristi = corpus_christi()
 # Tiradentes Memorial
 Tiradentes = Holiday(
-    'Tiradentes',
+    "Tiradentes",
     month=4,
     day=21,
 )
 # Labor Day
 DiaTrabalho = Holiday(
-    'Dia Trabalho',
+    "Dia Trabalho",
     month=5,
     day=1,
 )
 # Constitutionalist Revolution
 Constitucionalista_prepandemic = Holiday(
-    'Constitucionalista pre-pandemia',
+    "Constitucionalista pre-pandemia",
     month=7,
     day=9,
-    start_date='1998-01-01',
-    end_date='2020-01-01'
+    start_date="1998-01-01",
+    end_date="2020-01-01",
 )
 Constitucionalista_pospandemic = Holiday(
-    'Constitucionalista pos-pandemia',
-    month=7,
-    day=9,
-    start_date='2021-01-01'
+    "Constitucionalista pos-pandemia", month=7, day=9, start_date="2021-01-01"
 )
 # Independence Day
 Independencia = Holiday(
-    'Independencia',
+    "Independencia",
     month=9,
     day=7,
 )
 # Our Lady of Aparecida
 Aparecida = Holiday(
-    'Nossa Senhora de Aparecida',
+    "Nossa Senhora de Aparecida",
     month=10,
     day=12,
 )
 # All Souls' Day
 Finados = Holiday(
-    'Dia dos Finados',
+    "Dia dos Finados",
     month=11,
     day=2,
 )
 # Proclamation of the Republic
 ProclamacaoRepublica = Holiday(
-    'Proclamacao da Republica',
+    "Proclamacao da Republica",
     month=11,
     day=15,
 )
 # Day of Black Awareness
 ConscienciaNegra = Holiday(
-    'Dia da Consciencia Negra',
-    month=11,
-    day=20,
-    start_date='2004-01-01'
+    "Dia da Consciencia Negra", month=11, day=20, start_date="2004-01-01"
 )
 # Christmas Eve
 VesperaNatal = Holiday(
-    'Vespera Natal',
+    "Vespera Natal",
     month=12,
     day=24,
 )
 # Christmas
 Natal = Holiday(
-    'Natal',
+    "Natal",
     month=12,
     day=25,
 )
 # New Year's Eve
 AnoNovo = Holiday(
-    'Ano Novo',
+    "Ano Novo",
     month=12,
     day=31,
     observance=previous_friday,
 )
 # Brazil hosted World Cup and played Croatia (and won 3-1!)
-CopaDoMundo2014 = Holiday(
-    'Copa Do Mundo 2014',
-    month=6,
-    day=12,
-    year=2014
-)
+CopaDoMundo2014 = Holiday("Copa Do Mundo 2014", month=6, day=12, year=2014)
 
 
 class BVMFExchangeCalendar(TradingCalendar):
@@ -184,17 +161,15 @@ class BVMFExchangeCalendar(TradingCalendar):
         - December 31 if NYE falls on Monday-Friday
     """
 
-    name = 'BVMF'
+    name = "BVMF"
 
     tz = timezone("America/Sao_Paulo")
 
-    open_times = (
-        (None, time(10, 1)),
-    )
+    open_times = ((None, time(10, 1)),)
 
     close_times = (
         (None, time(17, 0)),
-        (pd.Timestamp('2019-11-04'), time(18, 0)),
+        (pd.Timestamp("2019-11-04"), time(18, 0)),
     )
 
     @property
@@ -203,31 +178,25 @@ class BVMFExchangeCalendar(TradingCalendar):
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            ConfUniversal,
-            AniversarioSaoPaulo,
-            CarnavalSegunda,
-            CarnavalTerca,
-            SextaPaixao,
-            CorpusChristi,
-            Tiradentes,
-            DiaTrabalho,
-            Constitucionalista_prepandemic,
-            Constitucionalista_pospandemic,
-            Independencia,
-            Aparecida,
-            Finados,
-            ProclamacaoRepublica,
-            ConscienciaNegra,
-            VesperaNatal,
-            Natal,
-            AnoNovo,
-        ])
-
-    # TODO: Add this late open back in later, once we have better
-    # knowledge of how Zipline handles it.
-    # @property
-    # def special_opens(self):
-    #     return [
-    #         (time(13, 1), HolidayCalendar([QuartaCinzas]))
-    #     ]
+        return HolidayCalendar(
+            [
+                ConfUniversal,
+                AniversarioSaoPaulo,
+                CarnavalSegunda,
+                CarnavalTerca,
+                SextaPaixao,
+                CorpusChristi,
+                Tiradentes,
+                DiaTrabalho,
+                Constitucionalista_prepandemic,
+                Constitucionalista_pospandemic,
+                Independencia,
+                Aparecida,
+                Finados,
+                ProclamacaoRepublica,
+                ConscienciaNegra,
+                VesperaNatal,
+                Natal,
+                AnoNovo,
+            ]
+        )

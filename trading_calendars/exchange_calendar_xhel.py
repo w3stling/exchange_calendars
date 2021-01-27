@@ -15,18 +15,18 @@
 
 from datetime import time
 
-from pandas.tseries.holiday import Holiday, GoodFriday, EasterMonday
+from pandas.tseries.holiday import EasterMonday, GoodFriday, Holiday
 from pytz import timezone
 
 from .common_holidays import (
-    new_years_day,
+    ascension_day,
+    boxing_day,
+    christmas,
+    christmas_eve,
     epiphany,
     european_labour_day,
-    ascension_day,
     midsummer_eve,
-    christmas_eve,
-    christmas,
-    boxing_day,
+    new_years_day,
     new_years_eve,
 )
 from .trading_calendar import HolidayCalendar, TradingCalendar
@@ -41,7 +41,7 @@ AscensionDay = ascension_day()
 
 MidsummerEve = midsummer_eve()
 
-IndependenceDay = Holiday('Finland Independence Day', month=12, day=6)
+IndependenceDay = Holiday("Finland Independence Day", month=12, day=6)
 
 ChristmasEve = christmas_eve()
 Christmas = christmas()
@@ -74,28 +74,27 @@ class XHELExchangeCalendar(TradingCalendar):
     Early Closes:
       - None
     """
-    name = 'XHEL'
-    tz = timezone('Europe/Helsinki')
-    open_times = (
-        (None, time(10, 1)),
-    )
-    close_times = (
-        (None, time(18, 30)),
-    )
+
+    name = "XHEL"
+    tz = timezone("Europe/Helsinki")
+    open_times = ((None, time(10, 1)),)
+    close_times = ((None, time(18, 30)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            Epiphany,
-            GoodFriday,
-            EasterMonday,
-            LabourDay,
-            AscensionDay,
-            MidsummerEve,
-            IndependenceDay,
-            ChristmasEve,
-            Christmas,
-            BoxingDay,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                Epiphany,
+                GoodFriday,
+                EasterMonday,
+                LabourDay,
+                AscensionDay,
+                MidsummerEve,
+                IndependenceDay,
+                ChristmasEve,
+                Christmas,
+                BoxingDay,
+                NewYearsEve,
+            ]
+        )

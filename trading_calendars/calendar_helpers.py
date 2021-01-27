@@ -29,7 +29,10 @@ def previous_divider_idx(dividers, minute_val):
 
 
 def compute_all_minutes(
-    opens_in_ns, break_starts_in_ns, break_ends_in_ns, closes_in_ns,
+    opens_in_ns,
+    break_starts_in_ns,
+    break_ends_in_ns,
+    closes_in_ns,
 ):
     """
     Given arrays of opens and closes (in nanoseconds) and optionally

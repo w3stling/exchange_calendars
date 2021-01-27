@@ -12,23 +12,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from abc import ABCMeta, abstractproperty
+from abc import ABC, abstractproperty
 from collections import OrderedDict
-import warnings
 
-from pandas.tseries.holiday import AbstractHolidayCalendar
-from six import with_metaclass
-from pytz import UTC
 import numpy as np
-from numpy import searchsorted
 import pandas as pd
-from pandas import (
-    DataFrame,
-    date_range,
-    DatetimeIndex,
-)
-from pandas.tseries.offsets import CustomBusinessDay
 import toolz
+from numpy import searchsorted
+from pandas import DataFrame, DatetimeIndex, date_range
+from pandas.tseries.holiday import AbstractHolidayCalendar
+from pandas.tseries.offsets import CustomBusinessDay
+from pytz import UTC
 
 from .calendar_helpers import (
     NP_NAT,
@@ -39,9 +33,8 @@ from .calendar_helpers import (
 from .utils.memoize import lazyval
 from .utils.pandas_utils import days_at_time
 
-
-start_default = pd.Timestamp('1990-01-01', tz=UTC)
-end_base = pd.Timestamp('today', tz=UTC)
+start_default = pd.Timestamp("1990-01-01", tz=UTC)
+end_base = pd.Timestamp("today", tz=UTC)
 # Give an aggressive buffer for logic that needs to use the next trading
 # day or minute.
 end_default = end_base + pd.Timedelta(days=365)
@@ -69,21 +62,15 @@ def _group_times(all_days, times, tz, offset=0):
     if times is None:
         return None
     elements = [
-        days_at_time(
-            selection(all_days, start, end),
-            time,
-            tz,
-            offset
-        )
+        days_at_time(selection(all_days, start, end), time, tz, offset)
         for (start, time), (end, _) in toolz.sliding_window(
-            2,
-            toolz.concatv(times, [(None, None)])
+            2, toolz.concatv(times, [(None, None)])
         )
     ]
     return elements[0].append(elements[1:])
 
 
-class TradingCalendar(with_metaclass(ABCMeta)):
+class TradingCalendar(ABC):
     """
     An TradingCalendar represents the timing information of a single market
     exchange.
@@ -97,16 +84,11 @@ class TradingCalendar(with_metaclass(ABCMeta)):
 
     For each session, we store the open and close time in UTC time.
     """
+
     def __init__(self, start=start_default, end=end_default):
         # Midnight in UTC for each trading day.
 
-        # In pandas 0.18.1, pandas calls into its own code here in a way that
-        # fires a warning. The calling code in pandas tries to suppress the
-        # warning, but does so incorrectly, causing it to bubble out here.
-        # Actually catch and suppress the warning here:
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore')
-            _all_days = date_range(start, end, freq=self.day, tz=UTC)
+        _all_days = date_range(start, end, freq=self.day, tz=UTC)
 
         # `DatetimeIndex`s of standard opens/closes for each day.
         self._opens = _group_times(
@@ -154,13 +136,15 @@ class TradingCalendar(with_metaclass(ABCMeta)):
 
         self.schedule = DataFrame(
             index=_all_days,
-            data=OrderedDict([
-                ('market_open', self._opens),
-                ('break_start', self._break_starts),
-                ('break_end', self._break_ends),
-                ('market_close', self._closes),
-            ]),
-            dtype='datetime64[ns]',
+            data=OrderedDict(
+                [
+                    ("market_open", self._opens),
+                    ("break_start", self._break_starts),
+                    ("break_end", self._break_ends),
+                    ("market_close", self._closes),
+                ]
+            ),
+            dtype="datetime64[ns]",
         )
 
         # Simple cache to avoid recalculating the same minute -> session in
@@ -169,25 +153,27 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         # inputs.
         self._minute_to_session_label_cache = (None, None)
 
-        self.market_opens_nanos = self.schedule.market_open.values.\
-            astype(np.int64)
-
-        self.market_break_starts_nanos = self.schedule.break_start.values.\
-            astype(np.int64)
-
-        self.market_break_ends_nanos = self.schedule.break_end.values.\
-            astype(np.int64)
-
-        self.market_closes_nanos = self.schedule.market_close.values.\
-            astype(np.int64)
-
-        _check_breaks_match(
-            self.market_break_starts_nanos,
-            self.market_break_ends_nanos
+        self.market_opens_nanos = self.schedule.market_open.values.astype(
+            np.int64
         )
 
-        self._trading_minutes_nanos = self.all_minutes.values.\
-            astype(np.int64)
+        self.market_break_starts_nanos = (
+            self.schedule.break_start.values.astype(np.int64)
+        )
+
+        self.market_break_ends_nanos = self.schedule.break_end.values.astype(
+            np.int64
+        )
+
+        self.market_closes_nanos = self.schedule.market_close.values.astype(
+            np.int64
+        )
+
+        _check_breaks_match(
+            self.market_break_starts_nanos, self.market_break_ends_nanos
+        )
+
+        self._trading_minutes_nanos = self.all_minutes.values.astype(np.int64)
 
         self.first_trading_session = _all_days[0]
         self.last_trading_session = _all_days[-1]
@@ -261,7 +247,7 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         --------
         numpy.busdaycalendar
         """
-        return '1111100'
+        return "1111100"
 
     @property
     def open_offset(self):
@@ -422,8 +408,9 @@ class TradingCalendar(with_metaclass(ABCMeta)):
             if ignore_breaks:
                 return True
 
-            break_start_on_open_dt = \
-                self.market_break_starts_nanos[open_idx - 1]
+            break_start_on_open_dt = self.market_break_starts_nanos[
+                open_idx - 1
+            ]
             break_end_on_open_dt = self.market_break_ends_nanos[open_idx - 1]
             # NaT comparisions will result in False
             if break_start_on_open_dt <= dt < break_end_on_open_dt:
@@ -575,8 +562,10 @@ class TradingCalendar(with_metaclass(ABCMeta)):
             return self.schedule.index[idx + 1]
         except IndexError:
             if idx == len(self.schedule.index) - 1:
-                raise ValueError("There is no next session as this is the end"
-                                 " of the exchange calendar.")
+                raise ValueError(
+                    "There is no next session as this is the end"
+                    " of the exchange calendar."
+                )
             else:
                 raise
 
@@ -601,8 +590,10 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         """
         idx = self.schedule.index.get_loc(session_label)
         if idx == 0:
-            raise ValueError("There is no previous session as this is the"
-                             " beginning of the exchange calendar.")
+            raise ValueError(
+                "There is no previous session as this is the"
+                " beginning of the exchange calendar."
+            )
 
         return self.schedule.index[idx - 1]
 
@@ -621,8 +612,8 @@ class TradingCalendar(with_metaclass(ABCMeta)):
             All the minutes for the given session.
         """
         return self.minutes_in_range(
-            start_minute=self.schedule.at[session_label, 'market_open'],
-            end_minute=self.schedule.at[session_label, 'market_close'],
+            start_minute=self.schedule.at[session_label, "market_open"],
+            end_minute=self.schedule.at[session_label, "market_close"],
         )
 
     def execution_minutes_for_session(self, session_label):
@@ -641,20 +632,22 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         """
         return self.minutes_in_range(
             start_minute=self.execution_time_from_open(
-                self.schedule.at[session_label, 'market_open'],
+                self.schedule.at[session_label, "market_open"],
             ),
             end_minute=self.execution_time_from_close(
-                self.schedule.at[session_label, 'market_close'],
+                self.schedule.at[session_label, "market_close"],
             ),
         )
 
     def execution_minutes_for_sessions_in_range(self, start, stop):
         minutes = self.execution_minutes_for_session
         return pd.DatetimeIndex(
-            np.concatenate([
-                minutes(session)
-                for session in self.sessions_in_range(start, stop)
-            ]),
+            np.concatenate(
+                [
+                    minutes(session)
+                    for session in self.sessions_in_range(start, stop)
+                ]
+            ),
             tz=UTC,
         )
 
@@ -674,7 +667,7 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         end_idx = start_idx + count
 
         if start_idx > end_idx:
-            return self.all_minutes[(end_idx + 1):(start_idx + 1)]
+            return self.all_minutes[(end_idx + 1) : (start_idx + 1)]
         else:
             return self.all_minutes[start_idx:end_idx]
 
@@ -698,8 +691,7 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         """
         return self.all_sessions[
             self.all_sessions.slice_indexer(
-                start_session_label,
-                end_session_label
+                start_session_label, end_session_label
             )
         ]
 
@@ -727,7 +719,7 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         end_idx = start_idx + count
         end_idx = max(0, end_idx)
         return self.all_sessions[
-            min(start_idx, end_idx):max(start_idx, end_idx) + 1
+            min(start_idx, end_idx) : max(start_idx, end_idx) + 1
         ]
 
     def session_distance(self, start_session_label, end_session_label):
@@ -758,7 +750,7 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         start_idx = self.all_sessions.searchsorted(start_session_label)
         end_idx = self.all_sessions.searchsorted(
             end_session_label,
-            side='right',
+            side="right",
         )
 
         out = end_idx - start_idx
@@ -787,11 +779,11 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         pd.DatetimeIndex
             The minutes in the desired range.
         """
-        start_idx = searchsorted(self._trading_minutes_nanos,
-                                 start_minute.value)
+        start_idx = searchsorted(
+            self._trading_minutes_nanos, start_minute.value
+        )
 
-        end_idx = searchsorted(self._trading_minutes_nanos,
-                               end_minute.value)
+        end_idx = searchsorted(self._trading_minutes_nanos, end_minute.value)
 
         if end_minute.value == self._trading_minutes_nanos[end_idx]:
             # if the end minute is a market minute, increase by 1
@@ -799,9 +791,9 @@ class TradingCalendar(with_metaclass(ABCMeta)):
 
         return self.all_minutes[start_idx:end_idx]
 
-    def minutes_for_sessions_in_range(self,
-                                      start_session_label,
-                                      end_session_label):
+    def minutes_for_sessions_in_range(
+        self, start_session_label, end_session_label
+    ):
         """
         Returns all the minutes for all the sessions from the given start
         session label to the given end session label, inclusive.
@@ -842,7 +834,7 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         """
         return (
             self.session_open(session_label),
-            self.session_close(session_label)
+            self.session_close(session_label),
         )
 
     def break_start_and_end_for_session(self, session_label):
@@ -862,20 +854,14 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         """
         return (
             self.session_break_start(session_label),
-            self.session_break_end(session_label)
+            self.session_break_end(session_label),
         )
 
     def session_open(self, session_label):
-        return self.schedule.at[
-            session_label,
-            'market_open'
-        ].tz_localize(UTC)
+        return self.schedule.at[session_label, "market_open"].tz_localize(UTC)
 
     def session_break_start(self, session_label):
-        break_start = self.schedule.at[
-            session_label,
-            'break_start'
-        ]
+        break_start = self.schedule.at[session_label, "break_start"]
         if not pd.isnull(break_start):
             # older versions of pandas need this guard
             break_start = break_start.tz_localize(UTC)
@@ -883,10 +869,7 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         return break_start
 
     def session_break_end(self, session_label):
-        break_end = self.schedule.at[
-            session_label,
-            'break_end'
-        ]
+        break_end = self.schedule.at[session_label, "break_end"]
         if not pd.isnull(break_end):
             # older versions of pandas need this guard
             break_end = break_end.tz_localize(UTC)
@@ -894,21 +877,18 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         return break_end
 
     def session_close(self, session_label):
-        return self.schedule.at[
-            session_label,
-            'market_close'
-        ].tz_localize(UTC)
+        return self.schedule.at[session_label, "market_close"].tz_localize(UTC)
 
     def session_opens_in_range(self, start_session_label, end_session_label):
         return self.schedule.loc[
             start_session_label:end_session_label,
-            'market_open',
+            "market_open",
         ].dt.tz_localize(UTC)
 
     def session_closes_in_range(self, start_session_label, end_session_label):
         return self.schedule.loc[
             start_session_label:end_session_label,
-            'market_close',
+            "market_close",
         ].dt.tz_localize(UTC)
 
     @property
@@ -979,9 +959,7 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         current_or_next_session = self.schedule.index[idx]
 
         if direction == "next":
-            self._minute_to_session_label_cache = (
-                dt, current_or_next_session
-            )
+            self._minute_to_session_label_cache = (dt, current_or_next_session)
             return current_or_next_session
         elif direction == "previous":
             if not self.is_open_on_minute(dt, ignore_breaks=True):
@@ -992,8 +970,9 @@ class TradingCalendar(with_metaclass(ABCMeta)):
                 raise ValueError("The given dt is not an exchange minute!")
         else:
             # invalid direction
-            raise ValueError("Invalid direction parameter: "
-                             "{0}".format(direction))
+            raise ValueError(
+                "Invalid direction parameter: " "{0}".format(direction)
+            )
 
         return current_or_next_session
 
@@ -1019,41 +998,39 @@ class TradingCalendar(with_metaclass(ABCMeta)):
         # Find the indices of the previous open and the next close for each
         # minute.
         prev_opens = (
-            self._opens.values.searchsorted(index.values, side='right') - 1
+            self._opens.values.searchsorted(index.values, side="right") - 1
         )
-        next_closes = (
-            self._closes.values.searchsorted(index.values, side='left')
+        next_closes = self._closes.values.searchsorted(
+            index.values, side="left"
         )
 
         # If they don't match, the minute is outside the trading day. Barf.
-        mismatches = (prev_opens != next_closes)
+        mismatches = prev_opens != next_closes
         if mismatches.any():
             # Show the first bad minute in the error message.
             bad_ix = np.flatnonzero(mismatches)[0]
             example = index[bad_ix]
 
             prev_day = prev_opens[bad_ix]
-            prev_open, prev_close = (
-                self.schedule.iloc[prev_day].loc[
-                    ['market_open', 'market_close']
-                ]
-            )
-            next_open, next_close = (
-                self.schedule.iloc[prev_day + 1].loc[
-                    ['market_open', 'market_close']
-                ]
-            )
+            prev_open, prev_close = self.schedule.iloc[prev_day].loc[
+                ["market_open", "market_close"]
+            ]
+            next_open, next_close = self.schedule.iloc[prev_day + 1].loc[
+                ["market_open", "market_close"]
+            ]
 
             raise ValueError(
                 "{num} non-market minutes in minute_index_to_session_labels:\n"
                 "First Bad Minute: {first_bad}\n"
                 "Previous Session: {prev_open} -> {prev_close}\n"
-                "Next Session: {next_open} -> {next_close}"
-                .format(
+                "Next Session: {next_open} -> {next_close}".format(
                     num=mismatches.sum(),
                     first_bad=example,
-                    prev_open=prev_open, prev_close=prev_close,
-                    next_open=next_open, next_close=next_close)
+                    prev_open=prev_open,
+                    prev_close=prev_close,
+                    next_open=next_open,
+                    next_close=next_close,
+                )
             )
 
         return self.schedule.index[prev_opens]
@@ -1138,8 +1115,7 @@ def _check_breaks_match(market_break_starts_nanos, market_break_ends_nanos):
     market_break_ends_nanos : np.ndarray
     """
     nats_match = np.equal(
-        NP_NAT == market_break_starts_nanos,
-        NP_NAT == market_break_ends_nanos
+        NP_NAT == market_break_starts_nanos, NP_NAT == market_break_ends_nanos
     )
     if not nats_match.all():
         raise ValueError(
@@ -1151,7 +1127,7 @@ def _check_breaks_match(market_break_starts_nanos, market_break_ends_nanos):
             %s
             """,
             market_break_starts_nanos[~nats_match],
-            market_break_ends_nanos[~nats_match]
+            market_break_ends_nanos[~nats_match],
         )
 
 

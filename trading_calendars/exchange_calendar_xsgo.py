@@ -18,29 +18,29 @@ from datetime import time, timedelta
 import pandas as pd
 from pandas.tseries.holiday import Easter, GoodFriday, Holiday
 from pandas.tseries.offsets import Day
-from pytz import timezone, UTC
+from pytz import UTC, timezone
 
 from .common_holidays import (
-    new_years_day,
-    maundy_thursday,
-    european_labour_day,
-    saint_peter_and_saint_paul_day,
-    assumption_day,
     all_saints_day,
-    immaculate_conception,
-    christmas_eve,
+    assumption_day,
     christmas,
+    christmas_eve,
+    european_labour_day,
+    immaculate_conception,
+    maundy_thursday,
+    new_years_day,
     new_years_eve,
+    saint_peter_and_saint_paul_day,
 )
 from .trading_calendar import (
-    HolidayCalendar,
-    TradingCalendar,
+    FRIDAY,
     MONDAY,
+    THURSDAY,
     TUESDAY,
     WEDNESDAY,
-    THURSDAY,
-    FRIDAY,
     WEEKDAYS,
+    HolidayCalendar,
+    TradingCalendar,
 )
 
 
@@ -87,16 +87,16 @@ NewYearsDay = new_years_day()
 
 MaundyThursday = maundy_thursday()
 MondayPriorToCorpusChristi = Holiday(
-    'Monday Prior to Corpus Christi',
+    "Monday Prior to Corpus Christi",
     month=1,
     day=1,
     offset=[Easter(), Day(57)],
-    end_date='2008',
+    end_date="2008",
 )
 
 LabourDay = european_labour_day()
 
-NavyDay = Holiday('Navy Day', month=5, day=21)
+NavyDay = Holiday("Navy Day", month=5, day=21)
 
 SaintPeterAndSaintPaulDay = saint_peter_and_saint_paul_day(
     observance=nearest_monday,
@@ -106,48 +106,48 @@ OurLadyOfMountCarmelDay = Holiday(
     "Our Lady of Mount Carmel's Day",
     month=7,
     day=16,
-    start_date='2008',
+    start_date="2008",
 )
 
 AssumptionDay = assumption_day()
 
 PublicHolidayMonday = Holiday(
-    'Public Holiday Preceeding a Tuesday Independence Day',
+    "Public Holiday Preceeding a Tuesday Independence Day",
     month=9,
     day=17,
-    start_date='2003',
+    start_date="2003",
     days_of_week=(MONDAY,),
 )
 DayBeforeIndependenceDay = Holiday(
-    'Day Before Independence Day',
+    "Day Before Independence Day",
     month=9,
     day=17,
     observance=not_2010,
     days_of_week=(TUESDAY, WEDNESDAY, THURSDAY, FRIDAY),
 )
-IndependenceDay = Holiday('Independence Day', month=9, day=18)
-ArmyDay = Holiday('Army Day', month=9, day=19)
+IndependenceDay = Holiday("Independence Day", month=9, day=18)
+ArmyDay = Holiday("Army Day", month=9, day=19)
 PublicHolidayFriday = Holiday(
-    'Public Holiday Following a Thursday Army Day',
+    "Public Holiday Following a Thursday Army Day",
     month=9,
     day=20,
-    start_date='2003',
+    start_date="2003",
     days_of_week=(FRIDAY,),
 )
 
 DiaDeLaRaza = Holiday(
-    'Dia de la Raza',
+    "Dia de la Raza",
     month=10,
     day=12,
     observance=nearest_monday,
 )
 
 EvangelicalChurchDay = Holiday(
-    'Evangelical Church Day',
+    "Evangelical Church Day",
     month=10,
     day=31,
     observance=tuesday_and_wednesday_to_friday,
-    start_date='2008',
+    start_date="2008",
 )
 AllSaintsDay = all_saints_day()
 
@@ -157,7 +157,7 @@ ChristmasEve = christmas_eve(days_of_week=WEEKDAYS)
 Christmas = christmas()
 
 DayBeforeBankHoliday = Holiday(
-    'Day Before Bank Holiday',
+    "Day Before Bank Holiday",
     month=12,
     day=30,
     days_of_week=WEEKDAYS,
@@ -201,12 +201,11 @@ class XSGOExchangeCalendar(TradingCalendar):
       - Christmas Eve
       - Day before Bank Holiday
     """
-    name = 'XSGO'
-    tz = timezone('America/Santiago')
 
-    open_times = (
-        (None, time(9, 31)),
-    )
+    name = "XSGO"
+    tz = timezone("America/Santiago")
+
+    open_times = ((None, time(9, 31)),)
     early_close_1230 = time(12, 30)
     early_close_130 = time(13, 30)
 
@@ -219,40 +218,42 @@ class XSGOExchangeCalendar(TradingCalendar):
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            GoodFriday,
-            MondayPriorToCorpusChristi,
-            LabourDay,
-            NavyDay,
-            SaintPeterAndSaintPaulDay,
-            OurLadyOfMountCarmelDay,
-            AssumptionDay,
-            PublicHolidayMonday,
-            IndependenceDay,
-            ArmyDay,
-            PublicHolidayFriday,
-            DiaDeLaRaza,
-            EvangelicalChurchDay,
-            AllSaintsDay,
-            ImmaculateConception,
-            Christmas,
-            BankHoliday,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                GoodFriday,
+                MondayPriorToCorpusChristi,
+                LabourDay,
+                NavyDay,
+                SaintPeterAndSaintPaulDay,
+                OurLadyOfMountCarmelDay,
+                AssumptionDay,
+                PublicHolidayMonday,
+                IndependenceDay,
+                ArmyDay,
+                PublicHolidayFriday,
+                DiaDeLaRaza,
+                EvangelicalChurchDay,
+                AllSaintsDay,
+                ImmaculateConception,
+                Christmas,
+                BankHoliday,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
         return [
             # Bicentennial Celebration.
-            pd.Timestamp('2010-09-17', tz=UTC),
-            pd.Timestamp('2010-09-20', tz=UTC),
+            pd.Timestamp("2010-09-17", tz=UTC),
+            pd.Timestamp("2010-09-20", tz=UTC),
             # New Year's Day Observed. It is unclear why this happened only for
             # this one year.
-            pd.Timestamp('2017-01-02', tz=UTC),
+            pd.Timestamp("2017-01-02", tz=UTC),
             # Census Day.
-            pd.Timestamp('2017-04-19', tz=UTC),
+            pd.Timestamp("2017-04-19", tz=UTC),
             # Pope Visit.
-            pd.Timestamp('2018-01-16', tz=UTC),
+            pd.Timestamp("2018-01-16", tz=UTC),
         ]
 
     @property
@@ -271,5 +272,5 @@ class XSGOExchangeCalendar(TradingCalendar):
     def _starting_dates_and_close_times(self):
         yield ((None, time(17)))
         for year in range(1980, 2050):
-            yield (pd.Timestamp('{}-03-01'.format(year)), time(16))
-            yield (pd.Timestamp('{}-11-01'.format(year)), time(17))
+            yield (pd.Timestamp("{}-03-01".format(year)), time(16))
+            yield (pd.Timestamp("{}-11-01".format(year)), time(17))

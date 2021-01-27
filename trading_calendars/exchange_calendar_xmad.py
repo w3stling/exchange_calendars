@@ -15,69 +15,60 @@
 
 from datetime import time
 
-from pandas.tseries.holiday import (
-    Holiday,
-    GoodFriday,
-    EasterMonday,
-    weekend_to_monday,
-)
+from pandas.tseries.holiday import EasterMonday, GoodFriday, Holiday, weekend_to_monday
 from pytz import timezone
 
 from .common_holidays import (
-    new_years_day,
+    all_saints_day,
+    assumption_day,
+    boxing_day,
+    christmas,
+    christmas_eve,
     epiphany,
     european_labour_day,
-    assumption_day,
-    all_saints_day,
     immaculate_conception,
-    christmas_eve,
-    christmas,
-    boxing_day,
+    new_years_day,
     new_years_eve,
 )
-from .trading_calendar import (
-    HolidayCalendar,
-    TradingCalendar,
-    WEEKDAYS,
-)
+from .trading_calendar import WEEKDAYS, HolidayCalendar, TradingCalendar
 
 NewYearsDay = new_years_day()
 
-Epiphany = epiphany(end_date='2007')
+Epiphany = epiphany(end_date="2007")
 
 LabourDay = european_labour_day()
 
-AssumptionDay = assumption_day(end_date='2005', observance=weekend_to_monday)
+AssumptionDay = assumption_day(end_date="2005", observance=weekend_to_monday)
 
 NationalDay = Holiday(
-    'National Day',
+    "National Day",
     month=10,
     day=12,
-    end_date='2005',
+    end_date="2005",
 )
 
-AllSaintsDay = all_saints_day(end_date='2005')
+AllSaintsDay = all_saints_day(end_date="2005")
 
 ConstitutionDay = Holiday(
-    'Constitution Day',
+    "Constitution Day",
     month=12,
     day=6,
-    end_date='2005',
+    end_date="2005",
 )
 
-ImmaculateConception = immaculate_conception(end_date='2005')
+ImmaculateConception = immaculate_conception(end_date="2005")
 
-ChristmasEveThrough2010 = christmas_eve(end_date='2011')
+ChristmasEveThrough2010 = christmas_eve(end_date="2011")
 ChristmasEveEarlyClose2012Onwards = christmas_eve(
-    start_date='2012',
+    start_date="2012",
     days_of_week=(WEEKDAYS),
 )
 Christmas = christmas()
 BoxingDay = boxing_day()
 
-NewYearsEveThrough2010 = new_years_eve(end_date='2011')
+NewYearsEveThrough2010 = new_years_eve(end_date="2011")
 NewYearsEveEarlyClose2012Onwards = new_years_eve(
-    start_date='2012',
+    start_date="2012",
     days_of_week=(WEEKDAYS),
 )
 
@@ -111,47 +102,48 @@ class XMADExchangeCalendar(TradingCalendar):
       - Christmas Eve (2012 and after)
       - New Year's Eve (2012 and after)
     """
+
     regular_early_close = time(14, 00)
 
-    name = 'XMAD'
+    name = "XMAD"
 
-    tz = timezone('Europe/Madrid')
+    tz = timezone("Europe/Madrid")
 
-    open_times = (
-        (None, time(9, 1)),
-    )
+    open_times = ((None, time(9, 1)),)
 
-    close_times = (
-        (None, time(17, 30)),
-    )
+    close_times = ((None, time(17, 30)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            Epiphany,
-            GoodFriday,
-            EasterMonday,
-            LabourDay,
-            AssumptionDay,
-            NationalDay,
-            AllSaintsDay,
-            ConstitutionDay,
-            ImmaculateConception,
-            ChristmasEveThrough2010,
-            Christmas,
-            BoxingDay,
-            NewYearsEveThrough2010,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                Epiphany,
+                GoodFriday,
+                EasterMonday,
+                LabourDay,
+                AssumptionDay,
+                NationalDay,
+                AllSaintsDay,
+                ConstitutionDay,
+                ImmaculateConception,
+                ChristmasEveThrough2010,
+                Christmas,
+                BoxingDay,
+                NewYearsEveThrough2010,
+            ]
+        )
 
     @property
     def special_closes(self):
         return [
             (
                 self.regular_early_close,
-                HolidayCalendar([
-                    ChristmasEveEarlyClose2012Onwards,
-                    NewYearsEveEarlyClose2012Onwards,
-                ])
+                HolidayCalendar(
+                    [
+                        ChristmasEveEarlyClose2012Onwards,
+                        NewYearsEveEarlyClose2012Onwards,
+                    ]
+                ),
             )
         ]

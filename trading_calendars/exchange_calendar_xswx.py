@@ -14,27 +14,21 @@
 # limitations under the License.
 
 from datetime import time
-from pandas.tseries.holiday import (
-    EasterMonday,
-    GoodFriday,
-    Holiday,
-)
+
+from pandas.tseries.holiday import EasterMonday, GoodFriday, Holiday
 from pytz import timezone
 
 from .common_holidays import (
-    new_years_day,
-    european_labour_day,
     ascension_day,
-    whit_monday,
-    christmas_eve,
-    christmas,
     boxing_day,
+    christmas,
+    christmas_eve,
+    european_labour_day,
+    new_years_day,
     new_years_eve,
+    whit_monday,
 )
-from .trading_calendar import (
-    TradingCalendar,
-    HolidayCalendar,
-)
+from .trading_calendar import HolidayCalendar, TradingCalendar
 
 # Regular Holidays
 # ----------------
@@ -52,11 +46,7 @@ AscensionDay = ascension_day()
 
 WhitMonday = whit_monday()
 
-SwissNationalDay = Holiday(
-    "Swiss National Day",
-    month=8,
-    day=1
-)
+SwissNationalDay = Holiday("Swiss National Day", month=8, day=1)
 
 ChristmasEve = christmas_eve()
 
@@ -89,31 +79,29 @@ class XSWXExchangeCalendar(TradingCalendar):
     - New Year's Eve
     """
 
-    name = 'XSWX'
+    name = "XSWX"
 
-    tz = timezone('Europe/Zurich')
+    tz = timezone("Europe/Zurich")
 
-    open_times = (
-        (None, time(9, 1)),
-    )
+    open_times = ((None, time(9, 1)),)
 
-    close_times = (
-        (None, time(17, 30)),
-    )
+    close_times = ((None, time(17, 30)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            BerchtoldsDay,
-            EasterMonday,
-            GoodFriday,
-            EuropeanLabourDay,
-            AscensionDay,
-            WhitMonday,
-            SwissNationalDay,
-            ChristmasEve,
-            Christmas,
-            BoxingDay,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                BerchtoldsDay,
+                EasterMonday,
+                GoodFriday,
+                EuropeanLabourDay,
+                AscensionDay,
+                WhitMonday,
+                SwissNationalDay,
+                ChristmasEve,
+                Christmas,
+                BoxingDay,
+                NewYearsEve,
+            ]
+        )

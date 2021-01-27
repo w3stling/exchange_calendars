@@ -1,14 +1,16 @@
 from unittest import TestCase
+
 import pandas as pd
 from pytz import UTC
 
-from .test_trading_calendar import ExchangeCalendarTestBase
 from trading_calendars.exchange_calendar_xfra import XFRAExchangeCalendar
+
+from .test_trading_calendar import ExchangeCalendarTestBase
 
 
 class XFRACalendarTestCase(ExchangeCalendarTestBase, TestCase):
 
-    answer_key_filename = 'xfra'
+    answer_key_filename = "xfra"
     calendar_class = XFRAExchangeCalendar
 
     # The FWB is open from 9:00 am to 5:30 pm.
@@ -17,31 +19,31 @@ class XFRACalendarTestCase(ExchangeCalendarTestBase, TestCase):
     def test_whit_monday(self):
         # Whit Monday was not observed prior to 2007.
         self.assertIn(
-            pd.Timestamp('2006-06-05', tz=UTC),
+            pd.Timestamp("2006-06-05", tz=UTC),
             self.calendar.all_sessions,
         )
 
         # It was observed as a one-off in 2007...
         self.assertNotIn(
-            pd.Timestamp('2007-05-28', tz=UTC),
+            pd.Timestamp("2007-05-28", tz=UTC),
             self.calendar.all_sessions,
         )
 
         # ...then not again...
         self.assertIn(
-            pd.Timestamp('2008-05-12', tz=UTC),
+            pd.Timestamp("2008-05-12", tz=UTC),
             self.calendar.all_sessions,
         )
 
         # ...until 2015...
         self.assertNotIn(
-            pd.Timestamp('2015-05-25', tz=UTC),
+            pd.Timestamp("2015-05-25", tz=UTC),
             self.calendar.all_sessions,
         )
 
         # ...when it became regularly observed.
         self.assertNotIn(
-            pd.Timestamp('2016-05-16', tz=UTC),
+            pd.Timestamp("2016-05-16", tz=UTC),
             self.calendar.all_sessions,
         )
 
@@ -67,37 +69,35 @@ class XFRACalendarTestCase(ExchangeCalendarTestBase, TestCase):
         ]
 
         for early_close_session_label in early_closes_2012:
-            self.assertIn(early_close_session_label,
-                          self.calendar.early_closes)
+            self.assertIn(early_close_session_label, self.calendar.early_closes)
 
     def test_half_days(self):
         half_days = [
             # In 2011, NYE was on a Sat, so Fri is a half day
-            pd.Timestamp('2011-12-30', tz='CET'),
+            pd.Timestamp("2011-12-30", tz="CET"),
             # In 2012, NYE was on a Mon, so the preceding Fri is a half day
-            pd.Timestamp('2012-12-28', tz='CET'),
+            pd.Timestamp("2012-12-28", tz="CET"),
         ]
 
         for half_day in half_days:
             half_day_close_time = self.calendar.next_close(half_day)
             self.assertEqual(
-                half_day_close_time,
-                half_day + pd.Timedelta(hours=12, minutes=30)
+                half_day_close_time, half_day + pd.Timedelta(hours=12, minutes=30)
             )
 
     def test_reformation_day(self):
         # Reformation Day was a German national holiday in 2017 only.
         self.assertNotIn(
-            pd.Timestamp('2017-10-31', tz=UTC),
+            pd.Timestamp("2017-10-31", tz=UTC),
             self.calendar.all_sessions,
         )
 
         # Ensure it is a trading day in the surrounding years.
         self.assertIn(
-            pd.Timestamp('2016-10-31', tz=UTC),
+            pd.Timestamp("2016-10-31", tz=UTC),
             self.calendar.all_sessions,
         )
         self.assertIn(
-            pd.Timestamp('2018-10-31', tz=UTC),
+            pd.Timestamp("2018-10-31", tz=UTC),
             self.calendar.all_sessions,
         )

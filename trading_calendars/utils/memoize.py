@@ -1,7 +1,6 @@
 """
-Note
-----
-Lifted from zipline.
+TODO - get rid of this when 3.8 is the min supported version and we can use
+`cached_property`
 """
 from weakref import WeakKeyDictionary
 
@@ -36,6 +35,7 @@ class lazyval(object):
     >>> c.val
     'val'
     """
+
     def __init__(self, get):
         self._get = get
         self._cache = WeakKeyDictionary()

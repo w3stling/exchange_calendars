@@ -15,26 +15,19 @@
 
 from datetime import time
 
-from pandas.tseries.holiday import (
-    Holiday,
-    GoodFriday,
-    EasterMonday,
-    DateOffset,
-    MO,
-    TH,
-)
+from pandas.tseries.holiday import MO, TH, DateOffset, EasterMonday, GoodFriday, Holiday
 from pytz import timezone
 
 from .common_holidays import (
-    new_years_day,
-    maundy_thursday,
     ascension_day,
-    whit_monday,
-    european_labour_day,
-    christmas_eve,
-    christmas,
     boxing_day,
+    christmas,
+    christmas_eve,
+    european_labour_day,
+    maundy_thursday,
+    new_years_day,
     new_years_eve,
+    whit_monday,
 )
 from .trading_calendar import HolidayCalendar, TradingCalendar
 
@@ -54,7 +47,7 @@ MaundyThursday = maundy_thursday()
 AscensionDay = ascension_day()
 WhitMonday = whit_monday()
 
-NationalDay = Holiday('Icelandic Republic Day', month=6, day=17)
+NationalDay = Holiday("Icelandic Republic Day", month=6, day=17)
 
 # This falls on the first Monday of August.
 CommerceDay = Holiday(
@@ -97,30 +90,29 @@ class XICEExchangeCalendar(TradingCalendar):
     Early Closes:
       - None
     """
-    name = 'XICE'
-    tz = timezone('Atlantic/Reykjavik')
-    open_times = (
-        (None, time(9, 31)),
-    )
-    close_times = (
-        (None, time(15, 30)),
-    )
+
+    name = "XICE"
+    tz = timezone("Atlantic/Reykjavik")
+    open_times = ((None, time(9, 31)),)
+    close_times = ((None, time(15, 30)),)
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            MaundyThursday,
-            GoodFriday,
-            EasterMonday,
-            FirstDayOfSummer,
-            LabourDay,
-            AscensionDay,
-            WhitMonday,
-            NationalDay,
-            CommerceDay,
-            ChristmasEve,
-            Christmas,
-            BoxingDay,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                MaundyThursday,
+                GoodFriday,
+                EasterMonday,
+                FirstDayOfSummer,
+                LabourDay,
+                AscensionDay,
+                WhitMonday,
+                NationalDay,
+                CommerceDay,
+                ChristmasEve,
+                Christmas,
+                BoxingDay,
+                NewYearsEve,
+            ]
+        )
