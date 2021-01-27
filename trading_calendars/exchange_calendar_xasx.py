@@ -158,7 +158,7 @@ class XASXExchangeCalendar(TradingCalendar):
 
     tz = timezone("Australia/Sydney")
 
-    open_times = ((None, time(10, 1)),)  # Zipline compatability (10,1); else (10,0)
+    open_times = ((None, time(10)),)  # Zipline compatability (10,1); else (10,0)
 
     close_times = ((None, time(16)),)
 

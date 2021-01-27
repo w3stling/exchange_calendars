@@ -36,7 +36,7 @@ class IEPAExchangeCalendar(TradingCalendar):
 
     tz = timezone("America/New_York")
 
-    open_times = ((None, time(20, 1)),)
+    open_times = ((None, time(20)),)
 
     close_times = ((None, time(18)),)
 

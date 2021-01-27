@@ -157,7 +157,7 @@ class XNYSExchangeCalendar(TradingCalendar):
 
     tz = timezone("America/New_York")
 
-    open_times = ((None, time(9, 31)),)
+    open_times = ((None, time(9, 30)),)
 
     close_times = ((None, time(16)),)
 

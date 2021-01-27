@@ -344,7 +344,7 @@ class XBOMExchangeCalendar(PrecomputedTradingCalendar):
 
     name = "XBOM"
     tz = timezone("Asia/Calcutta")
-    open_times = ((None, time(9, 16)),)
+    open_times = ((None, time(9, 15)),)
     close_times = ((None, time(15, 30)),)
 
     @property

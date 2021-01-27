@@ -276,7 +276,7 @@ class XTAIExchangeCalendar(TradingCalendar):
 
     tz = timezone("Asia/Taipei")
 
-    open_times = ((None, time(9, 1)),)
+    open_times = ((None, time(9)),)
 
     close_times = ((None, time(13, 30)),)
 

@@ -57,7 +57,7 @@ class XJSEExchangeCalendar(TradingCalendar):
 
     tz = timezone("Africa/Johannesburg")
 
-    open_times = ((None, time(9, 1)),)
+    open_times = ((None, time(9)),)
 
     close_times = ((None, time(17, 00)),)
 

@@ -502,7 +502,7 @@ class XSHGExchangeCalendar(PrecomputedTradingCalendar):
 
     name = "XSHG"
     tz = timezone("Asia/Shanghai")
-    open_times = ((None, time(9, 31)),)
+    open_times = ((None, time(9, 30)),)
     close_times = ((None, time(15, 0)),)
 
     @property

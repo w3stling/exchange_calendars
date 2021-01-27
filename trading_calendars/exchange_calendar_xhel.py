@@ -77,7 +77,7 @@ class XHELExchangeCalendar(TradingCalendar):
 
     name = "XHEL"
     tz = timezone("Europe/Helsinki")
-    open_times = ((None, time(10, 1)),)
+    open_times = ((None, time(10)),)
     close_times = ((None, time(18, 30)),)
 
     @property

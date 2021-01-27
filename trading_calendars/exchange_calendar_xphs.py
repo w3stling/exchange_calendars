@@ -193,7 +193,7 @@ class XPHSExchangeCalendar(TradingCalendar):
 
     tz = timezone("Asia/Manila")
 
-    open_times = ((None, time(9, 31)),)
+    open_times = ((None, time(9, 30)),)
 
     close_times = ((None, time(15, 30)),)
 

@@ -64,7 +64,7 @@ class XKARExchangeCalendar(TradingCalendar):
     # See https://www.psx.com.pk/psx/exchange/general/trading-hours
 
     open_times = (
-        (None, time(9, 33)),
+        (None, time(9, 32)),
         # TODO: 09:17 on Fridays
     )
 

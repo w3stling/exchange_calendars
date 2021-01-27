@@ -77,7 +77,7 @@ class XOSLExchangeCalendar(TradingCalendar):
 
     name = "XOSL"
     tz = timezone("Europe/Oslo")
-    open_times = ((None, time(9, 1)),)
+    open_times = ((None, time(9)),)
     close_times = ((None, time(16, 20)),)
     regular_early_close = time(13)
 

@@ -128,7 +128,7 @@ class XDUBExchangeCalendar(TradingCalendar):
 
     name = "XDUB"
     tz = timezone("Europe/Dublin")
-    open_times = ((None, time(8, 1)),)
+    open_times = ((None, time(8)),)
     close_times = ((None, time(16, 28)),)
     regular_early_close = time(12, 28)
 

@@ -99,7 +99,7 @@ class XETRExchangeCalendar(TradingCalendar):
 
     tz = timezone("CET")
 
-    open_times = ((None, time(9, 1)),)
+    open_times = ((None, time(9)),)
 
     close_times = ((None, time(17, 30)),)
 

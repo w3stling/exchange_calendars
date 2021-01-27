@@ -110,7 +110,7 @@ class XWARExchangeCalendar(TradingCalendar):
 
     tz = timezone("Europe/Warsaw")
 
-    open_times = ((None, time(9, 1)),)
+    open_times = ((None, time(9)),)
     close_times = ((None, time(17)),)
 
     @property

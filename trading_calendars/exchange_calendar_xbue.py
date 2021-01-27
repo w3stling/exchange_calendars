@@ -252,7 +252,7 @@ class XBUEExchangeCalendar(TradingCalendar):
 
     tz = timezone("America/Argentina/Buenos_Aires")
 
-    open_times = ((None, time(11, 1)),)
+    open_times = ((None, time(11)),)
 
     close_times = ((None, time(17, 00)),)
 

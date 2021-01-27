@@ -51,13 +51,17 @@ class XHKGCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         # Test that the calendar correctly reports itself as closed during
         # session break
         normal_minute = pd.Timestamp("2003-01-27 03:30:00")
-        break_minute = pd.Timestamp("2003-01-27 04:30:00")
+        break_start_minute = pd.Timestamp("2003-01-27 04:00:00")
+        mid_break_minute = pd.Timestamp("2003-01-27 04:30:00")
+        break_end_minute = pd.Timestamp("2003-01-27 05:00:00")
 
         self.assertTrue(self.calendar.is_open_on_minute(normal_minute))
-        self.assertFalse(self.calendar.is_open_on_minute(break_minute))
+        self.assertTrue(self.calendar.is_open_on_minute(break_start_minute))
+        self.assertFalse(self.calendar.is_open_on_minute(mid_break_minute))
+        self.assertTrue(self.calendar.is_open_on_minute(break_end_minute))
         # Make sure that ignoring breaks indicates the exchange is open
         self.assertTrue(
-            self.calendar.is_open_on_minute(break_minute, ignore_breaks=True)
+            self.calendar.is_open_on_minute(mid_break_minute, ignore_breaks=True)
         )
 
         current_session_label = self.calendar.minute_to_session_label(
@@ -65,11 +69,11 @@ class XHKGCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         )
         self.assertEqual(
             current_session_label,
-            self.calendar.minute_to_session_label(break_minute, direction="previous"),
+            self.calendar.minute_to_session_label(mid_break_minute, direction="previous"),
         )
         self.assertEqual(
             current_session_label,
-            self.calendar.minute_to_session_label(break_minute, direction="next"),
+            self.calendar.minute_to_session_label(mid_break_minute, direction="next"),
         )
 
     def test_lunar_new_year_2003(self):
