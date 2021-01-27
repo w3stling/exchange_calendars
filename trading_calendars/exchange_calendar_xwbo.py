@@ -15,8 +15,13 @@
 
 from datetime import time
 
-from pandas.tseries.holiday import (EasterMonday, GoodFriday, Holiday, previous_friday,
-                                    previous_workday)
+from pandas.tseries.holiday import (
+    EasterMonday,
+    GoodFriday,
+    Holiday,
+    previous_friday,
+    previous_workday
+)
 from pytz import timezone
 
 from .common_holidays import (
