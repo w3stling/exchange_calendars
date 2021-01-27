@@ -16,8 +16,6 @@ class XWBOCalendarTestCase(ExchangeCalendarTestBase, TestCase):
     # The XWBO is open from 9:00 am to 5:30 pm.
     MAX_SESSION_HOURS = 8.5
 
-    HAVE_EARLY_CLOSES = False
-
     DAYLIGHT_SAVINGS_DATES = ["2018-03-12", "2018-11-05"]
 
     def test_normal_holidays(self):
@@ -118,3 +116,21 @@ class XWBOCalendarTestCase(ExchangeCalendarTestBase, TestCase):
 
         for session_label in expected_sessions:
             self.assertIn(session_label, self.calendar.all_sessions)
+
+    def test_half_days(self):
+        half_days = [
+            # In 2017, NYE was on a Sun, so Fri is a half day.
+            pd.Timestamp("2017-12-29", tz="Europe/Vienna"),
+            # In 2018, NYE was on a Mon, so the preceding Fri is a half day.
+            pd.Timestamp("2018-12-28", tz="Europe/Vienna"),
+            # In 2019, NYE was on a Tue, so Mon is a half day.
+            pd.Timestamp("2019-12-30", tz="Europe/Vienna"),
+            # In 2020, NYE was on a Thu, so Wed is a half day.
+            pd.Timestamp("2020-12-30", tz="Europe/Vienna"),
+        ]
+
+        for half_day in half_days:
+            half_day_close_time = self.calendar.next_close(half_day)
+            self.assertEqual(
+                half_day_close_time, half_day + pd.Timedelta(hours=14, minutes=15)
+            )
