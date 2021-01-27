@@ -68,7 +68,7 @@ class XCBFExchangeCalendar(TradingCalendar):
 
     tz = timezone("America/Chicago")
 
-    open_times = ((None, time(8, 31)),)
+    open_times = ((None, time(8, 30)),)
 
     close_times = ((None, time(15, 15)),)
 

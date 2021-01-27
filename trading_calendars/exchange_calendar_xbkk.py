@@ -82,7 +82,7 @@ class XBKKExchangeCalendar(TradingCalendar):
 
     tz = timezone("Asia/Bangkok")
 
-    open_times = ((None, time(10, 1)),)
+    open_times = ((None, time(10)),)
 
     close_times = ((None, time(16, 30)),)
 

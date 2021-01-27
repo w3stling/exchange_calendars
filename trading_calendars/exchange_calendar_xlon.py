@@ -180,7 +180,7 @@ class XLONExchangeCalendar(TradingCalendar):
 
     tz = timezone("Europe/London")
 
-    open_times = ((None, time(8, 1)),)
+    open_times = ((None, time(8)),)
 
     close_times = ((None, time(16, 30)),)
 

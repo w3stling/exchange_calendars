@@ -205,7 +205,7 @@ class XSGOExchangeCalendar(TradingCalendar):
     name = "XSGO"
     tz = timezone("America/Santiago")
 
-    open_times = ((None, time(9, 31)),)
+    open_times = ((None, time(9, 30)),)
     early_close_1230 = time(12, 30)
     early_close_130 = time(13, 30)
 

@@ -118,7 +118,7 @@ class ASEXExchangeCalendar(TradingCalendar):
 
     tz = timezone("Europe/Athens")
 
-    open_times = ((None, time(10, 1)),)
+    open_times = ((None, time(10)),)
 
     close_times = ((None, time(17, 00)), (pd.Timestamp("2008-09-29"), time(17, 20)))
 

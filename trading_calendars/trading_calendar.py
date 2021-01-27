@@ -413,7 +413,7 @@ class TradingCalendar(ABC):
             ]
             break_end_on_open_dt = self.market_break_ends_nanos[open_idx - 1]
             # NaT comparisions will result in False
-            if break_start_on_open_dt <= dt < break_end_on_open_dt:
+            if break_start_on_open_dt < dt < break_end_on_open_dt:
                 # we're in the middle of a break
                 return False
             else:

@@ -571,7 +571,7 @@ class XKRXExchangeCalendar(PrecomputedTradingCalendar):
 
     tz = timezone("Asia/Seoul")
 
-    open_times = ((None, time(9, 1)),)
+    open_times = ((None, time(9)),)
     close_times = ((None, time(15, 30)),)
 
     def __init__(self, *args, **kwargs):

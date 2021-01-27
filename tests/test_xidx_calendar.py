@@ -15,7 +15,7 @@ class XIDXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):
     answer_key_filename = "xidx"
     calendar_class = XIDXExchangeCalendar
 
-    MAX_SESSION_HOURS = 6.833
+    MAX_SESSION_HOURS = 6 + (5 / 6)
 
     HAVE_EARLY_CLOSES = False
 

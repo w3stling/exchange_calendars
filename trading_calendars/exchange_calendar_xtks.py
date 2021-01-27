@@ -87,7 +87,7 @@ class XTKSExchangeCalendar(TradingCalendar):
 
     tz = timezone("Asia/Tokyo")
 
-    open_times = ((None, time(9, 1)),)
+    open_times = ((None, time(9)),)
 
     close_times = ((None, time(15)),)
 

@@ -93,7 +93,7 @@ class XICEExchangeCalendar(TradingCalendar):
 
     name = "XICE"
     tz = timezone("Atlantic/Reykjavik")
-    open_times = ((None, time(9, 31)),)
+    open_times = ((None, time(9, 30)),)
     close_times = ((None, time(15, 30)),)
 
     @property

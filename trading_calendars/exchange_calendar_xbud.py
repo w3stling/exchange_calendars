@@ -135,7 +135,7 @@ class XBUDExchangeCalendar(TradingCalendar):
 
     tz = timezone("Europe/Budapest")
 
-    open_times = ((None, time(9, 1)),)
+    open_times = ((None, time(9)),)
 
     close_times = ((None, time(17, 00)),)
 

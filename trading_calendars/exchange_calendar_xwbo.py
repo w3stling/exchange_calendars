@@ -99,7 +99,7 @@ class XWBOExchangeCalendar(TradingCalendar):
 
     tz = timezone("Europe/Vienna")
 
-    open_times = ((None, time(9, 1)),)
+    open_times = ((None, time(9)),)
 
     close_times = ((None, time(17, 30)),)
 

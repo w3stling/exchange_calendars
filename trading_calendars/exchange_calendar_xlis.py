@@ -132,7 +132,7 @@ class XLISExchangeCalendar(TradingCalendar):
 
     tz = timezone("Europe/Lisbon")
 
-    open_times = ((None, time(8, 1)),)
+    open_times = ((None, time(8)),)
 
     close_times = ((None, time(16, 30)),)
 

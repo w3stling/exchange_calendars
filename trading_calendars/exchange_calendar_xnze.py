@@ -154,7 +154,7 @@ class XNZEExchangeCalendar(TradingCalendar):
 
     tz = timezone("NZ")
 
-    open_times = ((None, time(10, 1)),)
+    open_times = ((None, time(10)),)
 
     close_times = ((None, time(16, 45)),)
 

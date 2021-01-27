@@ -83,7 +83,7 @@ class XSWXExchangeCalendar(TradingCalendar):
 
     tz = timezone("Europe/Zurich")
 
-    open_times = ((None, time(9, 1)),)
+    open_times = ((None, time(9, 0)),)
 
     close_times = ((None, time(17, 30)),)
 

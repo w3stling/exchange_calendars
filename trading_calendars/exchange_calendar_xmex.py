@@ -104,7 +104,7 @@ class XMEXExchangeCalendar(TradingCalendar):
     name = "XMEX"
     tz = timezone("America/Mexico_City")
 
-    open_times = ((None, time(8, 31)),)
+    open_times = ((None, time(8, 30)),)
     close_times = ((None, time(15)),)
 
     @property

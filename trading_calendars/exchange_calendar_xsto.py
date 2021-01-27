@@ -122,7 +122,7 @@ class XSTOExchangeCalendar(TradingCalendar):
 
     name = "XSTO"
     tz = timezone("Europe/Stockholm")
-    open_times = ((None, time(9, 1)),)
+    open_times = ((None, time(9, 0)),)
     close_times = ((None, time(17, 30)),)
     regular_early_close = time(13)
 

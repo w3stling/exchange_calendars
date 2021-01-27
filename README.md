@@ -128,17 +128,37 @@ tcal XNYS 1 2020
 
 ## Frequently Asked Questions
 
-### Why are open times one minute late?
+### Why is `<holiday>` missing for `<calendar>`?
 
-Due to its historical use in the [Zipline](https://github.com/quantopian/zipline) backtesting system, `trading_calendars` will only indicate a market is open upon the completion of the first minute bar in a day. Zipline uses minute bars labeled with the end of the bar, e.g. 9:31AM for 9:30-9:31AM. As an example, on a regular trading day for NYSE:
+`trading_calendar` holidays are **all** user contributed. If a calendar you care about is missing a holiday, please open a PR.
 
-- 9:30:00 is treated as closed.
-- 9:30:01 is treated as closed.
-- 9:31:00 is the first time treated as open.
+### What times are considered open and closed?
+
+`trading_calendars` attempts to be broadly useful and thus maps to "intuitive" exchange open/closings, rather than the technically true ones. This may hide some technical aspects of the exchange (for example: auction durations).
+
+In general, the all times within the closed set `[open_time, close_time]` are treated as open.
+
+On a regular trading day for NYSE (open 9:30 AM to 4:00 PM EST):
+
+- 9:29:59 is treated as closed.
+- 9:30:00 is the first time treated as open.
+- 9:30:01 is treated as open.
 - 16:00:00 is treated as open
 - 16:00:01 is treated as closed
 
-This may change in the future.
+On a regular trading day for XHKG (open 9:30 AM to 12:00 PM, 1:00 PM to 4:00 PM HKT)
+
+- 9:29:59 is treated as closed.
+- 9:30:00 is the first time treated as open.
+- 9:30:01 is treated as open.
+- 12:00:00 is treated as open
+- 12:00:01 is treated as closed
+- 12:59:59 is treated as closed
+- 13:00:00 is treated as open
+- 16:00:00 is treated as open
+- 16:00:01 is treated as closed
+
+Similar logic applies to exchanges with lunchbreaks.
 
 
 ## Calendar Support

@@ -165,7 +165,7 @@ class BVMFExchangeCalendar(TradingCalendar):
 
     tz = timezone("America/Sao_Paulo")
 
-    open_times = ((None, time(10, 1)),)
+    open_times = ((None, time(10)),)
 
     close_times = (
         (None, time(17, 0)),
