@@ -4,4 +4,4 @@ include etc/requirements*.txt
 
 include tests/resources *.csv
 include versioneer.py
-include trading_calendars/_version.py
+include exchange_calendars/_version.py

@@ -1,22 +1,17 @@
-# trading_calendars
+# exchange_calendars
 
-[![CI](https://github.com/quantopian/trading_calendars/workflows/CI/badge.svg)](https://github.com/quantopian/trading_calendars/actions?query=workflow%3ACI)
-[![PyPI version](https://img.shields.io/pypi/v/trading-calendars.svg)](https://pypi.org/project/trading-calendars/)
-[![Conda version](https://img.shields.io/conda/vn/conda-forge/trading-calendars.svg)](https://anaconda.org/conda-forge/trading-calendars)
-
-A Python library of exchange calendars, frequently used with [Zipline](https://github.com/quantopian/zipline).
-
+A Python library of exchange calendars.
 
 ## Installation
 
 ```bash
-$ pip install trading-calendars
+$ pip install exchange_calendars
 ```
 
 ## Quick Start
 
 ```python
-import trading_calendars as tc
+import exchange_calendars as ecals
 import pandas as pd
 import pytz
 ```
@@ -24,14 +19,14 @@ import pytz
 Get all registered calendars with `get_calendar_names`:
 
 ```python
->>> tc.get_calendar_names()[:5]
+>>> ecals.get_calendar_names()[:5]
 ['XPHS', 'FWB', 'CFE', 'CMES', 'XSGO']
 ```
 
 Get a calendar with `get_calendar`:
 
 ```python
->>> xnys = tc.get_calendar("XNYS")
+>>> xnys = ecals.get_calendar("XNYS")
 ```
 
 Working with sessions:
@@ -70,12 +65,12 @@ DatetimeIndex(['2020-01-02 00:00:00+00:00', '2020-01-03 00:00:00+00:00',
                 dtype='datetime64[ns, UTC]', freq='C')
 ```
 
-**NOTE**: see the [TradingCalendar class](https://github.com/quantopian/trading_calendars/blob/master/trading_calendars/trading_calendar.py) for more advanced usage.
+**NOTE**: see the [ExchangeCalendar class](https://github.com/gerrymanoim/exchange_calendars/blob/master/exchange_calendars/exchange_calendar.py) for more advanced usage.
 
 Trading calendars also supports command line usage, printing a unix-cal like calendar indicating which days are trading sessions or holidays.
 
 ```bash
-tcal XNYS 2020
+ecal XNYS 2020
 ```
                                             2020
             January                        February                        March
@@ -115,7 +110,7 @@ tcal XNYS 2020
                                    [29] 30
 
 ```bash
-tcal XNYS 1 2020
+ecal XNYS 1 2020
 ```
 
             January 2020
@@ -130,11 +125,11 @@ tcal XNYS 1 2020
 
 ### Why is `<holiday>` missing for `<calendar>`?
 
-`trading_calendar` holidays are **all** user contributed. If a calendar you care about is missing a holiday, please open a PR.
+`exchange_calendar` holidays are **all** user contributed. If a calendar you care about is missing a holiday, please open a PR.
 
 ### What times are considered open and closed?
 
-`trading_calendars` attempts to be broadly useful and thus maps to "intuitive" exchange open/closings, rather than the technically true ones. This may hide some technical aspects of the exchange (for example: auction durations).
+`exchange_calendars` attempts to be broadly useful and thus maps to "intuitive" exchange open/closings, rather than the technically true ones. This may hide some technical aspects of the exchange (for example: auction durations).
 
 In general, the all times within the closed set `[open_time, close_time]` are treated as open.
 

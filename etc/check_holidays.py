@@ -3,8 +3,8 @@ from functools import partial
 import click
 import pandas as pd
 
-from trading_calendars import get_calendar
-from trading_calendars.calendar_utils import default_calendar_names
+from exchange_calendars import get_calendar
+from exchange_calendars.calendar_utils import default_calendar_names
 
 
 class TimestampType(click.ParamType):
@@ -106,7 +106,7 @@ def _check_range(start, end, holidays, cal, calendar_name):
     if unexpected_sessions.size:
         click.echo(
             "\nThese dates are holidays in the given key, but trading days in "
-            "the {} trading calendar:".format(calendar_name)
+            "the {} exchange calendar:".format(calendar_name)
         )
         for session in unexpected_sessions:
             click.secho(str(session.date()), fg="red")
@@ -114,7 +114,7 @@ def _check_range(start, end, holidays, cal, calendar_name):
     if unexpected_holidays.size:
         click.echo(
             "\nThese dates are trading days in the given key, but holidays in "
-            "the {} trading calendar:".format(calendar_name)
+            "the {} exchange calendar:".format(calendar_name)
         )
         for holiday in unexpected_holidays:
             click.secho(str(holiday.date()), fg="red")
@@ -128,7 +128,7 @@ def _check_range(start, end, holidays, cal, calendar_name):
 
 @click.command(
     help=(
-        "Checks trading calendars against a holiday key."
+        "Checks exchange calendars against a holiday key."
         " HOLIDAY_KEY_PATH is the path to a CSV file containing the key,"
         " with a calendar name column and a holiday date column."
     )

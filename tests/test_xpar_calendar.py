@@ -3,9 +3,9 @@ from unittest import TestCase
 import pandas as pd
 from pytz import UTC
 
-from trading_calendars.exchange_calendar_xpar import XPARExchangeCalendar
+from exchange_calendars.exchange_calendar_xpar import XPARExchangeCalendar
 
-from .test_trading_calendar import EuronextCalendarTestBase
+from .test_exchange_calendar import EuronextCalendarTestBase
 
 
 class XPARCalendarTestCase(EuronextCalendarTestBase, TestCase):

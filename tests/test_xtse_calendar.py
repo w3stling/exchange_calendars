@@ -3,9 +3,9 @@ from unittest import TestCase
 import pandas as pd
 from pytz import UTC
 
-from trading_calendars.exchange_calendar_xtse import XTSEExchangeCalendar
+from exchange_calendars.exchange_calendar_xtse import XTSEExchangeCalendar
 
-from .test_trading_calendar import ExchangeCalendarTestBase
+from .test_exchange_calendar import ExchangeCalendarTestBase
 
 
 class XTSECalendarTestCase(ExchangeCalendarTestBase, TestCase):
@@ -46,7 +46,7 @@ class XTSECalendarTestCase(ExchangeCalendarTestBase, TestCase):
 
     def test_new_years(self):
         """
-        Check whether the TradingCalendar contains certain dates.
+        Check whether the ExchangeCalendar contains certain dates.
         """
         #     January 2012
         # Su Mo Tu We Th Fr Sa

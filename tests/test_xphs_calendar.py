@@ -3,9 +3,9 @@ from unittest import TestCase
 import pandas as pd
 from pytz import UTC
 
-from trading_calendars.exchange_calendar_xphs import XPHSExchangeCalendar
+from exchange_calendars.exchange_calendar_xphs import XPHSExchangeCalendar
 
-from .test_trading_calendar import NoDSTExchangeCalendarTestBase
+from .test_exchange_calendar import NoDSTExchangeCalendarTestBase
 
 
 class XPHSCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):

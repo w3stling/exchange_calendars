@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from trading_calendars.exchange_calendar_xbom import XBOMExchangeCalendar
+from exchange_calendars.exchange_calendar_xbom import XBOMExchangeCalendar
 
-from .test_trading_calendar import ExchangeCalendarTestBase
+from .test_exchange_calendar import ExchangeCalendarTestBase
 from .test_utils import T
 
 

@@ -3,16 +3,16 @@ import itertools
 import pandas as pd
 from pytz import UTC
 
-from trading_calendars import get_calendar
-from trading_calendars.calendar_utils import (
-    TradingCalendarDispatcher,
+from exchange_calendars import get_calendar
+from exchange_calendars.calendar_utils import (
+    ExchangeCalendarDispatcher,
     _default_calendar_aliases,
     _default_calendar_factories,
 )
 
 
 def construct_all_calendars():
-    dispatcher = TradingCalendarDispatcher(
+    dispatcher = ExchangeCalendarDispatcher(
         calendars={},
         calendar_factories=_default_calendar_factories,
         aliases=_default_calendar_aliases,

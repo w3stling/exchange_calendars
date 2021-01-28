@@ -3,9 +3,9 @@ from unittest import TestCase
 import pandas as pd
 from pytz import UTC
 
-from trading_calendars.exchange_calendar_xtks import XTKSExchangeCalendar
-from trading_calendars.trading_calendar import SUNDAY, WEDNESDAY
-from trading_calendars.xtks_holidays import (
+from exchange_calendars.exchange_calendar_xtks import XTKSExchangeCalendar
+from exchange_calendars.exchange_calendar import SUNDAY, WEDNESDAY
+from exchange_calendars.xtks_holidays import (
     AutumnalEquinoxes,
     ChildrensDay,
     CitizensHolidaySilverWeek,
@@ -16,7 +16,7 @@ from trading_calendars.xtks_holidays import (
     RespectForTheAgedDay2003Onwards,
 )
 
-from .test_trading_calendar import ExchangeCalendarTestBase
+from .test_exchange_calendar import ExchangeCalendarTestBase
 
 
 class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):

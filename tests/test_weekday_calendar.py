@@ -4,9 +4,9 @@ import pandas as pd
 import pandas.testing as tm
 from pytz import UTC
 
-from trading_calendars.weekday_calendar import WeekdayCalendar
+from exchange_calendars.weekday_calendar import WeekdayCalendar
 
-from .test_trading_calendar import ExchangeCalendarTestBase
+from .test_exchange_calendar import ExchangeCalendarTestBase
 
 
 class WeekdayCalendarTestCase(ExchangeCalendarTestBase, TestCase):
