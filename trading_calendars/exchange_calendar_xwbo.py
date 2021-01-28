@@ -15,7 +15,13 @@
 
 from datetime import time
 
-from pandas.tseries.holiday import EasterMonday, GoodFriday, Holiday, previous_friday
+from pandas.tseries.holiday import (
+    EasterMonday,
+    GoodFriday,
+    Holiday,
+    previous_friday,
+    previous_workday
+)
 from pytz import timezone
 
 from .common_holidays import (
@@ -65,6 +71,23 @@ NewYearsEveThrough2015 = new_years_eve(
 )
 NewYearsEve2016Onwards = new_years_eve(start_date="2016")
 
+# Early Closes
+# ------------
+# The last weekday before Dec 31 is an early close starting in 2017. Note: this
+# is decided upon separately each year somewhen in November/December.
+# Official announcements can be found at
+#
+#    https://www.wienerborse.at/en/news/vienna-stock-exchange-news-list/
+#
+# when searching for "Last trading day".
+LastWorkingDay = Holiday(
+    "Last Working Day of Year Early Close",
+    month=12,
+    day=31,
+    start_date="2017-01-01",
+    observance=previous_workday,
+)
+
 
 class XWBOExchangeCalendar(TradingCalendar):
     """
@@ -92,8 +115,10 @@ class XWBOExchangeCalendar(TradingCalendar):
       - New Year's Eve
 
     Early Closes:
-      - None
+      - Last working day before Dec. 31
     """
+
+    regular_early_close = time(14, 15)
 
     name = "XWBO"
 
@@ -126,3 +151,16 @@ class XWBOExchangeCalendar(TradingCalendar):
                 NewYearsEve2016Onwards,
             ]
         )
+
+    @property
+    def special_closes(self):
+        return [
+            (
+                self.regular_early_close,
+                HolidayCalendar(
+                    [
+                        LastWorkingDay,
+                    ]
+                ),
+            )
+        ]
