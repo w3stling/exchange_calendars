@@ -41,7 +41,7 @@ classifiers = [
 
 reqs = [
     "numpy",
-    "pandas",
+    "pandas>=1.0",
     "pyluach",
     "python-dateutil",
     "pytz",
