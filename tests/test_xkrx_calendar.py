@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from trading_calendars.exchange_calendar_xkrx import XKRXExchangeCalendar
+from exchange_calendars.exchange_calendar_xkrx import XKRXExchangeCalendar
 
-from .test_trading_calendar import NoDSTExchangeCalendarTestBase
+from .test_exchange_calendar import NoDSTExchangeCalendarTestBase
 from .test_utils import T
 
 

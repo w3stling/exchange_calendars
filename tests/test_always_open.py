@@ -4,9 +4,9 @@ import pandas as pd
 import pandas.testing as tm
 from pytz import UTC
 
-from trading_calendars.always_open import AlwaysOpenCalendar
+from exchange_calendars.always_open import AlwaysOpenCalendar
 
-from .test_trading_calendar import ExchangeCalendarTestBase
+from .test_exchange_calendar import ExchangeCalendarTestBase
 
 
 class AlwaysOpenTestCase(ExchangeCalendarTestBase, TestCase):

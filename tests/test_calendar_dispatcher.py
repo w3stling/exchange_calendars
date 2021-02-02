@@ -1,15 +1,15 @@
 """
-Tests for TradingCalendarDispatcher.
+Tests for ExchangeCalendarDispatcher.
 """
 from unittest import TestCase
 
-from trading_calendars.calendar_utils import TradingCalendarDispatcher
-from trading_calendars.errors import (
+from exchange_calendars.calendar_utils import ExchangeCalendarDispatcher
+from exchange_calendars.errors import (
     CalendarNameCollision,
     CyclicCalendarAlias,
     InvalidCalendarName,
 )
-from trading_calendars.exchange_calendar_iepa import IEPAExchangeCalendar
+from exchange_calendars.exchange_calendar_iepa import IEPAExchangeCalendar
 
 
 class CalendarAliasTestCase(TestCase):
@@ -27,7 +27,7 @@ class CalendarAliasTestCase(TestCase):
         )
 
     def setup_method(self, method):
-        self.dispatcher = TradingCalendarDispatcher(
+        self.dispatcher = ExchangeCalendarDispatcher(
             # Make copies here so that tests that mutate the dispatcher dicts
             # are isolated from one another.
             **{k: v.copy() for k, v in self.dispatcher_kwargs.items()}

@@ -4,9 +4,9 @@ from unittest import TestCase
 import pandas as pd
 from pytz import UTC
 
-from trading_calendars.exchange_calendar_xhkg import XHKGExchangeCalendar
+from exchange_calendars.exchange_calendar_xhkg import XHKGExchangeCalendar
 
-from .test_trading_calendar import ExchangeCalendarTestBase
+from .test_exchange_calendar import ExchangeCalendarTestBase
 from .test_utils import T
 
 

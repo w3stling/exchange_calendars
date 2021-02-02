@@ -3,9 +3,9 @@ from unittest import TestCase
 import pandas as pd
 from pytz import UTC
 
-from trading_calendars.exchange_calendar_xice import XICEExchangeCalendar
+from exchange_calendars.exchange_calendar_xice import XICEExchangeCalendar
 
-from .test_trading_calendar import ExchangeCalendarTestBase
+from .test_exchange_calendar import ExchangeCalendarTestBase
 
 
 class XICECalendarTestCase(ExchangeCalendarTestBase, TestCase):

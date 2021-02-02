@@ -3,10 +3,10 @@ from unittest import TestCase
 import pandas as pd
 from pytz import UTC
 
-from trading_calendars.exchange_calendar_xbud import XBUDExchangeCalendar
-from trading_calendars.trading_calendar import FRIDAY, THURSDAY, TUESDAY, WEDNESDAY
+from exchange_calendars.exchange_calendar_xbud import XBUDExchangeCalendar
+from exchange_calendars.exchange_calendar import FRIDAY, THURSDAY, TUESDAY, WEDNESDAY
 
-from .test_trading_calendar import ExchangeCalendarTestBase
+from .test_exchange_calendar import ExchangeCalendarTestBase
 
 
 class XBUDCalendarTestCase(ExchangeCalendarTestBase, TestCase):

@@ -4,10 +4,10 @@ import pandas as pd
 from parameterized import parameterized
 from pytz import UTC
 
-from trading_calendars.exchange_calendar_xidx import XIDXExchangeCalendar
-from trading_calendars.trading_calendar import WEEKENDS
+from exchange_calendars.exchange_calendar_xidx import XIDXExchangeCalendar
+from exchange_calendars.exchange_calendar import WEEKENDS
 
-from .test_trading_calendar import NoDSTExchangeCalendarTestBase
+from .test_exchange_calendar import NoDSTExchangeCalendarTestBase
 
 
 class XIDXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):

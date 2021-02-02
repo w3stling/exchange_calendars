@@ -17,13 +17,13 @@ from setuptools import find_packages, setup
 
 import versioneer
 
-DISTNAME = "trading_calendars"
-DESCRIPTION = """trading_calendars is a Python library with \
-securities exchange calendars used by Quantopian's Zipline."""
+DISTNAME = "exchange_calendars"
+DESCRIPTION = """exchange_calendars is a Python library with \
+securities exchange calendars"""
 
-AUTHOR = "Quantopian Inc"
-AUTHOR_EMAIL = "opensource@quantopian.com"
-URL = "https://github.com/quantopian/trading_calendars"
+AUTHOR = "Gerry Manoim"
+AUTHOR_EMAIL = "gerrymanoim@gmail.com"
+URL = "https://github.com/gerrymanoim/exchange_calendars"
 LICENSE = "Apache License, Version 2.0"
 
 classifiers = [
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         name=DISTNAME,
         entry_points={
             "console_scripts": [
-                "tcal = trading_calendars.tcal:main",
+                "ecal = exchange_calendars.ecal:main",
             ],
         },
         cmdclass=versioneer.get_cmdclass(),
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         classifiers=classifiers,
         long_description=LONG_DESCRIPTION,
         long_description_content_type="text/markdown",
-        packages=find_packages(include=["trading_calendars", "trading_calendars.*"]),
+        packages=find_packages(include=["exchange_calendars", "exchange_calendars.*"]),
         install_requires=reqs,
         extras_require={
             "dev": [
