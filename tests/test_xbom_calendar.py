@@ -49,7 +49,7 @@ class XBOMCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         )
 
         with self.assertRaises(ValueError) as e:
-            self.calendar_class(T("1998-01-01"), T("2022-01-01"))
+            self.calendar_class(T("1998-01-01"), T("2022-01-03"))
 
         self.assertEqual(
             str(e.exception),
