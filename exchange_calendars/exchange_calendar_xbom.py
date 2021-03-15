@@ -326,6 +326,20 @@ precomputed_bse_holidays = pd.to_datetime(
         "2020-11-16",
         "2020-11-30",
         "2020-12-25",
+        "2021-01-26",
+        "2021-03-11",
+        "2021-03-29",
+        "2021-04-14",
+        "2021-04-21",
+        "2021-04-25",
+        "2021-05-01",
+        "2021-05-14",
+        "2021-08-15",
+        "2021-10-02",
+        "2021-10-15",
+        "2021-11-04",
+        "2021-11-19",
+        "2021-12-25",
     ]
 )
 
@@ -338,7 +352,7 @@ class XBOMExchangeCalendar(PrecomputedExchangeCalendar):
     Close Time: 3:30 PM, Asia/Calcutta
 
     Due to the complexity around the BSE holidays, we are hardcoding a list
-    of holidays back to 1997, and forward through 2020.  There are no known
+    of holidays back to 1997, and forward through 2021.  There are no known
     early closes or late opens.
     """
 

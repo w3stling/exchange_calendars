@@ -36,7 +36,7 @@ class XBOMCalendarTestCase(ExchangeCalendarTestBase, TestCase):
             self.assertNotIn(session_label, self.calendar.all_sessions)
 
     def test_constrain_construction_dates(self):
-        # the XBOM calendar currently goes from 1997 to 2020, inclusive.
+        # the XBOM calendar currently goes from 1997 to 2021, inclusive.
         with self.assertRaises(ValueError) as e:
             self.calendar_class(T("1996-12-31"), T("1998-01-01"))
 
@@ -49,12 +49,12 @@ class XBOMCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         )
 
         with self.assertRaises(ValueError) as e:
-            self.calendar_class(T("1998-01-01"), T("2021-01-01"))
+            self.calendar_class(T("1998-01-01"), T("2022-01-03"))
 
         self.assertEqual(
             str(e.exception),
             (
-                "The XBOM holidays are only recorded to 2020,"
-                " cannot instantiate the XBOM calendar for 2021."
+                "The XBOM holidays are only recorded to 2021,"
+                " cannot instantiate the XBOM calendar for 2022."
             ),
         )
