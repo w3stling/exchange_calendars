@@ -133,7 +133,7 @@ WomenAndChildrensDay = Holiday(
     observance=taiwan_makeup_rule,
 )
 
-LabourDay = european_labour_day(observance=sunday_to_monday)
+LabourDay = european_labour_day(observance=taiwan_makeup_rule)
 
 NationalDay = Holiday(
     "National Day of the Republic of China",
@@ -214,6 +214,7 @@ chinese_new_year_extras = pd.to_datetime(
 # Some abnormal observances of regularly observed holidays.
 extra_holidays = pd.to_datetime(
     [
+        "2021-04-02",  # Women And Childrens Day
         "2020-04-02",  # Tomb Sweeping Day
         "2016-04-05",  # Tomb Sweeping Day
         "2012-12-31",  # New Year's Eve
