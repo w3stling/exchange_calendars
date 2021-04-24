@@ -22,7 +22,6 @@ from pandas.tseries.holiday import (
     nearest_workday,
     next_monday,
     previous_friday,
-    sunday_to_monday,
 )
 from pytz import timezone
 
