@@ -132,7 +132,7 @@ WomenAndChildrensDay = Holiday(
     observance=taiwan_makeup_rule,
 )
 
-LabourDay = european_labour_day(observance=taiwan_makeup_rule)
+LabourDay = european_labour_day(observance=manual_nearest_workday)
 
 NationalDay = Holiday(
     "National Day of the Republic of China",
