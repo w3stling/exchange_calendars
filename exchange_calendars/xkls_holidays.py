@@ -398,7 +398,8 @@ thaipusam = pd.to_datetime(
     ]
 )
 
-# Malaysia's observances of Eid al-Fitr (Chinese Lunar Calendar)
+# Malaysia's observances of Wesak Day (Chinese Lunar Calendar)
+# source: https://publicholidays.com.my/wesak-day/
 wesak_day = pd.to_datetime(
     [
         "2003-05-15",
@@ -416,6 +417,10 @@ wesak_day = pd.to_datetime(
         "2018-05-29",
         "2019-05-20",
         "2020-05-07",
+        "2021-05-26",
+        "2022-05-15",
+        "2023-05-04",
+        "2024-05-22"
     ]
 )
 
