@@ -962,7 +962,14 @@ class ExchangeCalendar(ABC):
             return current_or_next_session
         elif direction == "previous":
             if not self.is_open_on_minute(dt, ignore_breaks=True):
-                return self.schedule.index[idx - 1]
+                if dt < self.opens[0].value:
+                    raise ValueError(
+                        "No previous session available as '{0}'"
+                        " is earlier than the first calendar minute"
+                        " ({1})".format(pd.Timestamp(dt), self.opens[0])
+                    )
+                else:
+                    return self.schedule.index[idx - 1]
         elif direction == "none":
             if not self.is_open_on_minute(dt):
                 # if the exchange is closed, blow up
