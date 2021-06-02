@@ -919,7 +919,7 @@ class ExchangeCalendar(ABC):
     def last_session_close(self):
         """Close time of calendar's last session."""
         return self.closes[-1]
-    
+
     def execution_time_from_open(self, open_dates):
         return open_dates
 
@@ -998,7 +998,7 @@ class ExchangeCalendar(ABC):
                         pd.Timestamp(dt, tz="UTC"), self.last_session_close
                     )
                 )
-            
+
         idx = searchsorted(self.market_closes_nanos, dt)
         current_or_next_session = self.schedule.index[idx]
 
