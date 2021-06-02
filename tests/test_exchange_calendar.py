@@ -407,7 +407,7 @@ class ExchangeCalendarTestBase(object):
     def test_minute_to_session_label(self):
         # minute is prior to first session's open
         minute_before_first_open = self.answers.iloc[0].market_open - self.one_minute
-        session_label = answers.index[0]
+        session_label = self.answers.index[0]
         minutes_that_resolve_to_this_session = [
             self.calendar.minute_to_session_label(minute_before_first_open),
             self.calendar.minute_to_session_label(
@@ -540,10 +540,10 @@ class ExchangeCalendarTestBase(object):
                     self.calendar.minute_to_session_label(
                         minute_before_session, direction="none"
                     )
-        
+
         # minute is later than last session's close
         minute_after_last_close = self.answers.iloc[-1].market_close + self.one_minute
-        session_label = answers.index[-1]
+        session_label = self.answers.index[-1]
 
         minute_that_resolves_to_session_label = self.calendar.minute_to_session_label(
             minute_after_last_close, direction='previous'
