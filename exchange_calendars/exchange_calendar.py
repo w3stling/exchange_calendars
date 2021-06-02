@@ -363,6 +363,14 @@ class ExchangeCalendar(ABC):
     def early_closes(self):
         return self._early_closes
 
+    @property
+    def break_starts(self):
+        return self.schedule.break_start
+
+    @property
+    def break_ends(self):
+        return self.schedule.break_end
+
     def is_session(self, dt):
         """
         Given a dt, returns whether it's a valid session label.
