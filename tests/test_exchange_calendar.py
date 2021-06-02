@@ -405,6 +405,30 @@ class ExchangeCalendarTestBase(object):
                 )
 
     def test_minute_to_session_label(self):
+        # minute is prior to first session's open
+        minute_before_first_open = self.answers.iloc[0].market_open - self.one_minute
+        session_label = answers.index[0]
+        minutes_that_resolve_to_this_session = [
+            self.calendar.minute_to_session_label(minute_before_first_open),
+            self.calendar.minute_to_session_label(
+                minute_before_first_open, direction="next"
+            )
+        ]
+
+        unique_session_labels = set(minutes_that_resolve_to_this_session)
+        self.assertTrue(len(unique_session_labels) == 1)
+        self.assertIn(session_label, unique_session_labels)
+
+        with self.assertRaises(ValueError):
+            self.calendar.minute_to_session_label(
+                minute_before_first_open, direction="previous"
+            )
+        with self.assertRaises(ValueError):
+            self.calendar.minute_to_session_label(
+                minute_before_first_open, direction="none"
+            )
+
+        # minute is between first session's open and last session's close
         for idx, (session_label, open_minute, close_minute) in enumerate(
             self.answers.iloc[1:-2].itertuples(name=None)
         ):
@@ -516,6 +540,27 @@ class ExchangeCalendarTestBase(object):
                     self.calendar.minute_to_session_label(
                         minute_before_session, direction="none"
                     )
+        
+        # minute is later than last session's close
+        minute_after_last_close = self.answers.iloc[-1].market_close + self.one_minute
+        session_label = answers.index[-1]
+
+        minute_that_resolves_to_session_label = self.calendar.minute_to_session_label(
+            minute_after_last_close, direction='previous'
+        )
+
+        self.assertEqual(session_label, minute_that_resolves_to_session_label)
+
+        with self.assertRaises(ValueError):
+            self.calendar.minute_to_session_label(minute_after_last_close)
+        with self.assertRaises(ValueError):
+            self.calendar.minute_to_session_label(
+                minute_after_last_close, direction="next"
+            )
+        with self.assertRaises(ValueError):
+            self.calendar.minute_to_session_label(
+                minute_after_last_close, direction="none"
+            )
 
     @parameterized.expand(
         [
