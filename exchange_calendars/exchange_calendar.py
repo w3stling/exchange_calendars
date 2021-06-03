@@ -363,6 +363,14 @@ class ExchangeCalendar(ABC):
     def early_closes(self):
         return self._early_closes
 
+    @property
+    def break_starts(self):
+        return self.schedule.break_start
+
+    @property
+    def break_ends(self):
+        return self.schedule.break_end
+
     def is_session(self, dt):
         """
         Given a dt, returns whether it's a valid session label.
@@ -902,6 +910,16 @@ class ExchangeCalendar(ABC):
     def last_session(self):
         return self.all_sessions[-1]
 
+    @property
+    def first_session_open(self):
+        """Open time of calendar's first session."""
+        return self.opens[0]
+
+    @property
+    def last_session_close(self):
+        """Close time of calendar's last session."""
+        return self.closes[-1]
+
     def execution_time_from_open(self, open_dates):
         return open_dates
 
@@ -939,7 +957,7 @@ class ExchangeCalendar(ABC):
             "previous" means that if the given dt is not part of a session,
             return the label of the previous session.
 
-            "none" means that a KeyError will be raised if the given
+            "none" means that a ValueError will be raised if the given
             dt is not part of a session.
 
         Returns
@@ -954,6 +972,33 @@ class ExchangeCalendar(ABC):
             if self._minute_to_session_label_cache[0] == dt:
                 return self._minute_to_session_label_cache[1]
 
+        if dt < self.first_session_open.value:
+            # Resolve call here.
+            if direction == "next":
+                self._minute_to_session_label_cache = (dt, self.first_session)
+                return self.first_session
+            else:
+                raise ValueError(
+                    "Received `dt` as '{0}' although this is earlier than the"
+                    " first session's open ({1}). Consider passing `direction`"
+                    " as 'next' to get first session label.".format(
+                        pd.Timestamp(dt, tz="UTC"), self.first_session_open
+                    )
+                )
+
+        if dt > self.last_session_close.value:
+            # Resolve call here.
+            if direction == "previous":
+                return self.last_session
+            else:
+                raise ValueError(
+                    "Received `dt` as '{0}' although this is later than the"
+                    " last session's close ({1}). Consider passing `direction`"
+                    " as 'previous' to get last session label.".format(
+                        pd.Timestamp(dt, tz="UTC"), self.last_session_close
+                    )
+                )
+
         idx = searchsorted(self.market_closes_nanos, dt)
         current_or_next_session = self.schedule.index[idx]
 
@@ -966,7 +1011,10 @@ class ExchangeCalendar(ABC):
         elif direction == "none":
             if not self.is_open_on_minute(dt):
                 # if the exchange is closed, blow up
-                raise ValueError("The given dt is not an exchange minute!")
+                raise ValueError(
+                    "Received `dt` as '{0}' although this is not an exchange"
+                    " minute.".format(pd.Timestamp(dt, tz="UTC"))
+                )
         else:
             # invalid direction
             raise ValueError(
