@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
 from abc import ABC, abstractproperty
 from collections import OrderedDict
 
@@ -29,6 +30,8 @@ from .calendar_helpers import (
     compute_all_minutes,
     next_divider_idx,
     previous_divider_idx,
+    Session,
+    parse_session,
 )
 from .utils.memoize import lazyval
 from .utils.pandas_utils import days_at_time
@@ -170,8 +173,6 @@ class ExchangeCalendar(ABC):
             self.market_break_starts_nanos, self.market_break_ends_nanos
         )
 
-        self._trading_minutes_nanos = self.all_minutes.values.astype(np.int64)
-
         self.first_trading_session = _all_days[0]
         self.last_trading_session = _all_days[-1]
 
@@ -200,7 +201,7 @@ class ExchangeCalendar(ABC):
             )
 
     @abstractproperty
-    def name(self):
+    def name(self) -> str:
         raise NotImplementedError()
 
     @abstractproperty
@@ -271,7 +272,9 @@ class ExchangeCalendar(ABC):
         diff = (close_to_open_diff - break_diff).astype("timedelta64[m]")
         return diff + 1
 
-    def minutes_count_for_sessions_in_range(self, start_session, end_session):
+    def minutes_count_for_sessions_in_range(
+        self, start_session: pd.Timestamp, end_session: pd.Timestamp
+    ) -> int:
         """
         Parameters
         ----------
@@ -384,28 +387,47 @@ class ExchangeCalendar(ABC):
     # -----
 
     @property
-    def opens(self):
+    def opens(self) -> pd.Series:
         return self.schedule.market_open
 
     @property
-    def closes(self):
+    def closes(self) -> pd.Series:
         return self.schedule.market_close
 
     @property
-    def late_opens(self):
+    def late_opens(self) -> pd.DatetimeIndex:
         return self._late_opens
 
     @property
-    def early_closes(self):
+    def early_closes(self) -> pd.DatetimeIndex:
         return self._early_closes
 
     @property
-    def break_starts(self):
+    def break_starts(self) -> pd.Series:
         return self.schedule.break_start
 
     @property
-    def break_ends(self):
+    def break_ends(self) -> pd.Series:
         return self.schedule.break_end
+
+    @lazyval
+    def all_minutes(self) -> pd.DatetimeIndex:
+        """
+        Returns a DatetimeIndex representing all the minutes in this calendar.
+        """
+        return DatetimeIndex(
+            compute_all_minutes(
+                self.market_opens_nanos,
+                self.market_break_starts_nanos,
+                self.market_break_ends_nanos,
+                self.market_closes_nanos,
+            ),
+            tz=UTC,
+        )
+
+    @lazyval
+    def all_minutes_nanos(self) -> np.ndarray:
+        return self.all_minutes.values.astype(np.int64)
 
     def is_session(self, dt):
         """
@@ -422,6 +444,32 @@ class ExchangeCalendar(ABC):
             Whether the given dt is a valid session label.
         """
         return dt in self.schedule.index
+
+    def has_breaks(
+        self,
+        start: Session | None = None,
+        end: Session | None = None,
+    ) -> bool:
+        """Query if at least one session of a calendar has a break.
+
+        Parameters
+        ----------
+        start : optional
+            Limit query to sessions from `start`.
+
+        end : optional
+            Limit query to sessions through `end`.
+
+        Returns
+        -------
+        bool
+            True if any calendar session has a break, false otherwise.
+        """
+        if start is not None:
+            start = parse_session(start, "start", self, strict=False)
+        if end is not None:
+            end = parse_session(end, "end", self, strict=False)
+        return self.break_starts[start:end].notna().any()
 
     def is_open_on_minute(self, dt, ignore_breaks=False):
         """
@@ -556,7 +604,7 @@ class ExchangeCalendar(ABC):
         pd.Timestamp
             The next exchange minute.
         """
-        idx = next_divider_idx(self._trading_minutes_nanos, dt.value)
+        idx = next_divider_idx(self.all_minutes_nanos, dt.value)
         return self.all_minutes[idx]
 
     def previous_minute(self, dt):
@@ -576,10 +624,10 @@ class ExchangeCalendar(ABC):
             The previous exchange minute.
         """
 
-        idx = previous_divider_idx(self._trading_minutes_nanos, dt.value)
+        idx = previous_divider_idx(self.all_minutes_nanos, dt.value)
         return self.all_minutes[idx]
 
-    def next_session_label(self, session_label):
+    def next_session_label(self, session_label: Session) -> pd.Timestamp:
         """
         Given a session label, returns the label of the next session.
 
@@ -598,6 +646,7 @@ class ExchangeCalendar(ABC):
         Raises ValueError if the given session is the last session in this
         calendar.
         """
+        session_label = parse_session(session_label, "session_label", self)
         idx = self.schedule.index.get_loc(session_label)
         try:
             return self.schedule.index[idx + 1]
@@ -610,7 +659,7 @@ class ExchangeCalendar(ABC):
             else:
                 raise
 
-    def previous_session_label(self, session_label):
+    def previous_session_label(self, session_label: Session) -> pd.Timestamp:
         """
         Given a session label, returns the label of the previous session.
 
@@ -629,16 +678,16 @@ class ExchangeCalendar(ABC):
         Raises ValueError if the given session is the first session in this
         calendar.
         """
+        session_label = parse_session(session_label, "session_label", self)
         idx = self.schedule.index.get_loc(session_label)
         if idx == 0:
             raise ValueError(
                 "There is no previous session as this is the"
                 " beginning of the exchange calendar."
             )
-
         return self.schedule.index[idx - 1]
 
-    def minutes_for_session(self, session_label):
+    def minutes_for_session(self, session_label: Session) -> int:
         """
         Given a session label, return the minutes for that session.
 
@@ -652,12 +701,15 @@ class ExchangeCalendar(ABC):
         pd.DateTimeIndex
             All the minutes for the given session.
         """
+        session_label = parse_session(session_label, "session_label", self)
         return self.minutes_in_range(
             start_minute=self.schedule.at[session_label, "market_open"],
             end_minute=self.schedule.at[session_label, "market_close"],
         )
 
-    def execution_minutes_for_session(self, session_label):
+    def execution_minutes_for_session(
+        self, session_label: Session
+    ) -> pd.DatetimeIndex:
         """
         Given a session label, return the execution minutes for that session.
 
@@ -671,6 +723,7 @@ class ExchangeCalendar(ABC):
         pd.DateTimeIndex
             All the execution minutes for the given session.
         """
+        session_label = parse_session(session_label, "session_label", self)
         return self.minutes_in_range(
             start_minute=self.execution_time_from_open(
                 self.schedule.at[session_label, "market_open"],
@@ -689,17 +742,16 @@ class ExchangeCalendar(ABC):
             tz=UTC,
         )
 
-    def minutes_window(self, start_dt, count):
+    def minutes_window(self, start_dt: pd.Timestamp, count: int):
         start_dt_nanos = start_dt.value
-        all_minutes_nanos = self._trading_minutes_nanos
-        start_idx = all_minutes_nanos.searchsorted(start_dt_nanos)
+        start_idx = self.all_minutes_nanos.searchsorted(start_dt_nanos)
 
         # searchsorted finds the index of the minute **on or after** start_dt.
         # If the latter, push back to the prior minute.
-        if all_minutes_nanos[start_idx] != start_dt_nanos:
+        if self.all_minutes_nanos[start_idx] != start_dt_nanos:
             start_idx -= 1
 
-        if start_idx < 0 or start_idx >= len(all_minutes_nanos):
+        if start_idx < 0 or start_idx >= len(self.all_minutes_nanos):
             raise KeyError("Can't start minute window at {}".format(start_dt))
 
         end_idx = start_idx + count
@@ -731,7 +783,9 @@ class ExchangeCalendar(ABC):
             self.all_sessions.slice_indexer(start_session_label, end_session_label)
         ]
 
-    def sessions_window(self, session_label, count):
+    def sessions_window(
+        self, session_label: Session, count: int
+    ) -> pd.DatetimeIndex:
         """
         Given a session label and a window size, returns a list of sessions
         of size `count` + 1, that either starts with the given session
@@ -751,12 +805,17 @@ class ExchangeCalendar(ABC):
         pd.DatetimeIndex
             The desired sessions.
         """
+        session_label = parse_session(session_label, "session_label", self)
         start_idx = self.schedule.index.get_loc(session_label)
         end_idx = start_idx + count
         end_idx = max(0, end_idx)
         return self.all_sessions[min(start_idx, end_idx) : max(start_idx, end_idx) + 1]
 
-    def session_distance(self, start_session_label, end_session_label):
+    def session_distance(
+        self,
+        start_session_label: pd.Timestamp,
+        end_session_label: pd.Timestamp,
+    ):
         """
         Given a start and end session label, returns the distance between them.
         For example, for three consecutive sessions Mon., Tues., and Wed,
@@ -813,17 +872,20 @@ class ExchangeCalendar(ABC):
         pd.DatetimeIndex
             The minutes in the desired range.
         """
-        start_idx = searchsorted(self._trading_minutes_nanos, start_minute.value)
+        start_idx = searchsorted(self.all_minutes_nanos, start_minute.value)
+        end_idx = searchsorted(self.all_minutes_nanos, end_minute.value)
 
-        end_idx = searchsorted(self._trading_minutes_nanos, end_minute.value)
-
-        if end_minute.value == self._trading_minutes_nanos[end_idx]:
+        if end_minute.value == self.all_minutes_nanos[end_idx]:
             # if the end minute is a market minute, increase by 1
             end_idx += 1
 
         return self.all_minutes[start_idx:end_idx]
 
-    def minutes_for_sessions_in_range(self, start_session_label, end_session_label):
+    def minutes_for_sessions_in_range(
+        self,
+        start_session_label: Session,
+        end_session_label: Session,
+    ) -> pd.DatetimeIndex:
         """
         Returns all the minutes for all the sessions from the given start
         session label to the given end session label, inclusive.
@@ -842,12 +904,20 @@ class ExchangeCalendar(ABC):
             The minutes in the desired range.
 
         """
+        start_session_label = parse_session(
+            start_session_label, "start_session_label", self
+        )
+        end_session_label = parse_session(
+            end_session_label, "end_session_label", self
+        )
         first_minute, _ = self.open_and_close_for_session(start_session_label)
         _, last_minute = self.open_and_close_for_session(end_session_label)
 
         return self.minutes_in_range(first_minute, last_minute)
 
-    def open_and_close_for_session(self, session_label):
+    def open_and_close_for_session(
+        self, session_label: Session
+    ) -> tuple(pd.Timestamp, pd.Timestamp):
         """
         Returns a tuple of timestamps of the open and close of the session
         represented by the given label.
@@ -862,12 +932,15 @@ class ExchangeCalendar(ABC):
         (Timestamp, Timestamp)
             The open and close for the given session.
         """
+        session_label = parse_session(session_label, "session_label", self)
         return (
             self.session_open(session_label),
             self.session_close(session_label),
         )
 
-    def break_start_and_end_for_session(self, session_label):
+    def break_start_and_end_for_session(
+        self, session_label: Session
+    ) -> tuple(pd.Timestamp, pd.Timestamp):
         """
         Returns a tuple of timestamps of the break start and end of the session
         represented by the given label.
@@ -882,15 +955,18 @@ class ExchangeCalendar(ABC):
         (Timestamp, Timestamp)
             The break start and end for the given session.
         """
+        session_label = parse_session(session_label, "session_label", self)
         return (
             self.session_break_start(session_label),
             self.session_break_end(session_label),
         )
 
-    def session_open(self, session_label):
+    def session_open(self, session_label: Session) -> pd.Timestamp:
+        session_label = parse_session(session_label, "session_label", self)
         return self.schedule.at[session_label, "market_open"].tz_localize(UTC)
 
-    def session_break_start(self, session_label):
+    def session_break_start(self, session_label: Session) -> pd.Timestamp:
+        session_label = parse_session(session_label, "session_label", self)
         break_start = self.schedule.at[session_label, "break_start"]
         if not pd.isnull(break_start):
             # older versions of pandas need this guard
@@ -898,7 +974,8 @@ class ExchangeCalendar(ABC):
 
         return break_start
 
-    def session_break_end(self, session_label):
+    def session_break_end(self, session_label: Session) -> pd.Timestamp:
+        session_label = parse_session(session_label, "session_label", self)
         break_end = self.schedule.at[session_label, "break_end"]
         if not pd.isnull(break_end):
             # older versions of pandas need this guard
@@ -906,7 +983,8 @@ class ExchangeCalendar(ABC):
 
         return break_end
 
-    def session_close(self, session_label):
+    def session_close(self, session_label: Session) -> pd.Timestamp:
+        session_label = parse_session(session_label, "session_label", self)
         return self.schedule.at[session_label, "market_close"].tz_localize(UTC)
 
     def session_opens_in_range(self, start_session_label, end_session_label):
@@ -922,47 +1000,48 @@ class ExchangeCalendar(ABC):
         ].dt.tz_localize(UTC)
 
     @property
-    def all_sessions(self):
+    def all_sessions(self) -> pd.DatetimeIndex:
         return self.schedule.index
 
     @property
-    def first_session(self):
+    def first_session(self) -> pd.Timestamp:
         return self.all_sessions[0]
 
     @property
-    def last_session(self):
+    def last_session(self) -> pd.Timestamp:
         return self.all_sessions[-1]
 
     @property
-    def first_session_open(self):
+    def first_session_open(self) -> pd.Timestamp:
         """Open time of calendar's first session."""
         return self.opens[0]
 
     @property
-    def last_session_close(self):
+    def last_session_close(self) -> pd.Timestamp:
         """Close time of calendar's last session."""
         return self.closes[-1]
+
+    def session_has_break(self, session: Session) -> bool:
+        """Query if a given session has a break.
+
+        Parameters
+        ----------
+        session :
+            Session to query.
+
+        Returns
+        -------
+        bool
+            True if `session` has a break, false otherwise.
+        """
+        session = parse_session(session, "session", self)
+        return pd.notna(self.session_break_start(session))
 
     def execution_time_from_open(self, open_dates):
         return open_dates
 
     def execution_time_from_close(self, close_dates):
         return close_dates
-
-    @lazyval
-    def all_minutes(self):
-        """
-        Returns a DatetimeIndex representing all the minutes in this calendar.
-        """
-        return DatetimeIndex(
-            compute_all_minutes(
-                self.market_opens_nanos,
-                self.market_break_starts_nanos,
-                self.market_break_ends_nanos,
-                self.market_closes_nanos,
-            ),
-            tz=UTC,
-        )
 
     def minute_to_session_label(self, dt, direction="next"):
         """
@@ -1044,7 +1123,10 @@ class ExchangeCalendar(ABC):
 
         return current_or_next_session
 
-    def minute_index_to_session_labels(self, index):
+    def minute_index_to_session_labels(
+        self,
+        index: pd.DatetimeIndex | pd.Series,
+    ) -> pd.DatetimeIndex:
         """
         Given a sorted DatetimeIndex of market minutes, return a
         DatetimeIndex of the corresponding session labels.
@@ -1317,12 +1399,13 @@ def _check_breaks_match(market_break_starts_nanos, market_break_ends_nanos):
             """
             Mismatched market breaks
             Break starts:
-            %s
+            {0}
             Break ends:
-            %s
-            """,
-            market_break_starts_nanos[~nats_match],
-            market_break_ends_nanos[~nats_match],
+            {1}
+            """.format(
+                market_break_starts_nanos[~nats_match],
+                market_break_ends_nanos[~nats_match],
+            )
         )
 
 
