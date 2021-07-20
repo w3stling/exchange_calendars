@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from .always_open import AlwaysOpenCalendar
 from .errors import CalendarNameCollision, CyclicCalendarAlias, InvalidCalendarName
+from .exchange_calendar_aixk import AIXKExchangeCalendar
 from .exchange_calendar_asex import ASEXExchangeCalendar
 from .exchange_calendar_bvmf import BVMFExchangeCalendar
 from .exchange_calendar_cmes import CMESExchangeCalendar
@@ -57,6 +58,7 @@ from .weekday_calendar import WeekdayCalendar
 
 _default_calendar_factories = {
     # Exchange calendars.
+    "AIXK": AIXKExchangeCalendar,
     "ASEX": ASEXExchangeCalendar,
     "BVMF": BVMFExchangeCalendar,
     "CMES": CMESExchangeCalendar,
