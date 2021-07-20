@@ -17,7 +17,6 @@ from datetime import time, timedelta
 from itertools import chain
 
 import pandas as pd
-from dateutil.easter import EASTER_ORTHODOX, easter
 from pandas.tseries.holiday import EasterMonday, GoodFriday, Holiday
 from pytz import timezone
 
@@ -28,22 +27,9 @@ from .common_holidays import (
     epiphany,
     european_labour_day,
     new_years_day,
+    orthodox_easter,
 )
 from .exchange_calendar import HolidayCalendar, ExchangeCalendar
-
-
-def orthodox_easter(start_date="1980", end_date="2021"):
-    """
-    ASEX observes Orthodox Easter, and has many holidays
-    that are relative to Orthodox Easter.  This function gives a
-    DatetimeIndex of Orthodox Easter dates from start_date to end_date
-    """
-    return pd.to_datetime(
-        [
-            easter(year, method=EASTER_ORTHODOX)
-            for year in range(int(start_date), int(end_date))
-        ]
-    )
 
 
 NewYearsDay = new_years_day()

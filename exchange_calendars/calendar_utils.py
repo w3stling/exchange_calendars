@@ -13,6 +13,7 @@ from .exchange_calendar_xbkk import XBKKExchangeCalendar
 from .exchange_calendar_xbog import XBOGExchangeCalendar
 from .exchange_calendar_xbom import XBOMExchangeCalendar
 from .exchange_calendar_xbru import XBRUExchangeCalendar
+from .exchange_calendar_xbse import XBSEExchangeCalendar
 from .exchange_calendar_xbud import XBUDExchangeCalendar
 from .exchange_calendar_xbue import XBUEExchangeCalendar
 from .exchange_calendar_xcbf import XCBFExchangeCalendar
@@ -69,6 +70,7 @@ _default_calendar_factories = {
     "XBOG": XBOGExchangeCalendar,
     "XBOM": XBOMExchangeCalendar,
     "XBRU": XBRUExchangeCalendar,
+    "XBSE": XBSEExchangeCalendar,
     "XBUD": XBUDExchangeCalendar,
     "XBUE": XBUEExchangeCalendar,
     "XCBF": XCBFExchangeCalendar,
@@ -139,6 +141,7 @@ _default_calendar_aliases = {
     "BSE": "XBOM",
     "SSE": "XSHG",
     "TASE": "XTAE",
+    "BVB": "XBSE",
 }
 
 default_calendar_names = sorted(_default_calendar_factories.keys())
