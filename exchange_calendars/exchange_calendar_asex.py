@@ -39,7 +39,7 @@ Epiphany = epiphany()
 OrthodoxAshMonday = orthodox_easter() - timedelta(48)
 
 NationalHoliday1 = Holiday(
-    "National Holiday 1",
+    "Independence Day",
     month=3,
     day=25,
 )
@@ -55,7 +55,7 @@ OrthodoxWhitMonday = orthodox_easter() + timedelta(50)
 AssumptionDay = assumption_day()
 
 NationalHoliday2 = Holiday(
-    "National Holiday 2",
+    "Ochi Day",
     month=10,
     day=28,
 )
