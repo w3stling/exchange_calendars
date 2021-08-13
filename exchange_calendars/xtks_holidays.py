@@ -352,3 +352,8 @@ Misc2019Holidays = [
     Timestamp("2019-05-02"),  # Citizen's Holiday
     Timestamp("2019-10-22"),  # Enthronement Ceremony
 ]
+
+EquityTradingSystemFailure = [
+    # https://www.jpx.co.jp/english/corporate/news/news-releases/0060/20201019-01.html
+    Timestamp("2020-10-01"),
+]

@@ -16,6 +16,7 @@ from .xtks_holidays import (
     CultureDay,
     EmperorAkihitoBirthday,
     EmperorNaruhitoBirthday,
+    EquityTradingSystemFailure,
     GreeneryDay2007Onwards,
     GreeneryDayThrough2006,
     HealthAndSportsDay2020,
@@ -74,6 +75,9 @@ class XTKSExchangeCalendar(ExchangeCalendar):
     - Culture Day (November 3)
     - Labor Thanksgiving Day (Nov. 23)
     - Emperor's Birthday (Dec. 23)
+
+    Additional Irregularities:
+    - Closed on October 1, 2020 due to equity trading system failure
     """
 
     name = "XTKS"
@@ -136,5 +140,6 @@ class XTKSExchangeCalendar(ExchangeCalendar):
                 AutumnalEquinoxes,
                 CitizensHolidaySilverWeek,
                 Misc2019Holidays,
+                EquityTradingSystemFailure,
             )
         )
