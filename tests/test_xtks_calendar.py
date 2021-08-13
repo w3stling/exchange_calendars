@@ -9,8 +9,7 @@ from exchange_calendars.xtks_holidays import (
     AutumnalEquinoxes,
     ChildrensDay,
     CitizensHolidaySilverWeek,
-    ConstitutionMemorialDay2007Onwards,
-    ConstitutionMemorialDayThrough2006,
+    ConstitutionMemorialDay,
     EmperorAkihitoBirthday,
     GreeneryDay2007Onwards,
     RespectForTheAgedDay2003Onwards,
@@ -24,7 +23,7 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
     answer_key_filename = "xtks"
     calendar_class = XTKSExchangeCalendar
 
-    START_BOUND = pd.Timestamp("2000-01-01", tz="UTC")
+    START_BOUND = pd.Timestamp("1997-01-01", tz="UTC")
     MAX_SESSION_HOURS = 6
     HAVE_EARLY_CLOSES = False
 
@@ -54,12 +53,12 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
             self.assertNotIn(session_label, self.calendar.all_sessions)
 
     def test_golden_week(self):
-        # from 2000 to 2006 May 4 was an unnamed citizen's holiday because
+        # from 1997 to 2006 May 4 was an unnamed citizen's holiday because
         # it was between Constitution Memorial Day and Children's Day
-        consitution_memorial_days = ConstitutionMemorialDayThrough2006.dates(
-            "2000-01-01", "2007-01-01"
+        consitution_memorial_days = ConstitutionMemorialDay.dates(
+            "1997-01-01", "2007-01-01"
         )
-        childrens_days = ChildrensDay.dates("2000-01-01", "2007-01-01")
+        childrens_days = ChildrensDay.dates("1997-01-01", "2007-01-01")
 
         for cm_day, childrens_day in zip(consitution_memorial_days, childrens_days):
 
@@ -75,7 +74,7 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
             self.assertNotIn(childrens_day, self.calendar.all_sessions)
 
         # from 2007 onwards, Greenery Day was moved to May 4
-        consitution_memorial_days = ConstitutionMemorialDay2007Onwards.dates(
+        consitution_memorial_days = ConstitutionMemorialDay.dates(
             "2007-01-01", "2019-01-01"
         )
         greenery_days = GreeneryDay2007Onwards.dates("2007-01-01", "2019-01-01")
@@ -124,6 +123,10 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         # the Autumnal Equinox is also a holiday
         silver_week_citizens_holidays = []
         for equinox in AutumnalEquinoxes:
+            # It is unusual for September to get this extra holida
+            # so the presence of a "silver week" was not widely noted before 2009
+            if equinox < pd.Timestamp("2009-01-01"):
+                continue
             if equinox.dayofweek == WEDNESDAY:
                 silver_week_citizens_holidays.append(day_before(equinox))
 
