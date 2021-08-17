@@ -220,6 +220,8 @@ class XTKSCalendarTestCase(ExchangeCalendarTestBase, TestCase):
             pd.Timestamp("2020-11-03", tz=UTC),  # Culture Day
             pd.Timestamp("2020-11-23", tz=UTC),  # Labor Thanksgiving Day
             pd.Timestamp("2020-12-31", tz=UTC),  # New Year's holiday
+            # irregularities
+            pd.Timestamp("2020-10-01", tz=UTC),  # equity trading system failure
         ]
 
         for session_label in expected_holidays_2020:
