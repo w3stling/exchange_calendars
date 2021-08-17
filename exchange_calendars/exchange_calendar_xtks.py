@@ -10,18 +10,19 @@ from .xtks_holidays import (
     ChildrensDay,
     CitizensHolidayGoldenWeek,
     CitizensHolidaySilverWeek,
-    ComingOfAgeDay,
-    ConstitutionMemorialDay2007Onwards,
-    ConstitutionMemorialDayThrough2006,
+    ComingOfAgeDay2000Onwards,
+    ComingOfAgeDayThrough1999,
+    ConstitutionMemorialDay,
     CultureDay,
     EmperorAkihitoBirthday,
     EmperorNaruhitoBirthday,
     GreeneryDay2007Onwards,
     GreeneryDayThrough2006,
+    HealthAndSportsDay2000OnwardsThrough2019,
     HealthAndSportsDay2020,
     HealthAndSportsDay2021,
     HealthAndSportsDay2022Onwards,
-    HealthAndSportsDayThrough2019,
+    HealthAndSportsDayThrough1999,
     LaborThanksgivingDay,
     MarineDay2003OnwardsThrough2019,
     MarineDay2020,
@@ -86,8 +87,8 @@ class XTKSExchangeCalendar(ExchangeCalendar):
 
     @property
     def bound_start(self) -> pd.Timestamp:
-        # not tracking holiday info farther back than 2000
-        return pd.Timestamp("2000-01-01", tz=UTC)
+        # not tracking holiday info farther back than 1997
+        return pd.Timestamp("1997-01-01", tz=UTC)
 
     @property
     def regular_holidays(self):
@@ -97,12 +98,12 @@ class XTKSExchangeCalendar(ExchangeCalendar):
                 NewYearsHolidayJan1,
                 NewYearsHolidayJan2,
                 NewYearsHolidayJan3,
-                ComingOfAgeDay,
+                ComingOfAgeDayThrough1999,
+                ComingOfAgeDay2000Onwards,
                 NationalFoundationDay,
                 GreeneryDayThrough2006,
                 ShowaDay,
-                ConstitutionMemorialDayThrough2006,
-                ConstitutionMemorialDay2007Onwards,
+                ConstitutionMemorialDay,
                 GreeneryDay2007Onwards,
                 CitizensHolidayGoldenWeek,
                 ChildrensDay,
@@ -117,7 +118,8 @@ class XTKSExchangeCalendar(ExchangeCalendar):
                 MountainDay2022Onwards,
                 RespectForTheAgedDayThrough2002,
                 RespectForTheAgedDay2003Onwards,
-                HealthAndSportsDayThrough2019,
+                HealthAndSportsDayThrough1999,
+                HealthAndSportsDay2000OnwardsThrough2019,
                 HealthAndSportsDay2020,
                 HealthAndSportsDay2021,
                 HealthAndSportsDay2022Onwards,
