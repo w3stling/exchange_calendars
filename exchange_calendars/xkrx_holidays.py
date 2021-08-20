@@ -7,7 +7,8 @@ from .pandas_extensions.korean_holiday import (
     KoreanSolarHoliday,
     KoreanLunarHoliday,
     alternative_holiday,
-    childrens_day_alternative_holiday,
+    alternative_holiday_for_seollal_and_chuseok,
+    alternative_holiday_for_childrens_day,
     last_business_day,
 )
 
@@ -1116,14 +1117,14 @@ SeollalBefore = KoreanLunarHoliday(
     month=1,
     day=1,
     offset=Day(-1),
-    observance=alternative_holiday,
+    observance=alternative_holiday_for_seollal_and_chuseok,
     start_date=pd.Timestamp("1989-01-01"),
 )  # Seollal gained additional before/after holidays since 1989
 Seollal = KoreanLunarHoliday(
     "Seollal (New Year's Day by the lunar)",
     month=1,
     day=1,
-    observance=alternative_holiday,
+    observance=alternative_holiday_for_seollal_and_chuseok,
     start_date=pd.Timestamp("1985-01-01"),
 )  # Seollal newly became holiday since 1985
 SeollalAfter = KoreanLunarHoliday(
@@ -1131,11 +1132,11 @@ SeollalAfter = KoreanLunarHoliday(
     month=1,
     day=1,
     offset=Day(1),
-    observance=alternative_holiday,
+    observance=alternative_holiday_for_seollal_and_chuseok,
     start_date=pd.Timestamp("1989-01-01"),
 )  # Seollal gained additional before/after holidays since 1989
 IndependenceMovementDay = KoreanSolarHoliday(
-    "Independence Movement Day", month=3, day=1
+    "Independence Movement Day", month=3, day=1, observance=alternative_holiday
 )
 ArborDay = KoreanSolarHoliday(
     "Arbor Day",
@@ -1152,7 +1153,7 @@ LoborDay = KoreanSolarHoliday(
     "Labor Day", month=5, day=1, start_date=pd.Timestamp("1994-01-01")
 )  # Labor day changed it's day from 03/10 to 05/01 since 1994
 ChildrensDay = KoreanSolarHoliday(
-    "Children's Day", month=5, day=5, observance=childrens_day_alternative_holiday
+    "Children's Day", month=5, day=5, observance=alternative_holiday_for_childrens_day
 )
 MemorialDay = KoreanSolarHoliday("Memorial Day", month=6, day=6)
 ConstitutionDay = KoreanSolarHoliday(
@@ -1162,20 +1163,22 @@ ConstitutionDay = KoreanSolarHoliday(
     start_date=pd.Timestamp("1949-10-01"),
     end_date=pd.Timestamp("2007-12-31"),
 )  # Constitution day was holiday from 1949 to 2007
-NationalLiberationDay = KoreanSolarHoliday("National Liberation Day", month=8, day=15)
+NationalLiberationDay = KoreanSolarHoliday(
+    "National Liberation Day", month=8, day=15, observance=alternative_holiday
+)
 ChuseokBefore = KoreanLunarHoliday(
     "Chuseok (Korean Thanksgiving Day) (-1 day)",
     month=8,
     day=15,
     offset=Day(-1),
-    observance=alternative_holiday,
+    observance=alternative_holiday_for_seollal_and_chuseok,
     start_date=pd.Timestamp("1989-01-01"),
 )  # Chuseok gained additional before holiday since 1989, along with Seollal
 Chuseok = KoreanLunarHoliday(
     "Chuseok (Korean Thanksgiving Day)",
     month=8,
     day=15,
-    observance=alternative_holiday,
+    observance=alternative_holiday_for_seollal_and_chuseok,
     start_date=pd.Timestamp("1949-01-01"),
 )  # Chuseok originally had no before/after holidays
 ChuseokAfter = KoreanLunarHoliday(
@@ -1183,7 +1186,7 @@ ChuseokAfter = KoreanLunarHoliday(
     month=8,
     day=15,
     offset=Day(1),
-    observance=alternative_holiday,
+    observance=alternative_holiday_for_seollal_and_chuseok,
     start_date=pd.Timestamp("1986-01-01"),
 )  # Chuseok gained additional following holiday since 1986
 ArmedForcesDay = KoreanSolarHoliday(
@@ -1194,7 +1197,7 @@ ArmedForcesDay = KoreanSolarHoliday(
     end_date=pd.Timestamp("1990-12-31"),
 )  # Armed forces day was holiday from 1976 to 1990
 KoreanNationalFoundationDay = KoreanSolarHoliday(
-    "Korean National Foundation Day", month=10, day=3
+    "Korean National Foundation Day", month=10, day=3, observance=alternative_holiday
 )
 OldHangulProclamationDay = KoreanSolarHoliday(
     "Hangul Proclamation Day",
@@ -1208,6 +1211,7 @@ HangulProclamationDay = KoreanSolarHoliday(
     month=10,
     day=9,
     start_date=pd.Timestamp("2013-01-01"),
+    observance=alternative_holiday,
 )  # Hangeul Day became national holiday again in 2013
 Christmas = KoreanSolarHoliday("Christmas", month=12, day=25)
 
