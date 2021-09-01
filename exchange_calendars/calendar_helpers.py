@@ -4,6 +4,7 @@ import datetime
 
 import numpy as np
 import pandas as pd
+import pytz
 
 from exchange_calendars import errors
 
@@ -153,23 +154,29 @@ def parse_timestamp(
         although timestamp is either before `calendar`'s first trading
         minute or after `calendar`'s last trading minute.
     """
-    try:
-        ts = pd.Timestamp(timestamp)
-    except Exception as e:
-        msg = (
-            f"Parameter `{param_name}` receieved as '{timestamp}' although a Date or"
-            f" Minute must be passed as a pd.Timestamp or a valid single-argument"
-            f" input to pd.Timestamp."
-        )
-        if isinstance(e, TypeError):
-            raise TypeError(msg) from e
-        else:
-            raise ValueError(msg) from e
+    if isinstance(timestamp, pd.Timestamp):
+        ts = timestamp
+    else:
+        try:
+            ts = pd.Timestamp(timestamp)
+        except Exception as e:
+            msg = (
+                f"Parameter `{param_name}` receieved as '{timestamp}' although"
+                f" a Date or Minute must be passed as a pd.Timestamp or a"
+                f" valid single-argument input to pd.Timestamp."
+            )
+            if isinstance(e, TypeError):
+                raise TypeError(msg) from e
+            else:
+                raise ValueError(msg) from e
 
-    if utc:
+    if utc and ts.tz is not pytz.UTC:
         ts = ts.tz_localize("UTC") if ts.tz is None else ts.tz_convert("UTC")
 
-    ts = ts.floor("T")
+    if ts.second or ts.microsecond or ts.nanosecond:
+        # in conditional clause to only execute if required - very expensive and
+        # otherwise drastically slows testing.
+        ts = ts.floor("T")
 
     if raise_oob:
         if calendar is None:

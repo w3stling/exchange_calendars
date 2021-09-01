@@ -36,6 +36,8 @@ from .calendar_helpers import (
     previous_divider_idx,
     Session,
     Date,
+    Minute,
+    parse_timestamp,
     parse_session,
     parse_date,
 )
@@ -143,8 +145,8 @@ class ExchangeCalendar(ABC):
 
     Many calendars do not have bounds defined (in these cases `bound_start`
     and/or `bound_end` return None). These calendars can be created through
-    any date range although it should be noted that the further back the
-    start date, the greater the potential for inaccuracies.
+    any date range although it should be noted that the earlier the start
+    date, the greater the potential for inaccuracies.
 
     In all cases, no guarantees are offered as to the accuracy of any
     calendar.
@@ -1344,13 +1346,16 @@ class ExchangeCalendar(ABC):
             )
 
     def minute_to_session_label(
-        self, dt: int | pd.Timestamp, direction: str = "next"
+        self,
+        dt: Minute,
+        direction: str = "next",
+        _parse: bool = True,
     ) -> pd.Timestamp:
         """Get session corresponding with a trading or break minute.
 
         Parameters
         ----------
-        dt : pd.Timestamp or nanosecond offset
+        dt
             Minute for which require corresponding session.
 
         direction
@@ -1370,30 +1375,38 @@ class ExchangeCalendar(ABC):
         ------
         ValueError
             If `dt` is not a trading minute and `direction` is "none".
+
+        Notes
+        -----
+        _parse
+            False - skip parsing of `minute` (default True). Useful to
+            speed up testing.
         """
-        if isinstance(dt, pd.Timestamp):
-            dt = dt.value
+        if _parse:
+            minute = parse_timestamp(dt, "dt").value
+        else:
+            minute = dt.value
 
         # TODO, can we lose this cache? Further references within method further down
         if direction == "next":
-            if self._minute_to_session_label_cache[0] == dt:
+            if self._minute_to_session_label_cache[0] == minute:
                 return self._minute_to_session_label_cache[1]
 
-        if dt < self.first_trading_minute.value:
+        if minute < self.first_trading_minute.value:
             # Resolve call here.
             if direction == "next":
-                self._minute_to_session_label_cache = (dt, self.first_session)
+                self._minute_to_session_label_cache = (minute, self.first_session)
                 return self.first_session
             else:
                 raise ValueError(
                     "Received `minute` as '{0}' although this is earlier than the"
                     " calendar's first trading minute ({1}). Consider passing"
                     " `direction` as 'next' to get first session label.".format(
-                        pd.Timestamp(dt, tz="UTC"), self.first_trading_minute
+                        pd.Timestamp(minute, tz="UTC"), self.first_trading_minute
                     )
                 )
 
-        if dt > self.last_trading_minute.value:
+        if minute > self.last_trading_minute.value:
             # Resolve call here.
             if direction == "previous":
                 return self.last_session
@@ -1402,26 +1415,26 @@ class ExchangeCalendar(ABC):
                     "Received `minute` as '{0}' although this is later than the"
                     " calendar's last trading minute ({1}). Consider passing"
                     " `direction` as 'previous' to get last session label.".format(
-                        pd.Timestamp(dt, tz="UTC"), self.last_trading_minute
+                        pd.Timestamp(minute, tz="UTC"), self.last_trading_minute
                     )
                 )
 
-        idx = np.searchsorted(self._last_minute_nanos(), dt)
+        idx = np.searchsorted(self._last_minute_nanos(), minute)
         current_or_next_session = self.schedule.index[idx]
 
         if direction == "next":
-            self._minute_to_session_label_cache = (dt, current_or_next_session)
+            self._minute_to_session_label_cache = (minute, current_or_next_session)
             return current_or_next_session
         elif direction == "previous":
-            if not self.is_open_on_minute(dt, ignore_breaks=True):
+            if not self.is_open_on_minute(minute, ignore_breaks=True):
                 return self.schedule.index[idx - 1]
         elif direction == "none":
-            if not self.is_open_on_minute(dt, ignore_breaks=True):
+            if not self.is_open_on_minute(minute, ignore_breaks=True):
                 # if the exchange is closed, blow up
                 raise ValueError(
-                    "Received `dt` as '{0}' although this is not an exchange"
+                    "Received `minute` as '{0}' although this is not an exchange"
                     " minute. Consider passing `direction` as 'next' or"
-                    " 'previous'.".format(pd.Timestamp(dt, tz="UTC"))
+                    " 'previous'.".format(pd.Timestamp(minute, tz="UTC"))
                 )
         else:
             # invalid direction
