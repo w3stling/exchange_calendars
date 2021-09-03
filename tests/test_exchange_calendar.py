@@ -308,27 +308,28 @@ class ExchangeCalendarTestBase(object):
 
     def test_is_open_on_minute(self):
         one_minute = pd.Timedelta(minutes=1)
+        m = self.calendar.is_open_on_minute
 
         for market_minute in self.answers.market_open[1:]:
             market_minute_utc = market_minute
             # The exchange should be classified as open on its first minute
-            self.assertTrue(self.calendar.is_open_on_minute(market_minute_utc))
+            self.assertTrue(m(market_minute_utc, _parse=False))
 
             if self.GAPS_BETWEEN_SESSIONS:
                 # Decrement minute by one, to minute where the market was not
                 # open
                 pre_market = market_minute_utc - one_minute
-                self.assertFalse(self.calendar.is_open_on_minute(pre_market))
+                self.assertFalse(m(pre_market, _parse=False))
 
         for market_minute in self.answers.market_close[:-1]:
             close_minute_utc = market_minute
             # should be open on its last minute
-            self.assertTrue(self.calendar.is_open_on_minute(close_minute_utc))
+            self.assertTrue(m(close_minute_utc, _parse=False))
 
             if self.GAPS_BETWEEN_SESSIONS:
                 # increment minute by one minute, should be closed
                 post_market = close_minute_utc + one_minute
-                self.assertFalse(self.calendar.is_open_on_minute(post_market))
+                self.assertFalse(m(post_market, _parse=False))
 
     def _verify_minute(
         self,
@@ -529,14 +530,13 @@ class ExchangeCalendarTestBase(object):
                 m(not_session, "not a direction")
 
     def test_minute_to_session_label(self):
+        m = self.calendar.minute_to_session_label
         # minute is prior to first session's open
         minute_before_first_open = self.answers.iloc[0].market_open - self.one_minute
         session_label = self.answers.index[0]
         minutes_that_resolve_to_this_session = [
-            self.calendar.minute_to_session_label(minute_before_first_open),
-            self.calendar.minute_to_session_label(
-                minute_before_first_open, direction="next"
-            ),
+            m(minute_before_first_open, _parse=False),
+            m(minute_before_first_open, direction="next", _parse=False),
         ]
 
         unique_session_labels = set(minutes_that_resolve_to_this_session)
@@ -544,13 +544,9 @@ class ExchangeCalendarTestBase(object):
         self.assertIn(session_label, unique_session_labels)
 
         with self.assertRaises(ValueError):
-            self.calendar.minute_to_session_label(
-                minute_before_first_open, direction="previous"
-            )
+            m(minute_before_first_open, direction="previous", _parse=False)
         with self.assertRaises(ValueError):
-            self.calendar.minute_to_session_label(
-                minute_before_first_open, direction="none"
-            )
+            m(minute_before_first_open, direction="none", _parse=False)
 
         # minute is between first session's open and last session's close
         for idx, (session_label, open_minute, close_minute, _, _) in enumerate(
@@ -566,45 +562,31 @@ class ExchangeCalendarTestBase(object):
 
             # verify that minutes inside a session resolve correctly
             minutes_that_resolve_to_this_session = [
-                self.calendar.minute_to_session_label(open_minute),
-                self.calendar.minute_to_session_label(open_minute, direction="next"),
-                self.calendar.minute_to_session_label(
-                    open_minute, direction="previous"
-                ),
-                self.calendar.minute_to_session_label(open_minute, direction="none"),
-                self.calendar.minute_to_session_label(hour_into_session),
-                self.calendar.minute_to_session_label(
-                    hour_into_session, direction="next"
-                ),
-                self.calendar.minute_to_session_label(
-                    hour_into_session, direction="previous"
-                ),
-                self.calendar.minute_to_session_label(
-                    hour_into_session, direction="none"
-                ),
-                self.calendar.minute_to_session_label(close_minute),
-                self.calendar.minute_to_session_label(close_minute, direction="next"),
-                self.calendar.minute_to_session_label(
-                    close_minute, direction="previous"
-                ),
-                self.calendar.minute_to_session_label(close_minute, direction="none"),
+                m(open_minute, _parse=False),
+                m(open_minute, direction="next", _parse=False),
+                m(open_minute, direction="previous", _parse=False),
+                m(open_minute, direction="none", _parse=False),
+                m(hour_into_session, _parse=False),
+                m(hour_into_session, direction="next", _parse=False),
+                m(hour_into_session, direction="previous", _parse=False),
+                m(hour_into_session, direction="none", _parse=False),
+                m(close_minute),
+                m(close_minute, direction="next", _parse=False),
+                m(close_minute, direction="previous", _parse=False),
+                m(close_minute, direction="none", _parse=False),
                 session_label,
             ]
 
             if self.GAPS_BETWEEN_SESSIONS:
                 minutes_that_resolve_to_this_session.append(
-                    self.calendar.minute_to_session_label(minute_before_session)
+                    m(minute_before_session, _parse=False)
                 )
                 minutes_that_resolve_to_this_session.append(
-                    self.calendar.minute_to_session_label(
-                        minute_before_session, direction="next"
-                    )
+                    m(minute_before_session, direction="next", _parse=False)
                 )
 
                 minutes_that_resolve_to_this_session.append(
-                    self.calendar.minute_to_session_label(
-                        minute_after_session, direction="previous"
-                    )
+                    m(minute_after_session, direction="previous", _parse=False)
                 )
 
             self.assertTrue(
@@ -615,10 +597,8 @@ class ExchangeCalendarTestBase(object):
             )
 
             minutes_that_resolve_to_next_session = [
-                self.calendar.minute_to_session_label(minute_after_session),
-                self.calendar.minute_to_session_label(
-                    minute_after_session, direction="next"
-                ),
+                m(minute_after_session, _parse=False),
+                m(minute_after_session, direction="next", _parse=False),
                 next_session_label,
             ]
 
@@ -630,24 +610,16 @@ class ExchangeCalendarTestBase(object):
             )
 
             self.assertEqual(
-                self.calendar.minute_to_session_label(
-                    minute_before_session, direction="previous"
-                ),
+                m(minute_before_session, direction="previous", _parse=False),
                 previous_session_label,
             )
 
             if self.GAPS_BETWEEN_SESSIONS:
                 # Make sure we use the cache correctly
                 minutes_that_resolve_to_different_sessions = [
-                    self.calendar.minute_to_session_label(
-                        minute_after_session, direction="next"
-                    ),
-                    self.calendar.minute_to_session_label(
-                        minute_after_session, direction="previous"
-                    ),
-                    self.calendar.minute_to_session_label(
-                        minute_after_session, direction="next"
-                    ),
+                    m(minute_after_session, direction="next", _parse=False),
+                    m(minute_after_session, direction="previous", _parse=False),
+                    m(minute_after_session, direction="next", _parse=False),
                 ]
 
                 self.assertEqual(
@@ -657,34 +629,28 @@ class ExchangeCalendarTestBase(object):
 
             # make sure that exceptions are raised at the right time
             with self.assertRaises(ValueError):
-                self.calendar.minute_to_session_label(open_minute, "asdf")
+                m(open_minute, "asdf", _parse=False)
 
             if self.GAPS_BETWEEN_SESSIONS:
                 with self.assertRaises(ValueError):
-                    self.calendar.minute_to_session_label(
-                        minute_before_session, direction="none"
-                    )
+                    m(minute_before_session, direction="none", _parse=False)
 
         # minute is later than last session's close
         minute_after_last_close = self.answers.iloc[-1].market_close + self.one_minute
         session_label = self.answers.index[-1]
 
-        minute_that_resolves_to_session_label = self.calendar.minute_to_session_label(
-            minute_after_last_close, direction="previous"
+        minute_that_resolves_to_session_label = m(
+            minute_after_last_close, direction="previous", _parse=False
         )
 
         self.assertEqual(session_label, minute_that_resolves_to_session_label)
 
         with self.assertRaises(ValueError):
-            self.calendar.minute_to_session_label(minute_after_last_close)
+            m(minute_after_last_close, _parse=False)
         with self.assertRaises(ValueError):
-            self.calendar.minute_to_session_label(
-                minute_after_last_close, direction="next"
-            )
+            m(minute_after_last_close, direction="next", _parse=False)
         with self.assertRaises(ValueError):
-            self.calendar.minute_to_session_label(
-                minute_after_last_close, direction="none"
-            )
+            m(minute_after_last_close, direction="none", _parse=False)
 
     @parameterized.expand(
         [
@@ -1967,23 +1933,50 @@ class ExchangeCalendarTestBaseProposal:
         sessions_labels = m(index)
         assert sessions_labels.equals(pd.DatetimeIndex(sessions).sort_values())
 
+    def test_is_trading_minute(self, all_calendars_with_answers):
+        calendar, ans = all_calendars_with_answers
+        m = calendar.is_trading_minute
+
+        for non_trading_min in ans.non_trading_minutes_only():
+            assert m(non_trading_min, _parse=False) is False
+
+        for trading_min in ans.trading_minutes_only():
+            assert m(trading_min, _parse=False) is True
+
+        for break_min in ans.break_minutes_only():
+            assert m(break_min, _parse=False) is False
+
+    def test_is_break_minute(self, all_calendars_with_answers):
+        calendar, ans = all_calendars_with_answers
+        m = calendar.is_break_minute
+
+        for non_trading_min in islice(ans.non_trading_minutes_only(), 0, None, 59):
+            # limit testing to every 59th as non_trading minutes not edge cases
+            assert m(non_trading_min, _parse=False) is False
+
+        for trading_min in ans.trading_minutes_only():
+            assert m(trading_min, _parse=False) is False
+
+        for break_min in ans.break_minutes_only():
+            assert m(break_min, _parse=False) is True
+
     def test_is_open_on_minute(self, all_calendars_with_answers):
         calendar, ans = all_calendars_with_answers
+        m = calendar.is_open_on_minute
 
-        for non_trading_mins, _, _ in ans.non_trading_minutes:
-            for non_trading_min in non_trading_mins:
-                assert calendar.is_open_on_minute(non_trading_min) is False
+        # minimal test as is_open_on_minute delegates evaluation to is_trading_minute
+        # and is_break_minute, both of which are comprehensively tested.
 
-        for trading_minutes, _ in ans.trading_minutes:
-            for trading_min in trading_minutes:
-                assert calendar.is_open_on_minute(trading_min) is True
+        for non_trading_min in islice(ans.non_trading_minutes_only(), 50):
+            assert m(non_trading_min, _parse=False) is False
 
-        if ans.has_a_break:
-            for break_minutes, _ in ans.break_minutes:
-                for break_min in break_minutes:
-                    rtrn = calendar.is_open_on_minute(break_min, ignore_breaks=True)
+        for trading_min in islice(ans.trading_minutes_only(), 50):
+            assert m(trading_min, _parse=False) is True
+
+        for break_min in islice(ans.break_minutes_only(), 1000):
+            rtrn = m(break_min, ignore_breaks=True, _parse=False)
             assert rtrn is True
-                    rtrn = calendar.is_open_on_minute(break_min)
+            rtrn = m(break_min, _parse=False)
             assert rtrn is False
 
     def test_invalid_input(self, calendar_class, sides, default_answers, name):

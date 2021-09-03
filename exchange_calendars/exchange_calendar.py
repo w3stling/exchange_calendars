@@ -720,38 +720,127 @@ class ExchangeCalendar(ABC):
         end = None if end is None else parse_date(end, "end")
         return self.break_starts[start:end].notna().any()
 
-    def is_open_on_minute(
-        self, dt: int | pd.Timestamp, ignore_breaks: bool = False
-    ) -> bool:
-        if isinstance(dt, pd.Timestamp):
-            dt = dt.value
+    def is_trading_minute(self, minute: Minute, _parse: bool = True) -> bool:
+        """Query if a given minute is a trading minute.
 
-        first_idx = np.searchsorted(self._first_minute_nanos(), dt)
-        last_idx = np.searchsorted(self._last_minute_nanos(), dt)
+        Minutes during breaks are not considered trading minutes.
 
-        # if the indices are not same, that means we are within a session
-        if first_idx != last_idx:
-            if ignore_breaks:
-                return True
+        Note: `self.side` determines whether exchange will be considered
+        open or closed on session open, session close, break start and
+        break end.
 
-            break_start_on_open_dt = self._last_am_minute_nanos()[first_idx - 1]
-            break_end_on_open_dt = self._first_pm_minute_nanos()[first_idx - 1]
-            # NaT comparisions will result in False
-            if break_start_on_open_dt < dt < break_end_on_open_dt:
-                # we're in the middle of a break
-                return False
-            else:
-                return True
+        Parameters
+        ----------
+        minute
+            Minute being queried.
 
+        Returns
+        -------
+        bool
+            Boolean indicting if `minute` is a trading minute.
+
+        See Also
+        --------
+        is_open_on_minute
+
+        Notes
+        -----
+        _parse
+            False - skip parsing of `minute` (default True). Useful to
+            speed up testing.
+        """
+        if _parse:
+            minute = parse_timestamp(
+                minute, "minute", raise_oob=True, calendar=self
+            ).value
         else:
-            try:
-                # if they are the same, it might be the first minute of a session
-                # return as bool, not numpy bool
-                return bool(dt == self._first_minute_nanos()[first_idx])
-            except IndexError:
-                # this can happen if we're outside the schedule's range (like
-                # after the last close)
-                return False
+            minute = minute.value
+
+        idx = self.all_minutes_nanos.searchsorted(minute)
+        numpy_bool = minute == self.all_minutes_nanos[idx]
+        return bool(numpy_bool)
+
+    def is_break_minute(self, minute: pd.Timestamp, _parse: bool = True) -> bool:
+        """Query if a given minute is within a break.
+
+        Note: `self.side` determines whether either, both or one of break
+        start and break end are treated as break minutes.
+
+        Parameters
+        ----------
+        minute
+            Minute being queried.
+
+        Returns
+        -------
+        bool
+            Boolean indicting if `minute` is a break minute.
+
+        Notes
+        -----
+        _parse
+            False - skip parsing of `minute` (default True). Useful to
+            speed up testing.
+        """
+        if _parse:
+            minute = parse_timestamp(
+                minute, "minute", raise_oob=True, calendar=self
+            ).value
+        else:
+            minute = minute.value
+
+        session_idx = np.searchsorted(self._first_minute_nanos(), minute) - 1
+        break_start = self._last_am_minute_nanos()[session_idx]
+        break_end = self._first_pm_minute_nanos()[session_idx]
+        # NaT comparisions evalute as False
+        numpy_bool = break_start < minute < break_end
+        return bool(numpy_bool)
+
+    def is_open_on_minute(
+        self, dt: Minute, ignore_breaks: bool = False, _parse: bool = True
+    ) -> bool:
+        """Query if exchange is open on a given minute.
+
+        Note: `self.side` determines whether exchange will be considered
+        open or closed on session open, session close, break start and
+        break end.
+
+        Parameters
+        ----------
+        dt
+            Minute being queried.
+
+        ignore_breaks: bool
+            Should exchange be considered open during any break?
+                True - treat exchange as open during any break.
+                False - treat exchange as closed during any break.
+
+        Returns
+        -------
+        bool
+            Boolean indicting if exchange is open on `dt`.
+
+        See Also
+        --------
+        is_trading_minute
+
+        Notes
+        -----
+        _parse
+            False - skip parsing of `minute` (default True). Useful to
+            speed up testing.
+        """
+        if _parse:
+            minute = parse_timestamp(dt, "dt", raise_oob=True, calendar=self)
+        else:
+            minute = dt
+
+        is_trading_minute = self.is_trading_minute(minute, _parse=_parse)
+        if is_trading_minute or not ignore_breaks:
+            return is_trading_minute
+        else:
+            # not a trading minute although should return True if in break
+            return self.is_break_minute(minute, _parse=_parse)
 
     def next_open(self, dt):
         """
