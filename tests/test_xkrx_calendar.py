@@ -24,10 +24,7 @@ class XKRXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):
     HAVE_EARLY_CLOSES = False
 
     # has breaks prior to 2000-05-22
-    # but not after current calendar.default_start setting,
-    # which gives 20 years ago from now,
-    # and is practically after 2000-05-22
-    HAVE_BREAKS = False
+    HAVE_BREAKS = True
 
     @classmethod
     def setup_class(cls):
