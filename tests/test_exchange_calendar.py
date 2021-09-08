@@ -1197,6 +1197,9 @@ class Answers:
         self._name = calendar_name.upper()
         self._side = side
 
+    # TODO. When new test suite completed, review Answers to remove any
+    # unused properties / methods.
+
     # exposed constructor arguments
 
     @property
@@ -1552,37 +1555,68 @@ class Answers:
     # evaluated properties for minutes
 
     @functools.lru_cache(maxsize=4)
-    def _trading_minutes(self) -> list[tuple[list[pd.Timestamp], pd.Timestamp]]:
-        mins = []
-        for session in self.get_sessions_sample(self.sessions):
-            first_trading_minute = self.get_session_first_trading_minute(session)
-            last_trading_minute = self.get_session_last_trading_minute(session)
-            session_mins = [
-                first_trading_minute,
-                first_trading_minute + self.ONE_MIN,
-                last_trading_minute,
-                last_trading_minute - self.ONE_MIN,
-            ]
-            if self.has_a_break and self.session_has_break(session):
-                last_am_minute = self.get_session_last_am_minute(session)
-                first_pm_minute = self.get_session_first_pm_minute(session)
-                session_mins.append(last_am_minute)
-                session_mins.append(last_am_minute - self.ONE_MIN)
-                session_mins.append(first_pm_minute)
-                session_mins.append(first_pm_minute + self.ONE_MIN)
-            tup = (session_mins, session)
-            mins.append(tup)
-        return mins
+    def _evaluate_trading_and_break_minutes(self) -> tuple[tuple, tuple]:
+        sessions = self.get_sessions_sample(self.sessions)
+        first_mins = self.first_trading_minutes[sessions]
+        first_mins_plus_one = first_mins + self.ONE_MIN
+        last_mins = self.last_trading_minutes[sessions]
+        last_mins_less_one = last_mins - self.ONE_MIN
+
+        trading_mins = []
+        break_mins = []
+
+        for session, mins_ in zip(
+            sessions,
+            zip(first_mins, first_mins_plus_one, last_mins, last_mins_less_one),
+        ):
+            trading_mins.append((mins_, session))
+
+        if self.has_a_break:
+            last_am_mins = self.last_am_trading_minutes[sessions]
+            last_am_mins = last_am_mins[last_am_mins.notna()]
+            first_pm_mins = self.first_pm_trading_minutes[last_am_mins.index]
+
+            last_am_mins_less_one = last_am_mins - self.ONE_MIN
+            last_am_mins_plus_one = last_am_mins + self.ONE_MIN
+            last_am_mins_plus_two = last_am_mins + self.TWO_MIN
+
+            first_pm_mins_plus_one = first_pm_mins + self.ONE_MIN
+            first_pm_mins_less_one = first_pm_mins - self.ONE_MIN
+            first_pm_mins_less_two = first_pm_mins - self.TWO_MIN
+
+            for session, mins_ in zip(
+                last_am_mins.index,
+                zip(
+                    last_am_mins,
+                    last_am_mins_less_one,
+                    first_pm_mins,
+                    first_pm_mins_plus_one,
+                ),
+            ):
+                trading_mins.append((mins_, session))
+
+            for session, mins_ in zip(
+                last_am_mins.index,
+                zip(
+                    last_am_mins_plus_one,
+                    last_am_mins_plus_two,
+                    first_pm_mins_less_one,
+                    first_pm_mins_less_two,
+                ),
+            ):
+                break_mins.append((mins_, session))
+
+        return (tuple(trading_mins), tuple(break_mins))
 
     @property
-    def trading_minutes(self) -> list[tuple[list[pd.Timestamp], pd.Timestamp]]:
+    def trading_minutes(self) -> tuple[tuple[tuple[pd.Timestamp], pd.Timestamp]]:
         """Sample of edge trading minutes.
 
         Returns
         -------
-        list of tuple[List[trading_minutes], session]
+        tuple of tuple[tuple[trading_minutes], session]
 
-            List[trading_minutes] includes:
+            tuple[trading_minutes] includes:
                 first two trading minutes of a session.
                 last two trading minutes of a session.
                 If breaks:
@@ -1592,7 +1626,7 @@ class Answers:
             session
                 Session of trading_minutes
         """
-        return self._trading_minutes()
+        return self._evaluate_trading_and_break_minutes()[0]
 
     def trading_minutes_only(self) -> abc.Iterator[pd.Timestamp]:
         """Generator of trading minutes of `self.trading_minutes`."""
@@ -1605,40 +1639,22 @@ class Answers:
         """A single trading minute."""
         return self.trading_minutes[0][0][0]
 
-    @functools.lru_cache(maxsize=4)
-    def _break_minutes(self) -> list[tuple[list[pd.Timestamp], pd.Timestamp]]:
-        mins = []
-        if not self.has_a_break:
-            return mins
-        for session in self.get_sessions_sample(self.sessions_with_breaks):
-            last_am_minute = self.get_session_last_am_minute(session)
-            first_pm_minute = self.get_session_first_pm_minute(session)
-            session_mins = [
-                last_am_minute + self.ONE_MIN,
-                last_am_minute + self.TWO_MIN,
-                first_pm_minute - self.ONE_MIN,
-                first_pm_minute - self.TWO_MIN,
-            ]
-            tup = (session_mins, session)
-            mins.append(tup)
-        return mins
-
     @property
-    def break_minutes(self) -> list[tuple[list[pd.Timestamp], pd.Timestamp]]:
+    def break_minutes(self) -> tuple[tuple[tuple[pd.Timestamp], pd.Timestamp]]:
         """Sample of edge break minutes.
 
         Returns
         -------
-        list of tuple[List[break_minutes], session]
+        tuple of tuple[tuple[break_minutes], session]
 
-            List[break_minutes]:
+            tuple[break_minutes]:
                 first two minutes of a break.
                 last two minutes of a break.
 
             session
                 Session of break_minutes
         """
-        return self._break_minutes()
+        return self._evaluate_trading_and_break_minutes()[1]
 
     def break_minutes_only(self) -> abc.Iterator[pd.Timestamp]:
         """Generator of break minutes of `self.break_minutes`."""
@@ -1651,30 +1667,35 @@ class Answers:
     @functools.lru_cache(maxsize=4)
     def _non_trading_minutes(
         self,
-    ) -> list[tuple[list[pd.Timestamp], pd.Timestamp, pd.Timestamp]]:
-        mins = []
-        for session in self.get_sessions_sample(self.sessions_with_gap_after):
-            previous_session = session
-            next_session = self.get_next_session(previous_session)
-            non_trading_mins = [
-                self.get_session_last_trading_minute(previous_session) + self.ONE_MIN,
-                self.get_session_first_trading_minute(next_session) - self.ONE_MIN,
-            ]
-            tup = (non_trading_mins, previous_session, next_session)
-            mins.append(tup)
-        return mins
+    ) -> tuple[tuple[tuple[pd.Timestamp], pd.Timestamp, pd.Timestamp]]:
+        non_trading_mins = []
+
+        sessions = prev_sessions = self.get_sessions_sample(
+            self.sessions_with_gap_after
+        )
+        next_sessions = self.sessions[self.sessions.get_indexer(sessions) + 1]
+
+        last_mins_plus_one = self.last_trading_minutes[sessions] + self.ONE_MIN
+        first_mins_less_one = self.first_trading_minutes[next_sessions] - self.ONE_MIN
+
+        for prev_session, next_session, mins_ in zip(
+            prev_sessions, next_sessions, zip(last_mins_plus_one, first_mins_less_one)
+        ):
+            non_trading_mins.append((mins_, prev_session, next_session))
+
+        return tuple(non_trading_mins)
 
     @property
     def non_trading_minutes(
         self,
-    ) -> list[tuple[list[pd.Timestamp], pd.Timestamp, pd.Timestamp]]:
+    ) -> tuple[tuple[tuple[pd.Timestamp], pd.Timestamp, pd.Timestamp]]:
         """Sample of edge non_trading_minutes. Does not include break minutes.
 
         Returns
         -------
-        list of tuple[List[non-trading minute], previous session, next session]
+        tuple of tuple[tuple[non-trading minute], previous session, next session]
 
-            List[non-trading minute]
+            tuple[non-trading minute]
                 Two non-trading minutes.
                     [0] first non-trading minute to follow a session.
                     [1] last non-trading minute prior to the next session.
@@ -1895,8 +1916,6 @@ class Answers:
 
 class ExchangeCalendarTestBaseProposal:
     """Test base for an ExchangeCalendar.
-
-
 
     Notes
     -----
