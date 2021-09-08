@@ -856,9 +856,9 @@ class ExchangeCalendar(ABC):
         except IndexError:
             if dt.tz_convert(None) >= self.opens[-1]:
                 raise ValueError(
-                    "Minute cannot be the last open or later (received `dt` as"
-                    f" '{dt}'.)"
-                )
+                    "Minute cannot be the last open or later (received `dt`"
+                    f" parsed as '{dt}'.)"
+                ) from None
             else:
                 raise
 
@@ -887,8 +887,9 @@ class ExchangeCalendar(ABC):
         except IndexError:
             if dt.tz_convert(None) == self.closes[-1]:
                 raise ValueError(
-                    "Minute cannot be the last close (received `dt` as" f" '{dt}'.)"
-                )
+                    "Minute cannot be the last close (received `dt` parsed as"
+                    f" '{dt}'.)"
+                ) from None
             else:
                 raise
         return pd.Timestamp(self.market_closes_nanos[idx], tz=UTC)
@@ -916,8 +917,9 @@ class ExchangeCalendar(ABC):
         except ValueError:
             if dt.tz_convert(None) == self.opens[0]:
                 raise ValueError(
-                    "Minute cannot be the first open (received `dt` as" f" '{dt}'.)"
-                )
+                    "Minute cannot be the first open (received `dt` parsed as"
+                    f" '{dt}'.)"
+                ) from None
             else:
                 raise
 
@@ -947,49 +949,65 @@ class ExchangeCalendar(ABC):
             if dt.tz_convert(None) <= self.closes[0]:
                 raise ValueError(
                     "Minute cannot be the first close or earlier (received"
-                    f" `dt` as '{dt}'.)"
-                )
+                    f" `dt` parsed as '{dt}'.)"
+                ) from None
             else:
                 raise
 
         return pd.Timestamp(self.market_closes_nanos[idx], tz=UTC)
 
-    def next_minute(self, dt):
-        """
-        Given a dt, return the next exchange minute.  If the given dt is not
-        an exchange minute, returns the next exchange open.
+    def next_minute(self, dt: Minute, _parse: bool = True) -> pd.Timestamp:
+        """Return trading minute that immediately follows a given minute.
 
         Parameters
         ----------
-        dt: pd.Timestamp
-            The dt for which to get the next exchange minute.
+        dt
+            Minute for which to get next trading minute. Minute can be a
+            trading or a non-trading minute.
 
         Returns
         -------
         pd.Timestamp
-            The next exchange minute.
+            UTC timestamp of the next minute.
         """
-        idx = next_divider_idx(self.all_minutes_nanos, dt.value)
+        if _parse:
+            dt = parse_timestamp(dt, "dt", raise_oob=True, calendar=self)
+        try:
+            idx = next_divider_idx(self.all_minutes_nanos, dt.value)
+        except IndexError:
+            # dt > last_trading_minute handled via parsing
+            if dt == self.last_trading_minute:
+                raise ValueError(
+                    "Minute cannot be the last trading minute or later"
+                    f" (received `dt` parsed as '{dt}'.)"
+                ) from None
         return self.all_minutes[idx]
 
-    def previous_minute(self, dt):
-        """
-        Given a dt, return the previous exchange minute.
-
-        Raises KeyError if the given timestamp is not an exchange minute.
+    def previous_minute(self, dt: Minute, _parse: bool = True) -> pd.Timestamp:
+        """Return trading minute that immediately preceeds a given minute.
 
         Parameters
         ----------
-        dt: pd.Timestamp
-            The dt for which to get the previous exchange minute.
+        dt
+            Minute for which to get previous trading minute. Minute can be
+            a trading or a non-trading minute.
 
         Returns
         -------
         pd.Timestamp
-            The previous exchange minute.
+            UTC timestamp of the previous minute.
         """
-
-        idx = previous_divider_idx(self.all_minutes_nanos, dt.value)
+        if _parse:
+            dt = parse_timestamp(dt, "dt", raise_oob=True, calendar=self)
+        try:
+            idx = previous_divider_idx(self.all_minutes_nanos, dt.value)
+        except ValueError:
+            # dt < first_trading_minute handled via parsing
+            if dt == self.first_trading_minute:
+                raise ValueError(
+                    "Minute cannot be the first trading minute or earlier"
+                    f" (received `dt` parsed as '{dt}'.)"
+                ) from None
         return self.all_minutes[idx]
 
     def next_session_label(self, session_label: Session) -> pd.Timestamp:

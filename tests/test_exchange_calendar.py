@@ -449,22 +449,28 @@ class ExchangeCalendarTestBase(object):
 
         # test 20,000 minutes because it takes too long to do the rest.
         for idx, minute in enumerate(all_minutes[1:20000]):
-            self.assertEqual(all_minutes[idx + 2], self.calendar.next_minute(minute))
+            self.assertEqual(
+                all_minutes[idx + 2], self.calendar.next_minute(minute, _parse=False)
+            )
 
-            self.assertEqual(all_minutes[idx], self.calendar.previous_minute(minute))
+            self.assertEqual(
+                all_minutes[idx], self.calendar.previous_minute(minute, _parse=False)
+            )
 
         # test a couple of non-market minutes
         if self.GAPS_BETWEEN_SESSIONS:
             for open_minute in self.answers.market_open[1:]:
                 hour_before_open = open_minute - self.one_hour
                 self.assertEqual(
-                    open_minute, self.calendar.next_minute(hour_before_open)
+                    open_minute,
+                    self.calendar.next_minute(hour_before_open, _parse=False),
                 )
 
             for close_minute in self.answers.market_close[1:]:
                 hour_after_close = close_minute + self.one_hour
                 self.assertEqual(
-                    close_minute, self.calendar.previous_minute(hour_after_close)
+                    close_minute,
+                    self.calendar.previous_minute(hour_after_close, _parse=False),
                 )
 
     def test_date_to_session_label(self):
@@ -1409,6 +1415,16 @@ class Answers:
         """
         return self._last_am_trading_minutes()
 
+    @property
+    def last_am_trading_minutes_plus_one(self) -> pd.Series:
+        """Last pre-break trading minute of each session plus one minute."""
+        return self.last_am_trading_minutes + self.ONE_MIN
+
+    @property
+    def last_am_trading_minutes_less_one(self) -> pd.Series:
+        """Last pre-break trading minute of each session less one minute."""
+        return self.last_am_trading_minutes - self.ONE_MIN
+
     @functools.lru_cache(maxsize=4)
     def _first_pm_trading_minutes(self) -> pd.Series:
         if self.side in self.LEFT_SIDES:
@@ -1423,6 +1439,16 @@ class Answers:
         NaT if session does not have a break.
         """
         return self._first_pm_trading_minutes()
+
+    @property
+    def first_pm_trading_minutes_plus_one(self) -> pd.Series:
+        """First post-break trading minute of each session plus one minute."""
+        return self.first_pm_trading_minutes + self.ONE_MIN
+
+    @property
+    def first_pm_trading_minutes_less_one(self) -> pd.Series:
+        """First post-break trading minute of each session less one minute."""
+        return self.first_pm_trading_minutes - self.ONE_MIN
 
     # evaluated properties for sessions
 
@@ -2233,6 +2259,104 @@ class ExchangeCalendarTestBaseProposal:
                     cal.next_close(minute, _parse=False)
             else:
                 assert cal.next_close(minute, _parse=False) == next_close
+
+    def test_prev_next_minute(self, all_calendars_with_answers, one_minute):
+        cal, ans = all_calendars_with_answers
+
+        def next_m(minute: pd.Timestamp):
+            return cal.next_minute(minute, _parse=False)
+
+        def prev_m(minute: pd.Timestamp):
+            return cal.previous_minute(minute, _parse=False)
+
+        # minutes of first session
+        first_min = ans.first_trading_minutes[0]
+        first_min_plus_one = ans.first_trading_minutes_plus_one[0]
+        first_min_less_one = ans.first_trading_minutes_less_one[0]
+        last_min = ans.last_trading_minutes[0]
+        last_min_plus_one = ans.last_trading_minutes_plus_one[0]
+        last_min_less_one = ans.last_trading_minutes_less_one[0]
+
+        with pytest.raises(ValueError):
+            prev_m(first_min)
+        # minutes earlier than first_trading_minute assumed handled via parse_timestamp
+        assert next_m(first_min) == first_min_plus_one
+        assert next_m(first_min_plus_one) == first_min_plus_one + one_minute
+        assert prev_m(first_min_plus_one) == first_min
+        assert prev_m(last_min) == last_min_less_one
+        assert prev_m(last_min_less_one) == last_min_less_one - one_minute
+        assert next_m(last_min_less_one) == last_min
+        assert prev_m(last_min_plus_one) == last_min
+
+        prev_last_min = last_min
+        for (
+            first_min,
+            first_min_plus_one,
+            first_min_less_one,
+            last_min,
+            last_min_plus_one,
+            last_min_less_one,
+            gap_before,
+        ) in zip(
+            ans.first_trading_minutes[1:],
+            ans.first_trading_minutes_plus_one[1:],
+            ans.first_trading_minutes_less_one[1:],
+            ans.last_trading_minutes[1:],
+            ans.last_trading_minutes_plus_one[1:],
+            ans.last_trading_minutes_less_one[1:],
+            ~ans._mask_sessions_with_no_gap_before[1:],
+        ):
+            assert next_m(prev_last_min) == first_min
+            assert prev_m(first_min) == prev_last_min
+            assert next_m(first_min) == first_min_plus_one
+            assert prev_m(first_min_plus_one) == first_min
+            assert next_m(first_min_less_one) == first_min
+            assert prev_m(last_min) == last_min_less_one
+            assert next_m(last_min_less_one) == last_min
+            assert prev_m(last_min_plus_one) == last_min
+
+            if gap_before:
+                assert next_m(prev_last_min + one_minute) == first_min
+                assert prev_m(first_min_less_one) == prev_last_min
+            else:
+                assert next_m(prev_last_min + one_minute) == first_min_plus_one
+                assert next_m(prev_last_min + one_minute) == first_min_plus_one
+
+            prev_last_min = last_min
+
+        with pytest.raises(ValueError):
+            next_m(last_min)
+        # minutes later than last_trading_minute assumed handled via parse_timestamp
+
+        if ans.has_a_break:
+            for (
+                last_am_min,
+                last_am_min_less_one,
+                last_am_min_plus_one,
+                first_pm_min,
+                first_pm_min_less_one,
+                first_pm_min_plus_one,
+            ) in zip(
+                ans.last_am_trading_minutes,
+                ans.last_am_trading_minutes_less_one,
+                ans.last_am_trading_minutes_plus_one,
+                ans.first_pm_trading_minutes,
+                ans.first_pm_trading_minutes_less_one,
+                ans.first_pm_trading_minutes_plus_one,
+            ):
+                if pd.isna(last_am_min):
+                    continue
+                assert next_m(last_am_min_less_one) == last_am_min
+                assert next_m(last_am_min) == first_pm_min
+                assert prev_m(last_am_min) == last_am_min_less_one
+                assert next_m(last_am_min_plus_one) == first_pm_min
+                assert prev_m(last_am_min_plus_one) == last_am_min
+
+                assert prev_m(first_pm_min_less_one) == last_am_min
+                assert next_m(first_pm_min_less_one) == first_pm_min
+                assert prev_m(first_pm_min) == last_am_min
+                assert next_m(first_pm_min) == first_pm_min_plus_one
+                assert prev_m(first_pm_min_plus_one) == first_pm_min
 
     def test_minute_to_session_label(self, all_calendars_with_answers, all_directions):
         direction = all_directions
