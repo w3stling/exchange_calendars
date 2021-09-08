@@ -66,14 +66,18 @@ class AlwaysOpenTestCase(ExchangeCalendarTestBase, TestCase):
         self.assertTrue(calendar.last_trading_session == end)
 
 
-class TestAlwaysOpenCalendarCase(ExchangeCalendarTestBaseProposal):
-    @pytest.fixture(scope="class")
-    def calendar_class(self) -> abc.Iterator[ExchangeCalendar]:
-        yield AlwaysOpenCalendar
-
+class TestAlwaysOpenCalendar(ExchangeCalendarTestBaseProposal):
     @pytest.fixture(scope="class", params=["left", "right"])
     def all_calendars_with_answers(
         self, request, calendars, answers
     ) -> abc.Iterator[ExchangeCalendar, Answers]:
         """Parameterized calendars and answers for each side."""
         yield (calendars[request.param], answers[request.param])
+
+    @pytest.fixture(scope="class")
+    def calendar_cls(self) -> abc.Iterator[ExchangeCalendar]:
+        yield AlwaysOpenCalendar
+
+    @pytest.fixture(scope="class")
+    def max_session_hours(self) -> abc.Iterator[int | float]:
+        yield 24

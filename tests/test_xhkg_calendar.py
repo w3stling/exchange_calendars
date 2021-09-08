@@ -286,7 +286,23 @@ class XHKGCalendarTestCase(ExchangeCalendarTestBase, TestCase):
         self.assertEqual({time(16)}, set(local_time_close.dt.time))
 
 
-class TestXHKGCalendarCase(ExchangeCalendarTestBaseProposal):
+class TestXHKGCalendar(ExchangeCalendarTestBaseProposal):
     @pytest.fixture(scope="class")
-    def calendar_class(self) -> abc.Iterator[XHKGExchangeCalendar]:
+    def calendar_cls(self) -> abc.Iterator[XHKGExchangeCalendar]:
         yield XHKGExchangeCalendar
+
+    @pytest.fixture(scope="class")
+    def max_session_hours(self) -> abc.Iterator[int | float]:
+        yield 6.5
+
+    @pytest.fixture(scope="class")
+    def start_bound(self) -> abc.Iterator[pd.Timestamp | None]:
+        """Earliest date for which calendar can be instantiated, or None if
+        there is no start bound."""
+        yield T("1960-01-01")
+
+    @pytest.fixture(scope="class")
+    def end_bound(self) -> abc.Iterator[pd.Timestamp | None]:
+        """Latest date for which calendar can be instantiated, or None if
+        there is no end bound."""
+        yield T("2049-12-31")

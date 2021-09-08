@@ -150,6 +150,15 @@ class ExchangeCalendar(ABC):
 
     In all cases, no guarantees are offered as to the accuracy of any
     calendar.
+
+
+    Internal method parameters:
+
+        _parse: bool
+            Determines if a `minute` parameter should be parsed (default
+            True). Passed as False:
+                - internally to prevent double parsing.
+                - by tests for efficiency.
     """
 
     _LEFT_SIDES = ["left", "both"]
@@ -742,12 +751,6 @@ class ExchangeCalendar(ABC):
         See Also
         --------
         is_open_on_minute
-
-        Notes
-        -----
-        _parse
-            False - skip parsing of `minute` (default True). Useful to
-            speed up testing.
         """
         if _parse:
             minute = parse_timestamp(
@@ -775,12 +778,6 @@ class ExchangeCalendar(ABC):
         -------
         bool
             Boolean indicting if `minute` is a break minute.
-
-        Notes
-        -----
-        _parse
-            False - skip parsing of `minute` (default True). Useful to
-            speed up testing.
         """
         if _parse:
             minute = parse_timestamp(
@@ -810,7 +807,7 @@ class ExchangeCalendar(ABC):
         dt
             Minute being queried.
 
-        ignore_breaks: bool
+        ignore_breaks
             Should exchange be considered open during any break?
                 True - treat exchange as open during any break.
                 False - treat exchange as closed during any break.
@@ -823,12 +820,6 @@ class ExchangeCalendar(ABC):
         See Also
         --------
         is_trading_minute
-
-        Notes
-        -----
-        _parse
-            False - skip parsing of `minute` (default True). Useful to
-            speed up testing.
         """
         if _parse:
             minute = parse_timestamp(dt, "dt", raise_oob=True, calendar=self)
@@ -842,75 +833,125 @@ class ExchangeCalendar(ABC):
             # not a trading minute although should return True if in break
             return self.is_break_minute(minute, _parse=_parse)
 
-    def next_open(self, dt):
-        """
-        Given a dt, returns the next open.
+    def next_open(self, dt: Minute, _parse: bool = True) -> pd.Timestamp:
+        """Return next open that follows a given minute.
 
-        If the given dt happens to be a session open, the next session's open
-        will be returned.
+        If `dt` is a session open, the next session's open will be
+        returned.
 
         Parameters
         ----------
-        dt: pd.Timestamp
-            The dt for which to get the next open.
+        dt
+            Minute for which to get the next open.
 
         Returns
         -------
         pd.Timestamp
-            The UTC timestamp of the next open.
+            UTC timestamp of the next open.
         """
-        idx = next_divider_idx(self.market_opens_nanos, dt.value)
+        if _parse:
+            dt = parse_timestamp(dt, "dt", raise_oob=True, calendar=self)
+        try:
+            idx = next_divider_idx(self.market_opens_nanos, dt.value)
+        except IndexError:
+            if dt.tz_convert(None) >= self.opens[-1]:
+                raise ValueError(
+                    "Minute cannot be the last open or later (received `dt` as"
+                    f" '{dt}'.)"
+                )
+            else:
+                raise
+
         return pd.Timestamp(self.market_opens_nanos[idx], tz=UTC)
 
-    def next_close(self, dt):
-        """
-        Given a dt, returns the next close.
+    def next_close(self, dt: Minute, _parse: bool = True) -> pd.Timestamp:
+        """Return next close that follows a given minute.
+
+        If `dt` is a session close, the next session's close will be
+        returned.
 
         Parameters
         ----------
-        dt: pd.Timestamp
-            The dt for which to get the next close.
+        dt
+            Minute for which to get the next close.
 
         Returns
         -------
         pd.Timestamp
-            The UTC timestamp of the next close.
+            UTC timestamp of the next close.
         """
-        idx = next_divider_idx(self.market_closes_nanos, dt.value)
+        if _parse:
+            dt = parse_timestamp(dt, "dt", raise_oob=True, calendar=self)
+        try:
+            idx = next_divider_idx(self.market_closes_nanos, dt.value)
+        except IndexError:
+            if dt.tz_convert(None) == self.closes[-1]:
+                raise ValueError(
+                    "Minute cannot be the last close (received `dt` as" f" '{dt}'.)"
+                )
+            else:
+                raise
         return pd.Timestamp(self.market_closes_nanos[idx], tz=UTC)
 
-    def previous_open(self, dt):
-        """
-        Given a dt, returns the previous open.
+    def previous_open(self, dt: Minute, _parse: bool = True) -> pd.Timestamp:
+        """Return previous open that preceeds a given minute.
+
+        If `dt` is a session open, the previous session's open will be
+        returned.
 
         Parameters
         ----------
-        dt: pd.Timestamp
-            The dt for which to get the previous open.
+        dt
+            Minute for which to get the previous open.
 
         Returns
         -------
         pd.Timestamp
-            The UTC imestamp of the previous open.
+            UTC timestamp of the previous open.
         """
-        idx = previous_divider_idx(self.market_opens_nanos, dt.value)
+        if _parse:
+            dt = parse_timestamp(dt, "dt", raise_oob=True, calendar=self)
+        try:
+            idx = previous_divider_idx(self.market_opens_nanos, dt.value)
+        except ValueError:
+            if dt.tz_convert(None) == self.opens[0]:
+                raise ValueError(
+                    "Minute cannot be the first open (received `dt` as" f" '{dt}'.)"
+                )
+            else:
+                raise
+
         return pd.Timestamp(self.market_opens_nanos[idx], tz=UTC)
 
-    def previous_close(self, dt):
-        """
-        Given a dt, returns the previous close.
+    def previous_close(self, dt: Minute, _parse: bool = True) -> pd.Timestamp:
+        """Return previous close that preceeds a given minute.
+
+        If `dt` is a session close, the previous session's close will be
+        returned.
 
         Parameters
         ----------
-        dt: pd.Timestamp
-            The dt for which to get the previous close.
+        dt
+            Minute for which to get the previous close.
 
         Returns
         -------
         pd.Timestamp
-            The UTC timestamp of the previous close.
+            UTC timestamp of the previous close.
         """
-        idx = previous_divider_idx(self.market_closes_nanos, dt.value)
+        if _parse:
+            dt = parse_timestamp(dt, "dt", raise_oob=True, calendar=self)
+        try:
+            idx = previous_divider_idx(self.market_closes_nanos, dt.value)
+        except ValueError:
+            if dt.tz_convert(None) <= self.closes[0]:
+                raise ValueError(
+                    "Minute cannot be the first close or earlier (received"
+                    f" `dt` as '{dt}'.)"
+                )
+            else:
+                raise
+
         return pd.Timestamp(self.market_closes_nanos[idx], tz=UTC)
 
     def next_minute(self, dt):
@@ -1464,12 +1505,6 @@ class ExchangeCalendar(ABC):
         ------
         ValueError
             If `dt` is not a trading minute and `direction` is "none".
-
-        Notes
-        -----
-        _parse
-            False - skip parsing of `minute` (default True). Useful to
-            speed up testing.
         """
         if _parse:
             minute = parse_timestamp(dt, "dt").value

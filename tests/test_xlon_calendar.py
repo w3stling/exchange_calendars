@@ -102,7 +102,11 @@ class XLONCalendarTestCase(ExchangeCalendarTestBase, TestCase):
             )
 
 
-class TestXLONCalendarCase(ExchangeCalendarTestBaseProposal):
+class TestXLONCalendar(ExchangeCalendarTestBaseProposal):
     @pytest.fixture(scope="class")
-    def calendar_class(self) -> abc.Iterator[XLONExchangeCalendar]:
+    def calendar_cls(self) -> abc.Iterator[XLONExchangeCalendar]:
         yield XLONExchangeCalendar
+
+    @pytest.fixture(scope="class")
+    def max_session_hours(self) -> abc.Iterator[int | float]:
+        yield 8.5
