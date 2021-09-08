@@ -269,11 +269,6 @@ class ExchangeCalendar(ABC):
             dtype="datetime64[ns]",
         )
 
-        # Simple cache to avoid recalculating the same minute -> session in
-        # "next" mode. `minute_to_session_label` is often called consecutively
-        # with the same inputs.
-        self._minute_to_session_label_cache = (None, None)
-
         self.market_opens_nanos = self.schedule.market_open.values.astype(np.int64)
 
         self.market_break_starts_nanos = self.schedule.break_start.values.astype(
@@ -1529,15 +1524,9 @@ class ExchangeCalendar(ABC):
         else:
             minute = dt.value
 
-        # TODO, can we lose this cache? Further references within method further down
-        if direction == "next":
-            if self._minute_to_session_label_cache[0] == minute:
-                return self._minute_to_session_label_cache[1]
-
         if minute < self.first_trading_minute.value:
             # Resolve call here.
             if direction == "next":
-                self._minute_to_session_label_cache = (minute, self.first_session)
                 return self.first_session
             else:
                 raise ValueError(
@@ -1565,7 +1554,6 @@ class ExchangeCalendar(ABC):
         current_or_next_session = self.schedule.index[idx]
 
         if direction == "next":
-            self._minute_to_session_label_cache = (minute, current_or_next_session)
             return current_or_next_session
         elif direction == "previous":
             if not self.is_open_on_minute(minute, ignore_breaks=True):
