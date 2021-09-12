@@ -64,7 +64,8 @@ class XKRXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):
         start_date = T(
             "1998-12-07"
         )  # the current weekmask (1111100) applies since 1998-12-07
-        end_date = T("2021-12-31")  # old answer csv file has index until 2021
+        start_date = max(start_date, self.calendar.default_start)
+        end_date = T("2021-08-15")  # old answer csv file has index until 2021
         answers_old = self.answers_old.index
         answers_old = answers_old[answers_old.slice_indexer(start_date, end_date)]
         schedule = self.calendar.schedule.index
@@ -129,7 +130,9 @@ class XKRXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):
         self.assertTrue(all(d.weekday() < 5 for d in precomputed_holidays))
 
         generated_holidays = self.calendar.regular_holidays.holidays(
-            precomputed_holidays.min(), precomputed_holidays.max(), return_name=True
+            precomputed_holidays.min(),
+            pd.Timestamp("2021-08-15"),
+            return_name=True,
         )
 
         # generated holidays include weekends
@@ -147,3 +150,26 @@ class XKRXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):
         missing = non_weekend_generated_holidays[~isin]
 
         self.assertTrue(all(isin), "missing holidays = \n%s" % missing)
+
+    def test_revised_alternative_holiday_rule(self):
+        # Since 2021-08-04, the alternative holiday rule, which previously
+        # applied to Children's Day only, now also applies to the followings:
+        #  - Independence Movement Day (03-01)
+        #  - National Liberation Day (08-15)
+        #  - Korean National Foundation Day (10-03)
+        #  - Hangul Proclamation Day (10-09)
+
+        expected_holidays = [
+            # National Liberation Day on Sunday
+            # so the next monday becomes alternative holiday
+            T("2021-08-16"),
+            # Korean National Foundation Day on Sunday
+            # so the next monday becomes alternative holiday
+            T("2021-10-04"),
+            # Hangul Proclamation Day on Saturday
+            # so the next monday becomes alternative holiday
+            T("2021-10-11"),
+        ]
+
+        for session_label in expected_holidays:
+            self.assertNotIn(session_label, self.calendar.all_sessions)
