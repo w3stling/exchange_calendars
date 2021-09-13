@@ -485,13 +485,13 @@ class ExchangeCalendarTestBase(object):
             " `direction` as 'next'."
         )
         with pytest.raises(ValueError, match=re.escape(error_msg)):
-            m(date, "previous")
+            m(date, "previous", _parse=False)
 
         # direction as "previous"
         dates = pd.date_range(sessions[0], sessions[-1], freq="D")
         last_session = None
         for date in dates:
-            session_label = m(date, "previous")
+            session_label = m(date, "previous", _parse=False)
             if date in sessions:
                 assert session_label == date
                 last_session = session_label
@@ -501,7 +501,7 @@ class ExchangeCalendarTestBase(object):
         # direction as "next"
         last_session = None
         for date in dates.sort_values(ascending=False):
-            session_label = m(date, "next")
+            session_label = m(date, "next", _parse=False)
             if date in sessions:
                 assert session_label == date
                 last_session = session_label
@@ -516,7 +516,7 @@ class ExchangeCalendarTestBase(object):
             " `direction` as 'previous'."
         )
         with pytest.raises(ValueError, match=re.escape(error_msg)):
-            m(date, "next")
+            m(date, "next", _parse=False)
 
         if self.GAPS_BETWEEN_SESSIONS:
             not_sessions = dates[~dates.isin(sessions)][:5]
@@ -526,18 +526,18 @@ class ExchangeCalendarTestBase(object):
                     " passing a `direction`."
                 )
                 with pytest.raises(ValueError, match=re.escape(error_msg)):
-                    m(not_session, "none")
+                    m(not_session, "none", _parse=False)
                 # test default behaviour
                 with pytest.raises(ValueError, match=re.escape(error_msg)):
-                    m(not_session)
+                    m(not_session, _parse=False)
 
-            # non-valid direction (can only be thrown if no gaps between sessions)
+            # non-valid direction (can only be thrown if gaps between sessions)
             error_msg = (
                 "'not a direction' is not a valid `direction`. Valid `direction`"
                 ' values are "next", "previous" and "none".'
             )
             with pytest.raises(ValueError, match=re.escape(error_msg)):
-                m(not_session, "not a direction")
+                m(not_session, "not a direction", _parse=False)
 
     def test_minute_to_session_label(self):
         m = self.calendar.minute_to_session_label
@@ -688,26 +688,26 @@ class ExchangeCalendarTestBase(object):
         # the very first session
         first_session_label = self.answers.index[0]
         with self.assertRaises(ValueError):
-            self.calendar.previous_session_label(first_session_label)
+            self.calendar.previous_session_label(first_session_label, _parse=False)
 
         # all the sessions in the middle
         for idx, session_label in enumerate(session_labels):
             if idx < max_idx:
                 self.assertEqual(
-                    self.calendar.next_session_label(session_label),
+                    self.calendar.next_session_label(session_label, _parse=False),
                     session_labels[idx + 1],
                 )
 
             if idx > 0:
                 self.assertEqual(
-                    self.calendar.previous_session_label(session_label),
+                    self.calendar.previous_session_label(session_label, _parse=False),
                     session_labels[idx - 1],
                 )
 
         # the very last session
         last_session_label = self.answers.index[-1]
         with self.assertRaises(ValueError):
-            self.calendar.next_session_label(last_session_label)
+            self.calendar.next_session_label(last_session_label, _parse=False)
 
     @staticmethod
     def _find_full_session(calendar):
@@ -825,9 +825,9 @@ class ExchangeCalendarTestBase(object):
         minute_after_last_close = last_close + self.one_minute
 
         # get all the minutes between first_open and last_close
-        minutes1 = self.calendar.minutes_in_range(first_open, last_close)
+        minutes1 = self.calendar.minutes_in_range(first_open, last_close, _parse=False)
         minutes2 = self.calendar.minutes_in_range(
-            minute_before_first_open, minute_after_last_close
+            minute_before_first_open, minute_after_last_close, _parse=False
         )
 
         if self.GAPS_BETWEEN_SESSIONS:
@@ -1457,27 +1457,27 @@ class Answers:
         return self.break_starts.notna()
 
     @functools.lru_cache(maxsize=4)
-    def _sessions_with_breaks(self) -> pd.DatetimeIndex:
+    def _sessions_with_break(self) -> pd.DatetimeIndex:
         return self.sessions[self._mask_breaks]
 
     @property
-    def sessions_with_breaks(self) -> pd.DatetimeIndex:
-        return self._sessions_with_breaks()
+    def sessions_with_break(self) -> pd.DatetimeIndex:
+        return self._sessions_with_break()
 
     @functools.lru_cache(maxsize=4)
-    def _sessions_without_breaks(self) -> pd.DatetimeIndex:
+    def _sessions_without_break(self) -> pd.DatetimeIndex:
         return self.sessions[~self._mask_breaks]
 
     @property
-    def sessions_without_breaks(self) -> pd.DatetimeIndex:
-        return self._sessions_without_breaks()
+    def sessions_without_break(self) -> pd.DatetimeIndex:
+        return self._sessions_without_break()
 
     def session_has_break(self, session: pd.Timestamp) -> bool:
         """Query if `session` has a break."""
-        return session in self.sessions_with_breaks
+        return session in self.sessions_with_break
 
     @property
-    def _mask_sessions_with_no_gap_after(self) -> pd.Series:
+    def _mask_sessions_without_gap_after(self) -> pd.Series:
         if self.side == "neither":
             # will always have gap after if neither open or close are trading
             # minutes (assuming sessions cannot overlap)
@@ -1494,7 +1494,7 @@ class Answers:
             return self.opens.shift(-1) == self.closes
 
     @property
-    def _mask_sessions_with_no_gap_before(self) -> pd.Series:
+    def _mask_sessions_without_gap_before(self) -> pd.Series:
         if self.side == "neither":
             # will always have gap before if neither open or close are trading
             # minutes (assuming sessions cannot overlap)
@@ -1511,22 +1511,22 @@ class Answers:
             return self.closes.shift(1) == self.opens
 
     @functools.lru_cache(maxsize=4)
-    def _sessions_with_no_gap_after(self) -> pd.DatetimeIndex:
-        mask = self._mask_sessions_with_no_gap_after
+    def _sessions_without_gap_after(self) -> pd.DatetimeIndex:
+        mask = self._mask_sessions_without_gap_after
         return self.sessions[mask][:-1]
 
     @property
-    def sessions_with_no_gap_after(self) -> pd.DatetimeIndex:
+    def sessions_without_gap_after(self) -> pd.DatetimeIndex:
         """Sessions not followed by a non-trading minute.
 
         Rather, sessions immediately followed by first trading minute of
         next session.
         """
-        return self._sessions_with_no_gap_after()
+        return self._sessions_without_gap_after()
 
     @functools.lru_cache(maxsize=4)
     def _sessions_with_gap_after(self) -> pd.DatetimeIndex:
-        mask = self._mask_sessions_with_no_gap_after
+        mask = self._mask_sessions_without_gap_after
         return self.sessions[~mask][:-1]
 
     @property
@@ -1535,22 +1535,22 @@ class Answers:
         return self._sessions_with_gap_after()
 
     @functools.lru_cache(maxsize=4)
-    def _sessions_with_no_gap_before(self) -> pd.DatetimeIndex:
-        mask = self._mask_sessions_with_no_gap_before
+    def _sessions_without_gap_before(self) -> pd.DatetimeIndex:
+        mask = self._mask_sessions_without_gap_before
         return self.sessions[mask][1:]
 
     @property
-    def sessions_with_no_gap_before(self) -> pd.DatetimeIndex:
+    def sessions_without_gap_before(self) -> pd.DatetimeIndex:
         """Sessions not preceeded by a non-trading minute.
 
         Rather, sessions immediately preceeded by last trading minute of
         previous session.
         """
-        return self._sessions_with_no_gap_before()
+        return self._sessions_without_gap_before()
 
     @functools.lru_cache(maxsize=4)
     def _sessions_with_gap_before(self) -> pd.DatetimeIndex:
-        mask = self._mask_sessions_with_no_gap_before
+        mask = self._mask_sessions_without_gap_before
         return self.sessions[~mask][1:]
 
     @property
@@ -1577,6 +1577,365 @@ class Answers:
     @property
     def last_trading_minute(self) -> pd.Timestamp:
         return self.get_session_last_trading_minute(self.last_session)
+
+    # times are changing...
+
+    @functools.lru_cache(maxsize=16)
+    def _get_sessions_with_times_different_to_a_contiguous_session(
+        self,
+        column: str,  # typing.Literal["opens", "closes", "break_starts", "break_ends"]
+    ) -> list[pd.DatetimeIndex]:
+        """For a given answers column, get session labels where time differs from
+        time of next session.
+
+        Where `column` is a break time ("break_starts" or "break_ends"), return
+        will not include sessions when next/prev session has a different `has_break`
+        status. For example, if session_0 has a break and session_1 does not have
+        a break, or vice versa, then session_0 will not be included to return. For
+        sessions followed by a session with a different `has_break` status, see
+        `_get_sessions_with_has_break_different_to_next_session`.
+
+        Returns
+        -------
+        list of pd.Datetimeindex
+            [0] sessions with earlier next session
+            [1] sessions with later next session
+            [2] sessions with previous session later
+            [3] sessions with previous session earlier
+        """
+        # column takes string to allow lru_cache (Series not hashable)
+
+        is_break_col = column[0] == "b"
+        column_ = getattr(self, column)
+
+        if is_break_col:
+            if column_.isna().all():
+                return [pd.DatetimeIndex([], tz="UTC")] * 4
+            column_ = column_.fillna(method="ffill").fillna(method="bfill")
+
+        diff = (column_.shift(-1) - column_)[:-1]
+        remainder = diff % pd.Timedelta(hours=24)
+        mask = remainder != pd.Timedelta(0)
+        sessions = self.sessions[:-1][mask]
+        next_session_earlier_mask = remainder[mask] > pd.Timedelta(hours=12)
+        next_session_earlier = sessions[next_session_earlier_mask]
+        next_session_later = sessions[~next_session_earlier_mask]
+
+        if is_break_col:
+            mask = next_session_earlier.isin(self.sessions_without_break)
+            next_session_earlier = next_session_earlier.drop(next_session_earlier[mask])
+            mask = next_session_later.isin(self.sessions_without_break)
+            next_session_later = next_session_later.drop(next_session_later[mask])
+
+        indices = self.sessions.get_indexer(next_session_earlier) + 1
+        previous_session_later = self.sessions[indices]
+
+        indices = self.sessions.get_indexer(next_session_later) + 1
+        previous_session_earlier = self.sessions[indices]
+
+        return [
+            next_session_earlier,
+            next_session_later,
+            previous_session_later,
+            previous_session_earlier,
+        ]
+
+    @property
+    def _sessions_with_opens_different_to_a_contiguous_session(
+        self,
+    ) -> list[pd.DatetimeIndex]:
+        return self._get_sessions_with_times_different_to_a_contiguous_session("opens")
+
+    @property
+    def _sessions_with_closes_different_to_a_contiguous_session(
+        self,
+    ) -> list[pd.DatetimeIndex]:
+        return self._get_sessions_with_times_different_to_a_contiguous_session("closes")
+
+    @property
+    def _sessions_with_break_start_different_to_a_contiguous_session(
+        self,
+    ) -> list[pd.DatetimeIndex]:
+        return self._get_sessions_with_times_different_to_a_contiguous_session(
+            "break_starts"
+        )
+
+    @property
+    def _sessions_with_break_end_different_to_a_contiguous_session(
+        self,
+    ) -> list[pd.DatetimeIndex]:
+        return self._get_sessions_with_times_different_to_a_contiguous_session(
+            "break_ends"
+        )
+
+    @property
+    def sessions_next_open_earlier(self) -> pd.DatetimeIndex:
+        return self._sessions_with_opens_different_to_a_contiguous_session[0]
+
+    @property
+    def sessions_next_open_later(self) -> pd.DatetimeIndex:
+        return self._sessions_with_opens_different_to_a_contiguous_session[1]
+
+    @property
+    def sessions_next_open_different(self) -> pd.DatetimeIndex:
+        return self.sessions_next_open_earlier.union(self.sessions_next_open_later)
+
+    @property
+    def sessions_next_close_earlier(self) -> pd.DatetimeIndex:
+        return self._sessions_with_closes_different_to_a_contiguous_session[0]
+
+    @property
+    def sessions_next_close_later(self) -> pd.DatetimeIndex:
+        return self._sessions_with_closes_different_to_a_contiguous_session[1]
+
+    @property
+    def sessions_next_close_different(self) -> pd.DatetimeIndex:
+        return self.sessions_next_close_earlier.union(self.sessions_next_close_later)
+
+    @property
+    def sessions_next_break_start_earlier(self) -> pd.DatetimeIndex:
+        return self._sessions_with_break_start_different_to_a_contiguous_session[0]
+
+    @property
+    def sessions_next_break_start_later(self) -> pd.DatetimeIndex:
+        return self._sessions_with_break_start_different_to_a_contiguous_session[1]
+
+    @property
+    def sessions_next_break_start_different(self) -> pd.DatetimeIndex:
+        earlier = self.sessions_next_break_start_earlier
+        later = self.sessions_next_break_start_later
+        return earlier.union(later)
+
+    @property
+    def sessions_next_break_end_earlier(self) -> pd.DatetimeIndex:
+        return self._sessions_with_break_end_different_to_a_contiguous_session[0]
+
+    @property
+    def sessions_next_break_end_later(self) -> pd.DatetimeIndex:
+        return self._sessions_with_break_end_different_to_a_contiguous_session[1]
+
+    @property
+    def sessions_next_break_end_different(self) -> pd.DatetimeIndex:
+        earlier = self.sessions_next_break_end_earlier
+        later = self.sessions_next_break_end_later
+        return earlier.union(later)
+
+    @functools.lru_cache(maxsize=4)
+    def _get_sessions_with_has_break_different_to_next_session(
+        self,
+    ) -> tuple[pd.DatetimeIndex, pd.DatetimeIndex]:
+        """Get sessions with 'has_break' different to next session.
+
+        Returns
+        -------
+        tuple[pd.DatetimeIndex, pd.DatetimeIndex]
+            [0] Sessions that have a break and are immediately followed by
+            a session which does not have a break.
+            [1] Sessions that do not have a break and are immediately
+            followed by a session which does have a break.
+        """
+        mask = (self.break_starts.notna() & self.break_starts.shift(-1).isna())[:-1]
+        sessions_with_break_next_session_without_break = self.sessions[:-1][mask]
+
+        mask = (self.break_starts.isna() & self.break_starts.shift(-1).notna())[:-1]
+        sessions_without_break_next_session_with_break = self.sessions[:-1][mask]
+
+        return (
+            sessions_with_break_next_session_without_break,
+            sessions_without_break_next_session_with_break,
+        )
+
+    @property
+    def sessions_with_break_next_session_without_break(self) -> pd.DatetimeIndex:
+        return self._get_sessions_with_has_break_different_to_next_session()[0]
+
+    @property
+    def sessions_without_break_next_session_with_break(self) -> pd.DatetimeIndex:
+        return self._get_sessions_with_has_break_different_to_next_session()[1]
+
+    @functools.lru_cache(maxsize=4)
+    def _sessions_next_time_different(self) -> pd.DatetimeIndex:
+        return self.sessions_next_open_different.union_many(
+            [
+                self.sessions_next_close_different,
+                self.sessions_next_break_start_different,
+                self.sessions_next_break_end_different,
+                self.sessions_with_break_next_session_without_break,
+                self.sessions_without_break_next_session_with_break,
+            ]
+        )
+
+    @property
+    def sessions_next_time_different(self) -> pd.DatetimeIndex:
+        """Sessions where next session has a different time for any column.
+
+        Includes sessions where next session has a different `has_break`
+        status.
+        """
+        return self._sessions_next_time_different()
+
+    # session blocks
+
+    def _create_changing_times_session_block(
+        self, session: pd.Timestamp
+    ) -> pd.DatetimeIndex:
+        """Create block of sessions with changing times.
+
+        Given a `session` known to have at least one time (open, close,
+        break_start or break_end) different from the next session, returns
+        a block of consecutive sessions ending with the first session after
+        `session` that has the same times as the session that immediately
+        preceeds it (i.e. the last two sessions of the block will have the
+        same times), or the last calendar session.
+        """
+        start_idx = self.sessions.get_loc(session)
+        end_idx = start_idx + 1
+        while self.sessions[end_idx] in self.sessions_next_time_different:
+            end_idx += 1
+        end_idx += 2  # +1 to include session with same times, +1 to serve as end index
+        return self.sessions[start_idx:end_idx]
+
+    def _get_normal_session_block(self) -> pd.DatetimeIndex:
+        """Block of 3 sessions with unchanged timings."""
+        start_idx = len(self.sessions) // 3
+        end_idx = start_idx + 21
+        for i in range(start_idx, end_idx):
+            times_1 = self.answers.iloc[i].dt.time
+            times_2 = self.answers.iloc[i + 1].dt.time
+            times_3 = self.answers.iloc[i + 2].dt.time
+            one_and_two_equal = (times_1 == times_2) | (times_1.isna() & times_2.isna())
+            one_and_three_equal = (times_1 == times_3) | (
+                times_1.isna() & times_3.isna()
+            )
+            if (one_and_two_equal & one_and_three_equal).all():
+                break
+            assert i < (end_idx - 1), "Unable to evaluate a normal session block!"
+        return self.sessions[i : i + 3]
+
+    def _get_session_block(
+        self, from_session_of: pd.DatetimeIndex, to_session_of: pd.DatetimeIndex
+    ) -> pd.DatetimeIndex:
+        """Get session block with bounds defined by sessions of given indexes.
+
+        Block will start with middle session of `from_session_of`.
+
+        Block will run to the nearest subsequent session of `to_session_of`
+        (or `self.final_session` if this comes first). Block will end with
+        the session that immedidately follows this session.
+        """
+        i = len(from_session_of) // 2
+        start_session = from_session_of[i]
+
+        start_idx = self.sessions.get_loc(start_session)
+        end_idx = start_idx + 1
+        end_session = self.sessions[end_idx]
+
+        while end_session not in to_session_of and end_session != self.last_session:
+            end_idx += 1
+            end_session = self.sessions[end_idx]
+
+        return self.sessions[start_idx : end_idx + 2]
+
+    @functools.lru_cache(maxsize=4)
+    def _session_blocks(self) -> dict[str, pd.DatetimeIndex]:
+        blocks = {}
+        blocks["normal"] = self._get_normal_session_block()
+        blocks["first_three"] = self.sessions[:3]
+        blocks["last_three"] = self.sessions[-3:]
+
+        # blocks here include where:
+        #     session 1 has at least one different time from session 0
+        #     session 0 has a break and session 1 does not (and vice versa)
+        sessions_indexes = (
+            ("next_open_earlier", self.sessions_next_open_earlier),
+            ("next_open_later", self.sessions_next_open_later),
+            ("next_close_earlier", self.sessions_next_close_earlier),
+            ("next_close_later", self.sessions_next_close_later),
+            ("next_break_start_earlier", self.sessions_next_break_start_earlier),
+            ("next_break_start_later", self.sessions_next_break_start_later),
+            ("next_break_end_earlier", self.sessions_next_break_end_earlier),
+            ("next_break_end_later", self.sessions_next_break_end_later),
+            (
+                "with_break_to_without_break",
+                self.sessions_with_break_next_session_without_break,
+            ),
+            (
+                "without_break_to_with_break",
+                self.sessions_without_break_next_session_with_break,
+            ),
+        )
+
+        for name, index in sessions_indexes:
+            if index.empty:
+                blocks[name] = pd.DatetimeIndex([], tz="UTC")
+            else:
+                session = index[0]
+                blocks[name] = self._create_changing_times_session_block(session)
+
+        # blocks here move from session with gap to session without gap and vice versa
+        if (not self.sessions_with_gap_after.empty) and (
+            not self.sessions_without_gap_after.empty
+        ):
+            without_gap_to_with_gap = self._get_session_block(
+                self.sessions_without_gap_after, self.sessions_with_gap_after
+            )
+            with_gap_to_without_gap = self._get_session_block(
+                self.sessions_with_gap_after, self.sessions_without_gap_after
+            )
+        else:
+            without_gap_to_with_gap = pd.DatetimeIndex([], tz="UTC")
+            with_gap_to_without_gap = pd.DatetimeIndex([], tz="UTC")
+
+        blocks["without_gap_to_with_gap"] = without_gap_to_with_gap
+        blocks["with_gap_to_without_gap"] = with_gap_to_without_gap
+
+        return blocks
+
+    @property
+    def session_blocks(self) -> dict[str, pd.DatetimeIndex]:
+        """Dictionary of session blocks of a particular behaviour.
+
+        Keys:
+            "normal" - three sessions with unchanging timings.
+            "first_three" - answers' first three sessions.
+            "last_three" - answers's last three sessions.
+            "next_open_earlier" - session 1 open is earlier than session 0
+                open.
+            "next_open_later" - session 1 open is later than session 0
+                open.
+            "next_close_earlier" - session 1 close is earlier than session
+                0 close.
+            "next_close_later" - session 1 close is later than session 0
+                close.
+            "next_break_start_earlier" - session 1 break_start is earlier
+                than session 0 break_start.
+            "next_break_start_later" - session 1 break_start is later than
+                session 0 break_start.
+            "next_break_end_earlier" - session 1 break_end is earlier than
+                session 0 break_end.
+            "next_break_end_later" - session 1 break_end is later than
+                session 0 break_end.
+            "with_break_to_without_break" - session 0 has a break, session
+                1 does not have a break.
+            "without_break_to_with_break" - session 0 does not have a
+                break, session 1 does have a break.
+            "without_gap_to_with_gap" - session 0 is not followed by a
+                gap, session -2 is followed by a gap, session -1 is
+                preceeded by a gap.
+            "with_gap_to_without_gap" - session 0 is followed by a gap,
+                session -2 is not followed by a gap, session -1 is not
+                preceeded by a gap.
+
+        If no such session block exists for any key then value will take an
+        empty DatetimeIndex (UTC).
+        """
+        return self._session_blocks()
+
+    def session_block_generator(self) -> abc.Iterator[tuple[str, pd.DatetimeIndex]]:
+        """Generator of session blocks of a particular behaviour."""
+        for name, block in self.session_blocks.items():
+            if not block.empty:
+                yield (name, block)
 
     # evaluated properties for minutes
 
@@ -1912,6 +2271,41 @@ class Answers:
         minute -= self.ONE_MIN
         yield (minute, (self.opens[-1], self.closes[-2], None, self.closes[-1]))
 
+    @property
+    def session_block_minutes(self) -> dict[str, pd.DatetimeIndex]:
+        """Trading minutes for each `session_block`.
+
+        Key:
+            Session block name as documented to `session_blocks`.
+        Value:
+            Trading minutes of corresponding session block.
+        """
+        d = {}
+        for name, block in self.session_blocks.items():
+            if block.empty:
+                d[name] = pd.DatetimeIndex([], tz="UTC")
+                continue
+
+            idx = self.sessions.get_loc(block[0])
+            end_idx = idx + len(block)
+            indexer = slice(idx, end_idx)
+
+            dtis = []
+            for first, last, last_am, first_pm in zip(
+                self.first_trading_minutes[indexer],
+                self.last_trading_minutes[indexer],
+                self.last_am_trading_minutes[indexer],
+                self.first_pm_trading_minutes[indexer],
+            ):
+                if pd.isna(last_am):
+                    dtis.append(pd.date_range(first, last, freq="T"))
+                else:
+                    dtis.append(pd.date_range(first, last_am, freq="T"))
+                    dtis.append(pd.date_range(first_pm, last, freq="T"))
+
+            d[name] = dtis[0].union_many(dtis[1:])
+        return d
+
     # out-of-bounds properties
 
     @property
@@ -2164,7 +2558,7 @@ class ExchangeCalendarTestBaseProposal:
 
             # as noted above, if no gap after then close should be a trading minute
             # as will be first minute of next session.
-            closes = ans.closes[ans.sessions_with_no_gap_after]
+            closes = ans.closes[ans.sessions_without_gap_after]
             mins_on_close = mins[mins.isin(closes)]
             assert closes.isin(mins_on_close).all()
 
@@ -2172,7 +2566,7 @@ class ExchangeCalendarTestBaseProposal:
                 # break start should not be in minutes
                 assert not mins.isin(ans.break_starts).any()
                 # break start should be in minutes plus 1
-                break_starts = ans.break_starts[ans.sessions_with_breaks]
+                break_starts = ans.break_starts[ans.sessions_with_break]
                 mins_plus_1_on_start = mins_plus_1[mins_plus_1.isin(break_starts)]
                 assert break_starts.isin(mins_plus_1_on_start).all()
 
@@ -2185,12 +2579,12 @@ class ExchangeCalendarTestBaseProposal:
             opens = ans.opens[ans.sessions_with_gap_before]
             assert not mins_plus_1.isin(opens).any()
 
-            opens = ans.opens[ans.sessions_with_no_gap_before]
+            opens = ans.opens[ans.sessions_without_gap_before]
             mins_plus_1_on_open = mins_plus_1[mins_plus_1.isin(opens)]
             assert opens.isin(mins_plus_1_on_open).all()
 
             if ans.has_a_break:
-                break_ends = ans.break_ends[ans.sessions_with_breaks]
+                break_ends = ans.break_ends[ans.sessions_with_break]
                 mins_on_end = mins[mins.isin(ans.break_ends)]
                 assert break_ends.isin(mins_on_end).all()
 
@@ -2203,13 +2597,13 @@ class ExchangeCalendarTestBaseProposal:
             mins_less_1_on_open = mins_less_1[mins_less_1.isin(opens)]
             assert opens.isin(mins_less_1_on_open).all()
 
-            opens = ans.opens[ans.sessions_with_no_gap_before]
+            opens = ans.opens[ans.sessions_without_gap_before]
             mins_on_open = mins[mins.isin(opens)]
             assert opens.isin(mins_on_open).all()
 
             if ans.has_a_break:
                 assert not mins.isin(ans.break_ends).any()
-                break_ends = ans.break_ends[ans.sessions_with_breaks]
+                break_ends = ans.break_ends[ans.sessions_with_break]
                 mins_less_1_on_end = mins_less_1[mins_less_1.isin(break_ends)]
                 assert break_ends.isin(mins_less_1_on_end).all()
 
@@ -2222,12 +2616,12 @@ class ExchangeCalendarTestBaseProposal:
             closes = ans.closes[ans.sessions_with_gap_after]
             assert not mins_less_1.isin(closes).any()
 
-            closes = ans.closes[ans.sessions_with_no_gap_after]
+            closes = ans.closes[ans.sessions_without_gap_after]
             mins_less_1_on_close = mins_less_1[mins_less_1.isin(closes)]
             assert closes.isin(mins_less_1_on_close).all()
 
             if ans.has_a_break:
-                break_starts = ans.break_starts[ans.sessions_with_breaks]
+                break_starts = ans.break_starts[ans.sessions_with_break]
                 mins_on_start = mins[mins.isin(ans.break_starts)]
                 assert break_starts.isin(mins_on_start).all()
 
@@ -2304,7 +2698,7 @@ class ExchangeCalendarTestBaseProposal:
             ans.last_trading_minutes[1:],
             ans.last_trading_minutes_plus_one[1:],
             ans.last_trading_minutes_less_one[1:],
-            ~ans._mask_sessions_with_no_gap_before[1:],
+            ~ans._mask_sessions_without_gap_before[1:],
         ):
             assert next_m(prev_last_min) == first_min
             assert prev_m(first_min) == prev_last_min
@@ -2357,6 +2751,96 @@ class ExchangeCalendarTestBaseProposal:
                 assert prev_m(first_pm_min) == last_am_min
                 assert next_m(first_pm_min) == first_pm_min_plus_one
                 assert prev_m(first_pm_min_plus_one) == first_pm_min
+
+    def test_next_prev_session(self, default_calendar_with_answers):
+        cal, ans = default_calendar_with_answers
+        m_prev = cal.previous_session_label
+        m_next = cal.next_session_label
+
+        # NB non-sessions handled by methods via parse_session
+
+        # first session
+        with pytest.raises(ValueError):
+            m_prev(ans.first_session, _parse=False)
+
+        # middle sessions (and m_prev for last session)
+        for session, next_session in zip(ans.sessions[:-1], ans.sessions[1:]):
+            assert m_next(session, _parse=False) == next_session
+            assert m_prev(next_session, _parse=False) == session
+
+        # last session
+        with pytest.raises(ValueError):
+            m_next(ans.last_session, _parse=False)
+
+    def test_date_to_session_label(self, default_calendar_with_answers):
+        cal, ans = default_calendar_with_answers
+        m = cal.date_to_session_label
+
+        # test for error if request session prior to first calendar session.
+        error_msg = (
+            "Cannot get a session label prior to the first calendar"
+            f" session ('{ans.first_session}'). Consider passing"
+            " `direction` as 'next'."
+        )
+        with pytest.raises(ValueError, match=re.escape(error_msg)):
+            m(ans.session_too_early, "previous", _parse=False)
+
+        sessions = ans.sessions
+
+        # direction as "previous"
+        dates = pd.date_range(sessions[0], sessions[-1], freq="D")
+        date_is_session = dates.isin(sessions)
+
+        last_session = None
+        for date, is_session in zip(dates, date_is_session):
+            session_label = m(date, "previous", _parse=False)
+            if is_session:
+                assert session_label == date
+                last_session = session_label
+            else:
+                assert session_label == last_session
+
+        # direction as "next"
+        last_session = None
+        for date, is_session in zip(
+            dates.sort_values(ascending=False), date_is_session[::-1]
+        ):
+            session_label = m(date, "next", _parse=False)
+            if date in sessions:
+                assert session_label == date
+                last_session = session_label
+            else:
+                assert session_label == last_session
+
+        # test for error if request session after last calendar session.
+        error_msg = (
+            "Cannot get a session label later than the last calendar"
+            f" session ('{ans.last_session}'). Consider passing"
+            " `direction` as 'previous'."
+        )
+        with pytest.raises(ValueError, match=re.escape(error_msg)):
+            m(ans.session_too_late, "next", _parse=False)
+
+        # test for non_sessions without direction
+        if not ans.non_sessions.empty:
+            for non_session in ans.non_sessions[0 : None : len(ans.non_sessions) // 9]:
+                error_msg = (
+                    f"`date` '{non_session}' is not a session label. Consider"
+                    " passing a `direction`."
+                )
+                with pytest.raises(ValueError, match=re.escape(error_msg)):
+                    m(non_session, "none", _parse=False)
+                # test default behaviour
+                with pytest.raises(ValueError, match=re.escape(error_msg)):
+                    m(non_session, _parse=False)
+
+            # non-valid direction (only raised if pass a date that is not a session)
+            error_msg = (
+                "'not a direction' is not a valid `direction`. Valid `direction`"
+                ' values are "next", "previous" and "none".'
+            )
+            with pytest.raises(ValueError, match=re.escape(error_msg)):
+                m(non_session, "not a direction", _parse=False)
 
     def test_minute_to_session_label(self, all_calendars_with_answers, all_directions):
         direction = all_directions
@@ -2477,6 +2961,42 @@ class ExchangeCalendarTestBaseProposal:
             assert rtrn is True
             rtrn = m(break_min, _parse=False)
             assert rtrn is False
+
+    def test_minutes_in_range(self, all_calendars_with_answers, one_minute):
+        cal, ans = all_calendars_with_answers
+        m = cal.minutes_in_range
+
+        block_minutes = ans.session_block_minutes
+        for name, block in ans.session_block_generator():
+            ans_dti = block_minutes[name]
+            from_ = ans.first_trading_minutes[block][0]
+            to = ans.last_trading_minutes[block[-1]]
+            cal_dti = m(from_, to, _parse=False)
+            tm.assert_index_equal(ans_dti, cal_dti)
+
+            # test consequence of getting range from one minute before/after the
+            # block's first/last trading minute.
+            if name in ["first_three", "last_three"]:
+                continue
+            cal_dti = m(from_ - one_minute, to + one_minute, _parse=False)
+            start_idx = 1 if block[0] in ans.sessions_without_gap_before else 0
+            end_idx = -1 if block[-1] in ans.sessions_without_gap_after else None
+            tm.assert_index_equal(ans_dti, cal_dti[start_idx:end_idx])
+
+        # intra-session
+        from_ = ans.first_trading_minutes[ans.first_session] + pd.Timedelta(15, "T")
+        to = ans.first_trading_minutes[ans.first_session] + pd.Timedelta(45, "T")
+        expected = pd.date_range(from_, to, freq="T")
+        rtrn = m(from_, to, _parse=False)
+        tm.assert_index_equal(expected, rtrn)
+
+        # inter-session
+        if not ans.sessions_with_gap_after.empty:
+            session = ans.sessions_with_gap_after[0]
+            next_session = ans.get_next_session(session)
+            from_ = ans.last_trading_minutes[session] + one_minute
+            to = ans.first_trading_minutes[next_session] - one_minute
+            assert m(from_, to, _parse=False).empty
 
     def test_invalid_input(self, calendar_cls, sides, default_answers, name):
         ans = default_answers

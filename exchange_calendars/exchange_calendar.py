@@ -1005,66 +1005,60 @@ class ExchangeCalendar(ABC):
                 ) from None
         return self.all_minutes[idx]
 
-    def next_session_label(self, session_label: Session) -> pd.Timestamp:
-        """
-        Given a session label, returns the label of the next session.
+    def next_session_label(
+        self, session_label: Session, _parse: bool = True
+    ) -> pd.Timestamp:
+        """Return session that immediately follows a given session.
 
         Parameters
         ----------
         session_label
-            A session whose next session is desired.
+            Session whose next session is desired.
 
-        Returns
-        -------
-        pd.Timestamp
-            The next session label (midnight UTC).
-
-        Notes
-        -----
-        Raises ValueError if the given session is the last session in this
-        calendar.
+        Raises
+        ------
+        ValueError
+            If `session_label` is the last calendar session.
 
         See Also
         --------
         date_to_session_label
         """
-        session_label = parse_session(self, session_label, "session_label")
+        if _parse:
+            session_label = parse_session(self, session_label, "session_label")
         idx = self.schedule.index.get_loc(session_label)
         try:
             return self.schedule.index[idx + 1]
-        except IndexError:
+        except IndexError as err:
             if idx == len(self.schedule.index) - 1:
                 raise ValueError(
                     "There is no next session as this is the end"
                     " of the exchange calendar."
-                )
+                ) from err
             else:
                 raise
 
-    def previous_session_label(self, session_label: Session) -> pd.Timestamp:
-        """
-        Given a session label, returns the label of the previous session.
+    def previous_session_label(
+        self, session_label: Session, _parse: bool = True
+    ) -> pd.Timestamp:
+        """Return session that immediately preceeds a given session.
 
         Parameters
         ----------
         session_label
-            A session whose previous session is desired.
+            Session whose previous session is desired.
 
-        Returns
-        -------
-        pd.Timestamp
-            The previous session label (midnight UTC).
-
-        Notes
-        -----
-        Raises ValueError if the given session is the first session in this
-        calendar.
+        Raises
+        ------
+        ValueError
+            If `session_label` is the first calendar session.
 
         See Also
         --------
         date_to_session_label
         """
-        session_label = parse_session(self, session_label, "session_label")
+        if _parse:
+            session_label = parse_session(self, session_label, "session_label")
         idx = self.schedule.index.get_loc(session_label)
         if idx == 0:
             raise ValueError(
@@ -1072,6 +1066,100 @@ class ExchangeCalendar(ABC):
                 " beginning of the exchange calendar."
             )
         return self.schedule.index[idx - 1]
+
+    def date_to_session_label(
+        self,
+        date: Date,
+        direction: str = "none",
+        _parse: bool = True,
+    ) -> pd.Timestamp:
+        """Return a session label corresponding to a given date.
+
+        Parameters
+        ----------
+        date
+            Date for which require session label. Can be a date that does not
+            represent an actual session (see `direction`).
+
+        direction : default: "none"
+            Defines behaviour if `date` does not represent a session:
+                "next" - return first session label following `date`.
+                "previous" - return first session label prior to `date`.
+                "none" - raise ValueError.
+
+        Returns
+        -------
+        pd.Timestamp (midnight UTC)
+            Label of the corresponding session.
+
+        See Also
+        --------
+        next_session_label
+        previous_session_label
+        """
+        if _parse:
+            date = parse_date(date, "date")
+        if self.is_session(date):
+            return date
+        elif direction in ["next", "previous"]:
+            if direction == "previous" and date < self.first_session:
+                raise ValueError(
+                    "Cannot get a session label prior to the first calendar"
+                    f" session ('{self.first_session}'). Consider passing"
+                    f" `direction` as 'next'."
+                )
+            if direction == "next" and date > self.last_session:
+                raise ValueError(
+                    "Cannot get a session label later than the last calendar"
+                    f" session ('{self.last_session}'). Consider passing"
+                    f" `direction` as 'previous'."
+                )
+            idx = self.all_sessions.values.astype(np.int64).searchsorted(date.value)
+            if direction == "previous":
+                idx -= 1
+            return self.all_sessions[idx]
+        elif direction == "none":
+            raise ValueError(
+                f"`date` '{date}' is not a session label. Consider passing"
+                " a `direction`."
+            )
+        else:
+            raise ValueError(
+                f"'{direction}' is not a valid `direction`. Valid `direction`"
+                ' values are "next", "previous" and "none".'
+            )
+
+    def minutes_in_range(
+        self, start_minute: Minute, end_minute: Minute, _parse: bool = True
+    ) -> pd.DatetimeIndex:
+        """Return all trading minutes between given minutes.
+
+        Parameters
+        ----------
+        start_minute
+            Minute representing start of desired range. Can be a trading
+            minute or non-trading minute.
+
+        end_minute
+            Minute representing end of desired range. Can be a trading
+            minute or non-trading minute.
+        """
+        if _parse:
+            start_minute = parse_timestamp(
+                start_minute, "start_minute", raise_oob=True, calendar=self
+            )
+            end_minute = parse_timestamp(
+                end_minute, "end_minute", raise_oob=True, calendar=self
+            )
+
+        start_idx = searchsorted(self.all_minutes_nanos, start_minute.value)
+        end_idx = searchsorted(self.all_minutes_nanos, end_minute.value)
+
+        if end_minute.value == self.all_minutes_nanos[end_idx]:
+            # if the end minute is a market minute, increase by 1
+            end_idx += 1
+
+        return self.all_minutes[start_idx:end_idx]
 
     def minutes_for_session(self, session_label: Session) -> int:
         """
@@ -1233,35 +1321,6 @@ class ExchangeCalendar(ABC):
             out = -out
 
         return out
-
-    def minutes_in_range(self, start_minute, end_minute):
-        """
-        Given start and end minutes, return all the calendar minutes
-        in that range, inclusive.
-
-        Given minutes don't need to be calendar minutes.
-
-        Parameters
-        ----------
-        start_minute: pd.Timestamp
-            The minute representing the start of the desired range.
-
-        end_minute: pd.Timestamp
-            The minute representing the end of the desired range.
-
-        Returns
-        -------
-        pd.DatetimeIndex
-            The minutes in the desired range.
-        """
-        start_idx = searchsorted(self.all_minutes_nanos, start_minute.value)
-        end_idx = searchsorted(self.all_minutes_nanos, end_minute.value)
-
-        if end_minute.value == self.all_minutes_nanos[end_idx]:
-            # if the end minute is a market minute, increase by 1
-            end_idx += 1
-
-        return self.all_minutes[start_idx:end_idx]
 
     def minutes_for_sessions_in_range(
         self,
@@ -1429,64 +1488,6 @@ class ExchangeCalendar(ABC):
 
     def execution_time_from_close(self, close_dates):
         return close_dates
-
-    def date_to_session_label(
-        self, date: Date, direction: str = "none"
-    ) -> pd.Timestamp:
-        """Return a session label corresponding to a given date.
-
-        Parameters
-        ----------
-        date
-            Date for which require session label. Can be a date that does not
-            represent an actual session (see `direction`).
-
-        direction : default: "none"
-            Defines behaviour if `date` does not represent a session:
-                "next" - return first session label following `date`.
-                "previous" - return first session label prior to `date`.
-                "none" - raise ValueError.
-
-        Returns
-        -------
-        pd.Timestamp (midnight UTC)
-            Label of the corresponding session.
-
-        See Also
-        --------
-        next_session_label
-        previous_session_label
-        """
-        date = parse_date(date, "date")
-        if self.is_session(date):
-            return date
-        elif direction in ["next", "previous"]:
-            if direction == "previous" and date < self.first_session:
-                raise ValueError(
-                    "Cannot get a session label prior to the first calendar"
-                    f" session ('{self.first_session}'). Consider passing"
-                    f" `direction` as 'next'."
-                )
-            if direction == "next" and date > self.last_session:
-                raise ValueError(
-                    "Cannot get a session label later than the last calendar"
-                    f" session ('{self.last_session}'). Consider passing"
-                    f" `direction` as 'previous'."
-                )
-            idx = self.all_sessions.values.astype(np.int64).searchsorted(date.value)
-            if direction == "previous":
-                idx -= 1
-            return self.all_sessions[idx]
-        elif direction == "none":
-            raise ValueError(
-                f"`date` '{date}' is not a session label. Consider passing"
-                " a `direction`."
-            )
-        else:
-            raise ValueError(
-                f"'{direction}' is not a valid `direction`. Valid `direction`"
-                ' values are "next", "previous" and "none".'
-            )
 
     def minute_to_session_label(
         self,
