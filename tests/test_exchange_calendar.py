@@ -1176,7 +1176,13 @@ def get_csv(name: str) -> pd.DataFrame:
 
 
 class Answers:
-    """Answers for a given calendar and side.
+    """Inputs and expected output for testing a given calendar and side.
+
+    Inputs and expected outputs are provided by public instance methods and
+    properties. These either read directly from the corresponding .csv file
+    or are evaluated from the .csv file contents. NB Properites / methods
+    MUST NOT make evaluations by way of repeating the code of the
+    ExchangeCalendar method they are intended to test!
 
     Parameters
     ----------
@@ -1361,94 +1367,106 @@ class Answers:
         return self._has_a_break()
 
     @functools.lru_cache(maxsize=4)
-    def _first_trading_minutes(self) -> pd.Series:
-        return self.opens if self.side in self.LEFT_SIDES else self.opens + self.ONE_MIN
-
-    @property
-    def first_trading_minutes(self) -> pd.Series:
-        """First trading minute of each session."""
-        return self._first_trading_minutes()
-
-    @property
-    def first_trading_minutes_plus_one(self) -> pd.Series:
-        """First trading minute of each session plus one minute."""
-        return self.first_trading_minutes + self.ONE_MIN
-
-    @property
-    def first_trading_minutes_less_one(self) -> pd.Series:
-        """First trading minute of each session less one minute."""
-        return self.first_trading_minutes - self.ONE_MIN
-
-    @functools.lru_cache(maxsize=4)
-    def _last_trading_minutes(self) -> pd.Series:
-        return (
-            self.closes if self.side in self.RIGHT_SIDES else self.closes - self.ONE_MIN
-        )
-
-    @property
-    def last_trading_minutes(self) -> pd.Series:
-        """Last trading minute of each session."""
-        return self._last_trading_minutes()
-
-    @property
-    def last_trading_minutes_plus_one(self) -> pd.Series:
-        """Last trading minute of each session plus one minute."""
-        return self.last_trading_minutes + self.ONE_MIN
-
-    @property
-    def last_trading_minutes_less_one(self) -> pd.Series:
-        """Last trading minute of each session less one minute."""
-        return self.last_trading_minutes - self.ONE_MIN
-
-    @functools.lru_cache(maxsize=4)
-    def _last_am_trading_minutes(self) -> pd.Series:
-        if self.side in self.RIGHT_SIDES:
-            return self.break_starts
+    def _first_minutes(self) -> pd.Series:
+        if self.side in self.LEFT_SIDES:
+            minutes = self.opens.copy()
         else:
-            return self.break_starts - self.ONE_MIN
+            minutes = self.opens + self.ONE_MIN
+        minutes.name = "first_minutes"
+        return minutes
 
     @property
-    def last_am_trading_minutes(self) -> pd.Series:
+    def first_minutes(self) -> pd.Series:
+        """First trading minute of each session (UTC)."""
+        return self._first_minutes()
+
+    @property
+    def first_minutes_plus_one(self) -> pd.Series:
+        """First trading minute of each session plus one minute."""
+        return self.first_minutes + self.ONE_MIN
+
+    @property
+    def first_minutes_less_one(self) -> pd.Series:
+        """First trading minute of each session less one minute."""
+        return self.first_minutes - self.ONE_MIN
+
+    @functools.lru_cache(maxsize=4)
+    def _last_minutes(self) -> pd.Series:
+        if self.side in self.RIGHT_SIDES:
+            minutes = self.closes.copy()
+        else:
+            minutes = self.closes - self.ONE_MIN
+        minutes.name = "last_minutes"
+        return minutes
+
+    @property
+    def last_minutes(self) -> pd.Series:
+        """Last trading minute of each session."""
+        return self._last_minutes()
+
+    @property
+    def last_minutes_plus_one(self) -> pd.Series:
+        """Last trading minute of each session plus one minute."""
+        return self.last_minutes + self.ONE_MIN
+
+    @property
+    def last_minutes_less_one(self) -> pd.Series:
+        """Last trading minute of each session less one minute."""
+        return self.last_minutes - self.ONE_MIN
+
+    @functools.lru_cache(maxsize=4)
+    def _last_am_minutes(self) -> pd.Series:
+        if self.side in self.RIGHT_SIDES:
+            minutes = self.break_starts.copy()
+        else:
+            minutes = self.break_starts - self.ONE_MIN
+        minutes.name = "last_am_minutes"
+        return minutes
+
+    @property
+    def last_am_minutes(self) -> pd.Series:
         """Last pre-break trading minute of each session.
 
         NaT if session does not have a break.
         """
-        return self._last_am_trading_minutes()
+        return self._last_am_minutes()
 
     @property
-    def last_am_trading_minutes_plus_one(self) -> pd.Series:
+    def last_am_minutes_plus_one(self) -> pd.Series:
         """Last pre-break trading minute of each session plus one minute."""
-        return self.last_am_trading_minutes + self.ONE_MIN
+        return self.last_am_minutes + self.ONE_MIN
 
     @property
-    def last_am_trading_minutes_less_one(self) -> pd.Series:
+    def last_am_minutes_less_one(self) -> pd.Series:
         """Last pre-break trading minute of each session less one minute."""
-        return self.last_am_trading_minutes - self.ONE_MIN
+        return self.last_am_minutes - self.ONE_MIN
 
     @functools.lru_cache(maxsize=4)
-    def _first_pm_trading_minutes(self) -> pd.Series:
+    def _first_pm_minutes(self) -> pd.Series:
         if self.side in self.LEFT_SIDES:
-            return self.break_ends
+            minutes = self.break_ends.copy()
         else:
-            return self.break_ends + self.ONE_MIN
+            minutes = self.break_ends + self.ONE_MIN
+        minutes.name = "first_pm_minutes"
+        return minutes
 
     @property
-    def first_pm_trading_minutes(self) -> pd.Series:
+    def first_pm_minutes(self) -> pd.Series:
         """First post-break trading minute of each session.
 
         NaT if session does not have a break.
         """
-        return self._first_pm_trading_minutes()
+        return self._first_pm_minutes()
 
     @property
-    def first_pm_trading_minutes_plus_one(self) -> pd.Series:
+    def first_pm_minutes_plus_one(self) -> pd.Series:
         """First post-break trading minute of each session plus one minute."""
-        return self.first_pm_trading_minutes + self.ONE_MIN
+        return self.first_pm_minutes + self.ONE_MIN
 
     @property
-    def first_pm_trading_minutes_less_one(self) -> pd.Series:
+    def first_pm_minutes_less_one(self) -> pd.Series:
         """First post-break trading minute of each session less one minute."""
-        return self.first_pm_trading_minutes - self.ONE_MIN
+        return self.first_pm_minutes - self.ONE_MIN
 
     # evaluated properties for sessions
 
@@ -1942,9 +1960,9 @@ class Answers:
     @functools.lru_cache(maxsize=4)
     def _evaluate_trading_and_break_minutes(self) -> tuple[tuple, tuple]:
         sessions = self.get_sessions_sample(self.sessions)
-        first_mins = self.first_trading_minutes[sessions]
+        first_mins = self.first_minutes[sessions]
         first_mins_plus_one = first_mins + self.ONE_MIN
-        last_mins = self.last_trading_minutes[sessions]
+        last_mins = self.last_minutes[sessions]
         last_mins_less_one = last_mins - self.ONE_MIN
 
         trading_mins = []
@@ -1957,9 +1975,9 @@ class Answers:
             trading_mins.append((mins_, session))
 
         if self.has_a_break:
-            last_am_mins = self.last_am_trading_minutes[sessions]
+            last_am_mins = self.last_am_minutes[sessions]
             last_am_mins = last_am_mins[last_am_mins.notna()]
-            first_pm_mins = self.first_pm_trading_minutes[last_am_mins.index]
+            first_pm_mins = self.first_pm_minutes[last_am_mins.index]
 
             last_am_mins_less_one = last_am_mins - self.ONE_MIN
             last_am_mins_plus_one = last_am_mins + self.ONE_MIN
@@ -2060,8 +2078,8 @@ class Answers:
         )
         next_sessions = self.sessions[self.sessions.get_indexer(sessions) + 1]
 
-        last_mins_plus_one = self.last_trading_minutes[sessions] + self.ONE_MIN
-        first_mins_less_one = self.first_trading_minutes[next_sessions] - self.ONE_MIN
+        last_mins_plus_one = self.last_minutes[sessions] + self.ONE_MIN
+        first_mins_less_one = self.first_minutes[next_sessions] - self.ONE_MIN
 
         for prev_session, next_session, mins_ in zip(
             prev_sessions, next_sessions, zip(last_mins_plus_one, first_mins_less_one)
@@ -2271,6 +2289,7 @@ class Answers:
         minute -= self.ONE_MIN
         yield (minute, (self.opens[-1], self.closes[-2], None, self.closes[-1]))
 
+    # TODO if called by > one test, cache and move to general properties section
     @property
     def session_block_minutes(self) -> dict[str, pd.DatetimeIndex]:
         """Trading minutes for each `session_block`.
@@ -2292,10 +2311,10 @@ class Answers:
 
             dtis = []
             for first, last, last_am, first_pm in zip(
-                self.first_trading_minutes[indexer],
-                self.last_trading_minutes[indexer],
-                self.last_am_trading_minutes[indexer],
-                self.first_pm_trading_minutes[indexer],
+                self.first_minutes[indexer],
+                self.last_minutes[indexer],
+                self.last_am_minutes[indexer],
+                self.first_pm_minutes[indexer],
             ):
                 if pd.isna(last_am):
                     dtis.append(pd.date_range(first, last, freq="T"))
@@ -2339,6 +2358,14 @@ class ExchangeCalendarTestBaseProposal:
 
     Notes
     -----
+
+    ---Fixtures---
+
+    In accordance with the pytest framework, whilst methods are requried to
+    have `self` as their first argument, no method should use `self`.
+    All required inputs should come by way of including fixtures to a
+    test method's arguments.
+
     Methods that are directly or indirectly dependent on the evaluation of
     trading minutes should be tested against the parameterized
     all_calendars_with_answers fixture. This fixture will execute the test
@@ -2356,6 +2383,12 @@ class ExchangeCalendarTestBaseProposal:
     Methods that are not dependent on the evaluation of trading minutes
     should be tested against only the default_calendar_with_answers or
     default_calendar fixture.
+
+    Calendar instances provided by fixtures should be used exclusively to
+    call the method being tested. NO TEST INPUT OR EXPECTED OUTPUT SHOULD
+    BE EVALUATED BY WAY OF CALLING A CALENDAR METHOD. Rather, test
+    inputs and expected output should be taken directly, or evaluated from,
+    properties/methods of the corresponding Answers fixture.
     """
 
     # subclass must override the following fixtures
@@ -2625,6 +2658,59 @@ class ExchangeCalendarTestBaseProposal:
                 mins_on_start = mins[mins.isin(ans.break_starts)]
                 assert break_starts.isin(mins_on_start).all()
 
+    def test_minutes_properties(self, all_calendars_with_answers):
+        """Test minute properties.
+
+        Tests following calendar properties:
+            first_minutes
+            last_minutes
+            last_am_minutes
+            first_pm_minutes
+        """
+        cal, ans = all_calendars_with_answers
+
+        for prop in (
+            "first_minutes",
+            "last_minutes",
+            "last_am_minutes",
+            "first_pm_minutes",
+        ):
+            ans_minutes = getattr(ans, prop).dt.tz_convert(None)
+            cal_minutes = getattr(cal, prop)
+            tm.assert_series_equal(ans_minutes, cal_minutes, check_freq=False)
+
+    def test_session_minute_methods(self, all_calendars_with_answers):
+        """Test methods that get a minute bound of a session.
+
+        Tests following calendar methods:
+            session_first_minute
+            session_last_minute
+            session_last_am_minute
+            sessino_first_pm_minute
+        """
+        # considered sufficient to limit test to sessions of session blocks.
+        cal, ans = all_calendars_with_answers
+        for _, block in ans.session_block_generator():
+            for session in block:
+                ans_first_minute = ans.first_minutes[session]
+                ans_last_minute = ans.last_minutes[session]
+                assert cal.session_first_minute(session) == ans_first_minute
+                assert cal.session_last_minute(session) == ans_last_minute
+                assert cal.session_first_and_last_minute(session) == (
+                    ans_first_minute,
+                    ans_last_minute,
+                )
+
+                last_am_minute = cal.session_last_am_minute(session)
+                first_pm_minute = cal.session_first_pm_minute(session)
+                ans_last_am_minute = ans.last_am_minutes[session]
+                ans_first_pm_minute = ans.first_pm_minutes[session]
+                if pd.isna(ans_last_am_minute):
+                    assert pd.isna(last_am_minute) and pd.isna(first_pm_minute)
+                else:
+                    assert last_am_minute == ans_last_am_minute
+                    assert first_pm_minute == ans_first_pm_minute
+
     def test_prev_next_open_close(self, default_calendar_with_answers):
         cal, ans = default_calendar_with_answers
         generator = ans.prev_next_open_close_minutes()
@@ -2664,12 +2750,12 @@ class ExchangeCalendarTestBaseProposal:
             return cal.previous_minute(minute, _parse=False)
 
         # minutes of first session
-        first_min = ans.first_trading_minutes[0]
-        first_min_plus_one = ans.first_trading_minutes_plus_one[0]
-        first_min_less_one = ans.first_trading_minutes_less_one[0]
-        last_min = ans.last_trading_minutes[0]
-        last_min_plus_one = ans.last_trading_minutes_plus_one[0]
-        last_min_less_one = ans.last_trading_minutes_less_one[0]
+        first_min = ans.first_minutes[0]
+        first_min_plus_one = ans.first_minutes_plus_one[0]
+        first_min_less_one = ans.first_minutes_less_one[0]
+        last_min = ans.last_minutes[0]
+        last_min_plus_one = ans.last_minutes_plus_one[0]
+        last_min_less_one = ans.last_minutes_less_one[0]
 
         with pytest.raises(ValueError):
             prev_m(first_min)
@@ -2692,12 +2778,12 @@ class ExchangeCalendarTestBaseProposal:
             last_min_less_one,
             gap_before,
         ) in zip(
-            ans.first_trading_minutes[1:],
-            ans.first_trading_minutes_plus_one[1:],
-            ans.first_trading_minutes_less_one[1:],
-            ans.last_trading_minutes[1:],
-            ans.last_trading_minutes_plus_one[1:],
-            ans.last_trading_minutes_less_one[1:],
+            ans.first_minutes[1:],
+            ans.first_minutes_plus_one[1:],
+            ans.first_minutes_less_one[1:],
+            ans.last_minutes[1:],
+            ans.last_minutes_plus_one[1:],
+            ans.last_minutes_less_one[1:],
             ~ans._mask_sessions_without_gap_before[1:],
         ):
             assert next_m(prev_last_min) == first_min
@@ -2731,12 +2817,12 @@ class ExchangeCalendarTestBaseProposal:
                 first_pm_min_less_one,
                 first_pm_min_plus_one,
             ) in zip(
-                ans.last_am_trading_minutes,
-                ans.last_am_trading_minutes_less_one,
-                ans.last_am_trading_minutes_plus_one,
-                ans.first_pm_trading_minutes,
-                ans.first_pm_trading_minutes_less_one,
-                ans.first_pm_trading_minutes_plus_one,
+                ans.last_am_minutes,
+                ans.last_am_minutes_less_one,
+                ans.last_am_minutes_plus_one,
+                ans.first_pm_minutes,
+                ans.first_pm_minutes_less_one,
+                ans.first_pm_minutes_plus_one,
             ):
                 if pd.isna(last_am_min):
                     continue
@@ -2969,8 +3055,8 @@ class ExchangeCalendarTestBaseProposal:
         block_minutes = ans.session_block_minutes
         for name, block in ans.session_block_generator():
             ans_dti = block_minutes[name]
-            from_ = ans.first_trading_minutes[block][0]
-            to = ans.last_trading_minutes[block[-1]]
+            from_ = ans.first_minutes[block][0]
+            to = ans.last_minutes[block[-1]]
             cal_dti = m(from_, to, _parse=False)
             tm.assert_index_equal(ans_dti, cal_dti)
 
@@ -2984,8 +3070,8 @@ class ExchangeCalendarTestBaseProposal:
             tm.assert_index_equal(ans_dti, cal_dti[start_idx:end_idx])
 
         # intra-session
-        from_ = ans.first_trading_minutes[ans.first_session] + pd.Timedelta(15, "T")
-        to = ans.first_trading_minutes[ans.first_session] + pd.Timedelta(45, "T")
+        from_ = ans.first_minutes[ans.first_session] + pd.Timedelta(15, "T")
+        to = ans.first_minutes[ans.first_session] + pd.Timedelta(45, "T")
         expected = pd.date_range(from_, to, freq="T")
         rtrn = m(from_, to, _parse=False)
         tm.assert_index_equal(expected, rtrn)
@@ -2994,8 +3080,8 @@ class ExchangeCalendarTestBaseProposal:
         if not ans.sessions_with_gap_after.empty:
             session = ans.sessions_with_gap_after[0]
             next_session = ans.get_next_session(session)
-            from_ = ans.last_trading_minutes[session] + one_minute
-            to = ans.first_trading_minutes[next_session] - one_minute
+            from_ = ans.last_minutes[session] + one_minute
+            to = ans.first_minutes[next_session] - one_minute
             assert m(from_, to, _parse=False).empty
 
     def test_invalid_input(self, calendar_cls, sides, default_answers, name):

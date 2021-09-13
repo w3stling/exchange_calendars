@@ -155,8 +155,8 @@ class ExchangeCalendar(ABC):
     Internal method parameters:
 
         _parse: bool
-            Determines if a `minute` parameter should be parsed (default
-            True). Passed as False:
+            Determines if a `minute` or `session` parameter should be
+            parsed (default True). Passed as False:
                 - internally to prevent double parsing.
                 - by tests for efficiency.
     """
@@ -651,6 +651,34 @@ class ExchangeCalendar(ABC):
         else:
             return one_minute_later(self.market_break_ends_nanos)
 
+    def _minutes_as_series(self, nanos: np.ndarray, name: str) -> pd.Series:
+        """Convert trading minute nanos to pd.Series."""
+        ser = pd.Series(pd.DatetimeIndex(nanos), index=self.all_sessions)
+        ser.name = name
+        return ser
+
+    @property
+    def first_minutes(self) -> pd.Series:
+        """First trading minute of each session."""
+        return self._minutes_as_series(self._first_minute_nanos(), "first_minutes")
+
+    @property
+    def last_minutes(self) -> pd.Series:
+        """Last trading minute of each session."""
+        return self._minutes_as_series(self._last_minute_nanos(), "last_minutes")
+
+    @property
+    def last_am_minutes(self) -> pd.Series:
+        """Last am trading minute of each session."""
+        return self._minutes_as_series(self._last_am_minute_nanos(), "last_am_minutes")
+
+    @property
+    def first_pm_minutes(self) -> pd.Series:
+        """First pm trading minute of each session."""
+        return self._minutes_as_series(
+            self._first_pm_minute_nanos(), "first_pm_minutes"
+        )
+
     # Properties covering all minutes.
 
     def _all_minutes(self, side: str) -> pd.DatetimeIndex:
@@ -802,6 +830,55 @@ class ExchangeCalendar(ABC):
             self.session_break_start(session_label),
             self.session_break_end(session_label),
         )
+
+    def _get_session_minute_from_nanos(
+        self, session: Session, nanos: np.ndarray, _parse: bool
+    ) -> pd.Timestamp:
+        if _parse:
+            session = parse_session(self, session, "session")
+        idx = self.all_sessions.get_loc(session)
+        return pd.Timestamp(nanos[idx], tz="UTC")
+
+    def session_first_minute(
+        self, session: Session, _parse: bool = True
+    ) -> pd.Timestamp:
+        """Return first trading minute of a given session."""
+        nanos = self._first_minute_nanos()
+        return self._get_session_minute_from_nanos(session, nanos, _parse)
+
+    def session_last_minute(
+        self, session: Session, _parse: bool = True
+    ) -> pd.Timestamp:
+        """Return last trading minute of a given session."""
+        nanos = self._last_minute_nanos()
+        return self._get_session_minute_from_nanos(session, nanos, _parse)
+
+    def session_last_am_minute(
+        self, session: Session, _parse: bool = True
+    ) -> pd.Timestamp | pd.NaT:  # Literal[pd.NaT] - when move to min 3.8
+        """Return last trading minute of am subsession of a given session."""
+        nanos = self._last_am_minute_nanos()
+        return self._get_session_minute_from_nanos(session, nanos, _parse)
+
+    def session_first_pm_minute(
+        self, session: Session, _parse: bool = True
+    ) -> pd.Timestamp | pd.NaT:  # Literal[pd.NaT] - when move to min 3.8
+        """Return first trading minute of pm subsession of a given session."""
+        nanos = self._first_pm_minute_nanos()
+        return self._get_session_minute_from_nanos(session, nanos, _parse)
+
+    def session_first_and_last_minute(
+        self,
+        session: Session,
+        _parse: bool = True,
+    ) -> tuple(pd.Timestamp, pd.Timestamp):
+        """Return first and last trading minutes of a given session."""
+        if _parse:
+            session = parse_session(self, session, "session")
+        idx = self.all_sessions.get_loc(session)
+        first = pd.Timestamp(self._first_minute_nanos()[idx], tz="UTC")
+        last = pd.Timestamp(self._last_minute_nanos()[idx], tz="UTC")
+        return (first, last)
 
     def session_has_break(self, session: Session) -> bool:
         """Query if a given session has a break.
