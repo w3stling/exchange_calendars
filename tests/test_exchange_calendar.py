@@ -1355,6 +1355,43 @@ class Answers:
         )
         return sessions[mask]
 
+    def get_sessions_minutes(
+        self, start: pd.Timestamp, end: pd.Timestamp | int = 1
+    ) -> pd.DatetimeIndex:
+        """Get trading minutes for 1 or more consecutive sessions.
+
+        Parameters
+        ----------
+        start
+            Session from which to get trading minutes.
+        end
+            Session through which to get trading mintues. Can be passed as:
+                pd.Timestamp: return will include trading minutes for `end`
+                    session.
+                int: where int represents number of consecutive sessions
+                    inclusive of `start`, for which require trading
+                    minutes. Default is 1, such that by default will return
+                    trading minutes for only `start` session.
+        """
+        idx = self.sessions.get_loc(start)
+        end_idx = idx + end if isinstance(end, int) else self.sessions.get_loc(end)
+        indexer = slice(idx, end_idx)
+
+        dtis = []
+        for first, last, last_am, first_pm in zip(
+            self.first_minutes[indexer],
+            self.last_minutes[indexer],
+            self.last_am_minutes[indexer],
+            self.first_pm_minutes[indexer],
+        ):
+            if pd.isna(last_am):
+                dtis.append(pd.date_range(first, last, freq="T"))
+            else:
+                dtis.append(pd.date_range(first, last_am, freq="T"))
+                dtis.append(pd.date_range(first_pm, last, freq="T"))
+
+        return dtis[0].union_many(dtis[1:])
+
     # general evaluated properties
 
     @functools.lru_cache(maxsize=4)
@@ -1955,6 +1992,27 @@ class Answers:
             if not block.empty:
                 yield (name, block)
 
+    @functools.lru_cache(maxsize=4)
+    def _session_block_minutes(self) -> dict[str, pd.DatetimeIndex]:
+        d = {}
+        for name, block in self.session_blocks.items():
+            if block.empty:
+                d[name] = pd.DatetimeIndex([], tz="UTC")
+                continue
+            d[name] = self.get_sessions_minutes(block[0], len(block))
+        return d
+
+    @property
+    def session_block_minutes(self) -> dict[str, pd.DatetimeIndex]:
+        """Trading minutes for each `session_block`.
+
+        Key:
+            Session block name as documented to `session_blocks`.
+        Value:
+            Trading minutes of corresponding session block.
+        """
+        return self._session_block_minutes()
+
     # evaluated properties for minutes
 
     @functools.lru_cache(maxsize=4)
@@ -2288,42 +2346,6 @@ class Answers:
 
         minute -= self.ONE_MIN
         yield (minute, (self.opens[-1], self.closes[-2], None, self.closes[-1]))
-
-    # TODO if called by > one test, cache and move to general properties section
-    @property
-    def session_block_minutes(self) -> dict[str, pd.DatetimeIndex]:
-        """Trading minutes for each `session_block`.
-
-        Key:
-            Session block name as documented to `session_blocks`.
-        Value:
-            Trading minutes of corresponding session block.
-        """
-        d = {}
-        for name, block in self.session_blocks.items():
-            if block.empty:
-                d[name] = pd.DatetimeIndex([], tz="UTC")
-                continue
-
-            idx = self.sessions.get_loc(block[0])
-            end_idx = idx + len(block)
-            indexer = slice(idx, end_idx)
-
-            dtis = []
-            for first, last, last_am, first_pm in zip(
-                self.first_minutes[indexer],
-                self.last_minutes[indexer],
-                self.last_am_minutes[indexer],
-                self.first_pm_minutes[indexer],
-            ):
-                if pd.isna(last_am):
-                    dtis.append(pd.date_range(first, last, freq="T"))
-                else:
-                    dtis.append(pd.date_range(first, last_am, freq="T"))
-                    dtis.append(pd.date_range(first_pm, last, freq="T"))
-
-            d[name] = dtis[0].union_many(dtis[1:])
-        return d
 
     # out-of-bounds properties
 
@@ -2779,6 +2801,18 @@ class ExchangeCalendarTestBaseProposal:
         with pytest.raises(ValueError):
             m_next(ans.last_session, _parse=False)
 
+    def test_minutes_for_session(self, all_calendars_with_answers):
+        cal, ans = all_calendars_with_answers
+        m = cal.minutes_for_session
+
+        # Limit test to every session of each session block.
+
+        for _, block in ans.session_block_generator():
+            for session in block:
+                tm.assert_index_equal(
+                    m(session, _parse=False), ans.get_sessions_minutes(session)
+                )
+
     # Tests for methods that interrogate a date.
 
     def test_date_to_session_label(self, default_calendar_with_answers):
@@ -3153,3 +3187,13 @@ class ExchangeCalendarTestBaseProposal:
         assert sessions_labels.equals(pd.DatetimeIndex(sessions).sort_values())
 
     # Tests for methods that evaluate or interrogate a range of sessions.
+
+    def test_minutes_for_sessions_in_range(self, all_calendars_with_answers):
+        cal, ans = all_calendars_with_answers
+        m = cal.minutes_for_sessions_in_range
+
+        block_minutes = ans.session_block_minutes
+        for name, block in ans.session_block_generator():
+            ans_minutes = block_minutes[name]
+            cal_minutes = m(block[0], block[-1], _parse=False)
+            tm.assert_index_equal(ans_minutes, cal_minutes)

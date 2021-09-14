@@ -1,6 +1,7 @@
 from datetime import time
 
-from pandas import Timedelta, Timestamp
+import numpy as np
+import pandas as pd
 from pandas.tseries.holiday import GoodFriday
 from pytz import UTC, timezone
 
@@ -42,18 +43,47 @@ class QuantopianUSFuturesCalendar(ExchangeCalendar):
     open_offset = -1
 
     @property
-    def default_start(self) -> Timestamp:
+    def default_start(self) -> pd.Timestamp:
         # XXX: Override the default start date. This is a stopgap for memory
         # issues caused by upgrading to pandas 18. This calendar is the most
         # severely affected since it has the most total minutes of any of the
         # zipline calendars.
-        return Timestamp("2000-01-01", tz=UTC)
+        return pd.Timestamp("2000-01-01", tz=UTC)
 
     def execution_time_from_open(self, open_dates):
-        return open_dates + Timedelta(hours=FUTURES_OPEN_TIME_OFFSET)
+        return open_dates + pd.Timedelta(hours=FUTURES_OPEN_TIME_OFFSET)
 
     def execution_time_from_close(self, close_dates):
-        return close_dates + Timedelta(hours=FUTURES_CLOSE_TIME_OFFSET)
+        return close_dates + pd.Timedelta(hours=FUTURES_CLOSE_TIME_OFFSET)
+
+    def execution_minutes_for_session(
+        self, session_label: pd.DatetimeIndex
+    ) -> pd.DatetimeIndex:
+        """
+        Given a session label, return the execution minutes for that session.
+
+        Parameters
+        ----------
+        session_label
+            A session label whose session's minutes are desired.
+
+        Returns
+        -------
+        pd.DateTimeIndex
+            All the execution minutes for the given session.
+        """
+        start = self.execution_time_from_open(self.session_first_minute(session_label))
+        end = self.execution_time_from_close(self.session_last_minute(session_label))
+        return self.minutes_in_range(start_minute=start, end_minute=end)
+
+    def execution_minutes_for_sessions_in_range(self, start, stop):
+        minutes = self.execution_minutes_for_session
+        return pd.DatetimeIndex(
+            np.concatenate(
+                [minutes(session) for session in self.sessions_in_range(start, stop)]
+            ),
+            tz=UTC,
+        )
 
     @property
     def regular_holidays(self):

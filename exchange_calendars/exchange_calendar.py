@@ -16,6 +16,7 @@ from __future__ import annotations
 from abc import ABC, abstractproperty
 from collections import OrderedDict
 import functools
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -79,6 +80,48 @@ def _group_times(all_days, times, tz, offset=0):
         )
     ]
     return elements[0].append(elements[1:])
+
+
+class deprecate:
+    """Decorator for deprecated/renamed ExchangeCalendar methods."""
+
+    def __init__(
+        self,
+        deprecated_release: str = "3.4",
+        removal_release: str = "4.0",
+        alt_method: str = "",
+        renamed: bool = True,
+    ):
+        self.deprecated_release = "release " + deprecated_release
+        self.removal_release = "release " + removal_release
+        self.alt_method = alt_method
+        self.renamed = renamed
+        if renamed:
+            assert alt_method, "pass `alt_method` if renaming"
+
+    def __call__(self, f):
+        @functools.wraps(f)
+        def wrapped_f(*args, **kwargs):
+            warnings.warn(self._message(f), FutureWarning)
+            return f(*args, **kwargs)
+
+        return wrapped_f
+
+    def _message(self, f):
+        msg = (
+            f"`{f.__name__}` was deprecated in {self.deprecated_release}"
+            f" and will be removed in {self.removal_release}."
+        )
+        if self.alt_method:
+            if self.renamed:
+                msg += (
+                    f" The method has been renamed `{self.alt_method}`."
+                    f" NB parameter names may also have changed (see "
+                    f" documentation for `{self.alt_method}`)."
+                )
+            else:
+                msg += f" Use `{self.alt_method}`."
+        return msg
 
 
 class ExchangeCalendar(ABC):
@@ -958,55 +1001,25 @@ class ExchangeCalendar(ABC):
             )
         return self.schedule.index[idx - 1]
 
-    def minutes_for_session(self, session_label: Session) -> int:
-        """
-        Given a session label, return the minutes for that session.
+    def minutes_for_session(
+        self, session_label: Session, _parse: bool = True
+    ) -> pd.DatetimeIndex:
+        """Return trading minutes corresponding to a given session.
 
         Parameters
         ----------
         session_label
-            A session label whose session's minutes are desired.
+            Session for which require trading minutes.
 
         Returns
         -------
         pd.DateTimeIndex
-            All the minutes for the given session.
+            Trading minutes for `session`.
         """
-        session_label = parse_session(self, session_label, "session_label")
-        return self.minutes_in_range(
-            start_minute=self.schedule.at[session_label, "market_open"],
-            end_minute=self.schedule.at[session_label, "market_close"],
-        )
-
-    def execution_time_from_open(self, open_dates):
-        return open_dates
-
-    def execution_time_from_close(self, close_dates):
-        return close_dates
-
-    def execution_minutes_for_session(self, session_label: Session) -> pd.DatetimeIndex:
-        """
-        Given a session label, return the execution minutes for that session.
-
-        Parameters
-        ----------
-        session_label
-            A session label whose session's minutes are desired.
-
-        Returns
-        -------
-        pd.DateTimeIndex
-            All the execution minutes for the given session.
-        """
-        session_label = parse_session(self, session_label, "session_label")
-        return self.minutes_in_range(
-            start_minute=self.execution_time_from_open(
-                self.schedule.at[session_label, "market_open"],
-            ),
-            end_minute=self.execution_time_from_close(
-                self.schedule.at[session_label, "market_close"],
-            ),
-        )
+        if _parse:
+            session_label = parse_session(self, session_label, "session_label")
+        first, last = self.session_first_and_last_minute(session_label, _parse=False)
+        return self.minutes_in_range(start_minute=first, end_minute=last)
 
     # Methods that interrogate a date.
 
@@ -1672,8 +1685,9 @@ class ExchangeCalendar(ABC):
         self,
         start_session_label: Session,
         end_session_label: Session,
+        _parse: bool = True,
     ) -> pd.DatetimeIndex:
-        """Return minutes over a range of sessions.
+        """Return trading minutes over a range of sessions.
 
         Parameters
         ----------
@@ -1686,25 +1700,18 @@ class ExchangeCalendar(ABC):
         Returns
         -------
         pd.DatetimeIndex
-            The minutes in the desired range.
+            Trading minutes over range.
         """
-        start_session_label = parse_session(
-            self, start_session_label, "start_session_label"
-        )
-        end_session_label = parse_session(self, end_session_label, "end_session_label")
-        first_minute, _ = self.open_and_close_for_session(start_session_label)
-        _, last_minute = self.open_and_close_for_session(end_session_label)
-
+        if _parse:
+            start_session_label = parse_session(
+                self, start_session_label, "start_session_label"
+            )
+            end_session_label = parse_session(
+                self, end_session_label, "end_session_label"
+            )
+        first_minute = self.session_first_minute(start_session_label)
+        last_minute = self.session_last_minute(end_session_label)
         return self.minutes_in_range(first_minute, last_minute)
-
-    def execution_minutes_for_sessions_in_range(self, start, stop):
-        minutes = self.execution_minutes_for_session
-        return pd.DatetimeIndex(
-            np.concatenate(
-                [minutes(session) for session in self.sessions_in_range(start, stop)]
-            ),
-            tz=UTC,
-        )
 
     def session_opens_in_range(self, start_session_label, end_session_label):
         return self.schedule.loc[
@@ -1956,6 +1963,43 @@ class ExchangeCalendar(ABC):
             _special_close_offsets_adhoc,
             start,
             end,
+        )
+
+    # Deprecated methods to be removed in release 4.0.
+
+    @deprecate(renamed=False)
+    def execution_time_from_open(self, open_dates):
+        return open_dates
+
+    @deprecate(renamed=False)
+    def execution_time_from_close(self, close_dates):
+        return close_dates
+
+    @deprecate(alt_method="minutes_for_session", renamed=False)
+    def execution_minutes_for_session(self, session_label: Session) -> pd.DatetimeIndex:
+        """
+        Given a session label, return the execution minutes for that session.
+
+        Parameters
+        ----------
+        session_label
+            A session label whose session's minutes are desired.
+
+        Returns
+        -------
+        pd.DateTimeIndex
+            All the execution minutes for the given session.
+        """
+        return self.minutes_for_session(session_label)
+
+    @deprecate(alt_method="minutes_for_sessions_in_range", renamed=False)
+    def execution_minutes_for_sessions_in_range(self, start, stop):
+        minutes = self.execution_minutes_for_session
+        return pd.DatetimeIndex(
+            np.concatenate(
+                [minutes(session) for session in self.sessions_in_range(start, stop)]
+            ),
+            tz=UTC,
         )
 
 
