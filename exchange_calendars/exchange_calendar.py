@@ -802,73 +802,89 @@ class ExchangeCalendar(ABC):
 
     # Methods that interrogate a given session.
 
-    def session_open(self, session_label: Session) -> pd.Timestamp:
-        session_label = parse_session(self, session_label, "session_label")
+    def session_open(self, session_label: Session, _parse: bool = True) -> pd.Timestamp:
+        """Return open time for a given session."""
+        if _parse:
+            session_label = parse_session(self, session_label, "session_label")
         return self.schedule.at[session_label, "market_open"].tz_localize(UTC)
 
-    def session_break_start(self, session_label: Session) -> pd.Timestamp:
-        session_label = parse_session(self, session_label, "session_label")
-        break_start = self.schedule.at[session_label, "break_start"]
-        if not pd.isnull(break_start):
-            # older versions of pandas need this guard
-            break_start = break_start.tz_localize(UTC)
-
-        return break_start
-
-    def session_break_end(self, session_label: Session) -> pd.Timestamp:
-        session_label = parse_session(self, session_label, "session_label")
-        break_end = self.schedule.at[session_label, "break_end"]
-        if not pd.isnull(break_end):
-            # older versions of pandas need this guard
-            break_end = break_end.tz_localize(UTC)
-
-        return break_end
-
-    def session_close(self, session_label: Session) -> pd.Timestamp:
-        session_label = parse_session(self, session_label, "session_label")
+    def session_close(
+        self, session_label: Session, _parse: bool = True
+    ) -> pd.Timestamp:
+        """Return close time for a given session."""
+        if _parse:
+            session_label = parse_session(self, session_label, "session_label")
         return self.schedule.at[session_label, "market_close"].tz_localize(UTC)
 
-    def open_and_close_for_session(
-        self, session_label: Session
-    ) -> tuple(pd.Timestamp, pd.Timestamp):
+    def session_break_start(
+        self, session_label: Session, _parse: bool = True
+    ) -> pd.Timestamp | pd.NaT:
+        """Return break-start time for a given session.
+
+        Returns pd.NaT if no break.
         """
-        Returns a tuple of timestamps of the open and close of the session
-        represented by the given label.
+        if _parse:
+            session_label = parse_session(self, session_label, "session_label")
+        break_start = self.schedule.at[session_label, "break_start"]
+        if not pd.isnull(break_start):
+            break_start = break_start.tz_localize(UTC)
+        return break_start
+
+    def session_break_end(
+        self, session_label: Session, _parse: bool = True
+    ) -> pd.Timestamp | pd.NaT:
+        """Return break-end time for a given session.
+
+        Returns pd.NaT if no break.
+        """
+        if _parse:
+            session_label = parse_session(self, session_label, "session_label")
+        break_end = self.schedule.at[session_label, "break_end"]
+        if not pd.isnull(break_end):
+            break_end = break_end.tz_localize(UTC)
+        return break_end
+
+    def open_and_close_for_session(
+        self, session_label: Session, _parse: bool = True
+    ) -> tuple[pd.Timestamp, pd.Timestamp]:
+        """Return open and close times for a given session.
 
         Parameters
         ----------
         session_label
-            The session whose open and close are desired.
+            Session for which require open and close.
 
         Returns
         -------
-        (Timestamp, Timestamp)
-            The open and close for the given session.
+        tuple[pd.Timestamp, pd.Timestamp]
+            [0] Open time of `session_label`.
+            [1] Close time of `session_label`.
         """
-        session_label = parse_session(self, session_label, "session_label")
+        if _parse:
+            session_label = parse_session(self, session_label, "session_label")
         return (
             self.session_open(session_label),
             self.session_close(session_label),
         )
 
     def break_start_and_end_for_session(
-        self, session_label: Session
-    ) -> tuple(pd.Timestamp, pd.Timestamp):
-        """
-        Returns a tuple of timestamps of the break start and end of the session
-        represented by the given label.
+        self, session_label: Session, _parse: bool = True
+    ) -> tuple[pd.Timestamp | pd.NaT, pd.Timestamp | pd.NaT]:
+        """Return break-start and break-end times for a given session.
 
         Parameters
         ----------
-        session_label: pd.Timestamp
-            The session whose break start and end are desired.
+        session_label
+            Session for which require break-start and break-end.
 
         Returns
         -------
-        (Timestamp, Timestamp)
-            The break start and end for the given session.
+        tuple[pd.Timestamp | pd.NaT, pd.Timestamp | pd.NaT]
+            [0] Break-start time of `session_label`, or pd.NaT if no break.
+            [1] Close time of `session_label`, or pd.NaT if no break.
         """
-        session_label = parse_session(self, session_label, "session_label")
+        if _parse:
+            session_label = parse_session(self, session_label, "session_label")
         return (
             self.session_break_start(session_label),
             self.session_break_end(session_label),
