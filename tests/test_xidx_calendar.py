@@ -35,7 +35,12 @@ class XIDXCalendarTestCase(NoDSTExchangeCalendarTestBase, TestCase):
             self.assertEqual(len(monthly_days), 12, year)
             self.assertEqual(sum(monthly_days), total_days, year)
 
-            sessions = self.calendar.sessions_in_range(year, year)
+            start = pd.Timestamp(year=int(year), month=1, day=1, tz="UTC")
+            end = min(
+                pd.Timestamp(year=int(year), month=12, day=31, tz="UTC"),
+                self.calendar.last_session
+            )
+            sessions = self.calendar.sessions_in_range(start, end)
             self.assertEqual(total_days, len(sessions), year)
 
     @parameterized.expand(
