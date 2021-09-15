@@ -2629,10 +2629,10 @@ class ExchangeCalendarTestBaseProposal:
         """Test minute properties.
 
         Tests following calendar properties:
-            first_minutes
-            last_minutes
-            last_am_minutes
-            first_pm_minutes
+            all_first_minutes
+            all_last_minutes
+            all_last_am_minutes
+            all_first_pm_minutes
         """
         cal, ans = all_calendars_with_answers
 
@@ -2643,7 +2643,7 @@ class ExchangeCalendarTestBaseProposal:
             "first_pm_minutes",
         ):
             ans_minutes = getattr(ans, prop).dt.tz_convert(None)
-            cal_minutes = getattr(cal, prop)
+            cal_minutes = getattr(cal, "all_" + prop)
             tm.assert_series_equal(ans_minutes, cal_minutes, check_freq=False)
 
     # Tests for properties covering all minutes.

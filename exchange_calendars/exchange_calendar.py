@@ -701,22 +701,22 @@ class ExchangeCalendar(ABC):
         return ser
 
     @property
-    def first_minutes(self) -> pd.Series:
+    def all_first_minutes(self) -> pd.Series:
         """First trading minute of each session."""
         return self._minutes_as_series(self._first_minute_nanos(), "first_minutes")
 
     @property
-    def last_minutes(self) -> pd.Series:
+    def all_last_minutes(self) -> pd.Series:
         """Last trading minute of each session."""
         return self._minutes_as_series(self._last_minute_nanos(), "last_minutes")
 
     @property
-    def last_am_minutes(self) -> pd.Series:
+    def all_last_am_minutes(self) -> pd.Series:
         """Last am trading minute of each session."""
         return self._minutes_as_series(self._last_am_minute_nanos(), "last_am_minutes")
 
     @property
-    def first_pm_minutes(self) -> pd.Series:
+    def all_first_pm_minutes(self) -> pd.Series:
         """First pm trading minute of each session."""
         return self._minutes_as_series(
             self._first_pm_minute_nanos(), "first_pm_minutes"
