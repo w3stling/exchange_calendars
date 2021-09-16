@@ -30,6 +30,7 @@ from pytz import UTC
 from exchange_calendars import errors
 from .calendar_helpers import (
     NP_NAT,
+    NANOSECONDS_PER_MINUTE,
     compute_all_minutes,
     one_minute_later,
     one_minute_earlier,
@@ -777,9 +778,7 @@ class ExchangeCalendar(ABC):
         return pd.Timestamp(self.all_minutes_nanos[-1], tz="UTC")
 
     def has_breaks(
-        self,
-        start: Date | None = None,
-        end: Date | None = None,
+        self, start: Date | None = None, end: Date | None = None, _parse: bool = True
     ) -> bool:
         """Query if at least one session of a calendar has a break.
 
@@ -794,10 +793,13 @@ class ExchangeCalendar(ABC):
         Returns
         -------
         bool
-            True if any calendar session has a break, false otherwise.
+            True if any calendar session, or session of any range defined
+            from `start` to `end`, has a break. False otherwise.
         """
-        start = None if start is None else parse_date(start, "start")
-        end = None if end is None else parse_date(end, "end")
+        if _parse and start is not None:
+            start = self._parse_session_range_start(start)
+        if _parse and end is not None:
+            end = self._parse_session_range_end(end)
         return self.break_starts[start:end].notna().any()
 
     # Methods that interrogate a given session.
@@ -939,12 +941,12 @@ class ExchangeCalendar(ABC):
         last = pd.Timestamp(self._last_minute_nanos()[idx], tz="UTC")
         return (first, last)
 
-    def session_has_break(self, session: Session) -> bool:
+    def session_has_break(self, session: Session, _parse: bool = True) -> bool:
         """Query if a given session has a break.
 
         Parameters
         ----------
-        session :
+        session
             Session to query.
 
         Returns
@@ -952,7 +954,8 @@ class ExchangeCalendar(ABC):
         bool
             True if `session` has a break, false otherwise.
         """
-        session = parse_session(self, session, "session")
+        if _parse:
+            session = parse_session(self, session, "session")
         return pd.notna(self.session_break_start(session))
 
     def next_session_label(
@@ -1833,33 +1836,42 @@ class ExchangeCalendar(ABC):
 
         return self.schedule.loc[start:end, "market_close"].dt.tz_localize(UTC)
 
-    @lazyval
-    def _minutes_per_session(self):
-        close_to_open_diff = self.schedule.market_close - self.schedule.market_open
-        break_diff = (self.schedule.break_end - self.schedule.break_start).fillna(
-            pd.Timedelta(seconds=0)
-        )
-        diff = (close_to_open_diff - break_diff).astype("timedelta64[m]")
-        return diff + 1
-
     def minutes_count_for_sessions_in_range(
-        self, start_session: pd.Timestamp, end_session: pd.Timestamp
+        self, start_session: Date, end_session: Date, _parse=False
     ) -> int:
-        """
+        """Return number of trading minutes over a range of sessions.
+
         Parameters
         ----------
-        start_session: pd.Timestamp
-            The first session.
+        start_session
+            Date from which to sum number of trading minutes.
 
-        end_session: pd.Timestamp
-            The last session.
+        end_session
+            Date through which to sum number of trading minutes.
 
         Returns
         -------
-        int: The total number of minutes for the contiguous chunk of sessions.
-             between start_session and end_session, inclusive.
+        int
+            Today number of trading minutes for range of sessions from
+            `start_session` through `end_session` (inclusive of both).
         """
-        return int(self._minutes_per_session[start_session:end_session].sum())
+        if _parse:
+            start = self._parse_session_range_start(start_session)
+            end = self._parse_session_range_end(end_session)
+        else:
+            start, end = start_session, end_session
+        indxr = self.all_sessions.slice_indexer(start, end)
+
+        session_diff = (
+            self._last_minute_nanos()[indxr] - self._first_minute_nanos()[indxr]
+        )
+        session_diff += NANOSECONDS_PER_MINUTE
+        break_diff = (
+            self._first_pm_minute_nanos()[indxr] - self._last_am_minute_nanos()[indxr]
+        )
+        break_diff[break_diff != 0] -= NANOSECONDS_PER_MINUTE
+        nanos = session_diff - break_diff
+        return (nanos // NANOSECONDS_PER_MINUTE).sum()
 
     # Internal methods called by constructor.
 
