@@ -1058,7 +1058,7 @@ class ExchangeCalendar(ABC):
     def date_to_session_label(
         self,
         date: Date,
-        direction: str = "none",
+        direction: str = "none",  # when min 3.8, Literal["none", "previous", "next"]
         _parse: bool = True,
     ) -> pd.Timestamp:
         """Return a session label corresponding to a given date.
@@ -1608,6 +1608,34 @@ class ExchangeCalendar(ABC):
 
     # Methods that evaluate or interrogate a range of sessions.
 
+    def _parse_session_range_start(self, start_session_label: Date) -> pd.DatetimeIndex:
+        """Parse public input defining start of a session range as a Date.
+
+        Raises ValueError if input is out-of-bounds.
+
+        Notes
+        -----
+        Public parameter should be named `start_session_label`. #61 From
+        release 4.0 anticipated that such input will be renamed `start`.
+        """
+        return parse_date(
+            start_session_label, "start_session_label", raise_oob=True, calendar=self
+        )
+
+    def _parse_session_range_end(self, end_session_label: Date) -> pd.DatetimeIndex:
+        """Parse public input defining end of a session range as a Date.
+
+        Raises ValueError if input is out-of-bounds.
+
+        Notes
+        -----
+        Public parameter should be named `end_session_label`. #61 From
+        release 4.0 anticipated that such input will be renamed `end`.
+        """
+        return parse_date(
+            end_session_label, "end_session_label", raise_oob=True, calendar=self
+        )
+
     def sessions_in_range(
         self, start_session_label: Date, end_session_label: Date, _parse: bool = True
     ) -> pd.DatetimeIndex:
@@ -1629,18 +1657,8 @@ class ExchangeCalendar(ABC):
             Sessions from `start_session_label` through `end_session_label`.
         """
         if _parse:
-            start_session_label = parse_date(
-                start_session_label,
-                "start_session_label",
-                raise_oob=True,
-                calendar=self,
-            )
-            end_session_label = parse_date(
-                end_session_label,
-                "end_session_label",
-                raise_oob=True,
-                calendar=self,
-            )
+            start_session_label = self._parse_session_range_start(start_session_label)
+            end_session_label = self._parse_session_range_end(end_session_label)
         indexer = self.all_sessions.slice_indexer(
             start_session_label, end_session_label
         )
@@ -1706,26 +1724,23 @@ class ExchangeCalendar(ABC):
             `end_session_label` (both inclusive). If `start_session` is
             after `end_session` then return will be negated.
         """
-        # out-of-bounds dates handled via parsing
         if _parse:
-            start_session = parse_date(
-                start_session_label, "start_session_label", True, self
-            )
-            end_session = parse_date(end_session_label, "end_session_label", True, self)
+            start = self._parse_session_range_start(start_session_label)
+            end = self._parse_session_range_end(end_session_label)
         else:
-            start_session, end_session = start_session_label, end_session_label
+            start, end = start_session_label, end_session_label
 
-        negate = end_session < start_session
+        negate = end < start
         if negate:
-            start_session, end_session = end_session, start_session
-        start_idx = self.all_sessions.searchsorted(start_session)
-        end_idx = self.all_sessions.searchsorted(end_session, side="right")
+            start, end = end, start
+        start_idx = self.all_sessions.searchsorted(start)
+        end_idx = self.all_sessions.searchsorted(end, side="right")
         return start_idx - end_idx if negate else end_idx - start_idx
 
     def minutes_for_sessions_in_range(
         self,
-        start_session_label: Session,
-        end_session_label: Session,
+        start_session_label: Date,
+        end_session_label: Date,
         _parse: bool = True,
     ) -> pd.DatetimeIndex:
         """Return trading minutes over a range of sessions.
@@ -1733,38 +1748,90 @@ class ExchangeCalendar(ABC):
         Parameters
         ----------
         start_session_label
-            First session of range.
+            Start of session range over which to evaluate minutes. If
+            `start_session_label` is a session then range will be
+            inclusive of this session.
 
         end_session_label
-            Last session of range.
+            End of session range over which to evaluate minutes. If
+            `end_session_label` is a session then range will be
+            inclusive of this session.
 
         Returns
         -------
         pd.DatetimeIndex
-            Trading minutes over range.
+            Trading minutes over session range.
         """
         if _parse:
-            start_session_label = parse_session(
-                self, start_session_label, "start_session_label"
-            )
-            end_session_label = parse_session(
-                self, end_session_label, "end_session_label"
-            )
-        first_minute = self.session_first_minute(start_session_label)
-        last_minute = self.session_last_minute(end_session_label)
+            start = self._parse_session_range_start(start_session_label)
+            end = self._parse_session_range_end(end_session_label)
+        else:
+            start, end = start_session_label, end_session_label
+        start = self.date_to_session_label(start, "next", _parse=False)
+        end = self.date_to_session_label(end, "previous", _parse=False)
+        first_minute = self.session_first_minute(start)
+        last_minute = self.session_last_minute(end)
         return self.minutes_in_range(first_minute, last_minute)
 
-    def session_opens_in_range(self, start_session_label, end_session_label):
-        return self.schedule.loc[
-            start_session_label:end_session_label,
-            "market_open",
-        ].dt.tz_localize(UTC)
+    def session_opens_in_range(
+        self, start_session_label: Date, end_session_label: Date, _parse: bool = True
+    ) -> pd.Series:
+        """Return UTC open time by session for sessions of given range.
 
-    def session_closes_in_range(self, start_session_label, end_session_label):
-        return self.schedule.loc[
-            start_session_label:end_session_label,
-            "market_close",
-        ].dt.tz_localize(UTC)
+        Parameters
+        ----------
+        start_session_label
+            Date from which (inclusive) to return open times.
+
+        end_session_label
+            Date through which (inclusive) to return open times.
+
+        Returns
+        -------
+        pd.Series
+            index:
+                Sessions from `start_session_label` through
+                `end_session_label` (inclusive of both).
+            values:
+                UTC open times for corresponding sessions.
+        """
+        if _parse:
+            start = self._parse_session_range_start(start_session_label)
+            end = self._parse_session_range_end(end_session_label)
+        else:
+            start, end = start_session_label, end_session_label
+
+        return self.schedule.loc[start:end, "market_open"].dt.tz_localize(UTC)
+
+    def session_closes_in_range(
+        self, start_session_label: Date, end_session_label: Date, _parse: bool = True
+    ) -> pd.Series:
+        """Return UTC close time by session for sessions of given range.
+
+        Parameters
+        ----------
+        start_session_label
+            Date from which (inclusive) to return close times.
+
+        end_session_label
+            Date through which (inclusive) to return close times.
+
+        Returns
+        -------
+        pd.Series
+            index:
+                Sessions from `start_session_label` through
+                `end_session_label` (inclusive of both).
+            values:
+                UTC close times for corresponding sessions.
+        """
+        if _parse:
+            start = self._parse_session_range_start(start_session_label)
+            end = self._parse_session_range_end(end_session_label)
+        else:
+            start, end = start_session_label, end_session_label
+
+        return self.schedule.loc[start:end, "market_close"].dt.tz_localize(UTC)
 
     @lazyval
     def _minutes_per_session(self):

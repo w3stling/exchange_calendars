@@ -953,6 +953,7 @@ class ExchangeCalendarTestBase(object):
         found_opens = self.calendar.session_opens_in_range(
             self.answers.index[0],
             self.answers.index[-1],
+            _parse=False,
         )
         found_opens.index.freq = None
         tm.assert_series_equal(found_opens, self.answers["market_open"])
@@ -961,6 +962,7 @@ class ExchangeCalendarTestBase(object):
         found_closes = self.calendar.session_closes_in_range(
             self.answers.index[0],
             self.answers.index[-1],
+            _parse=False,
         )
         found_closes.index.freq = None
         tm.assert_series_equal(found_closes, self.answers["market_close"])
@@ -1380,8 +1382,8 @@ class Answers:
                     trading minutes for only `start` session.
         """
         idx = self.sessions.get_loc(start)
-        end_idx = idx + end if isinstance(end, int) else self.sessions.get_loc(end)
-        indexer = slice(idx, end_idx)
+        stop = idx + end if isinstance(end, int) else self.sessions.get_loc(end) + 1
+        indexer = slice(idx, stop)
 
         dtis = []
         for first, last, last_am, first_pm in zip(
@@ -2209,9 +2211,18 @@ class Answers:
                 Sessions in range.
         """
         non_sessions = self.non_sessions
-        if non_sessions.empty:
+        if len(non_sessions) <= 1:
             return None
-        start, end = non_sessions[0], non_sessions[-1]
+        limit = len(self.non_sessions) - 2
+        i = 0
+        start, end = non_sessions[i], non_sessions[i + 1]
+        while (end - start) < pd.Timedelta(4, "D"):
+            i += 1
+            start, end = non_sessions[i], non_sessions[i + 1]
+            if i == limit:
+                # Unable to evaluate range from consecutive non-sessions
+                # that covers >= 3 sessions. Just go with max range...
+                start, end = non_sessions[0], non_sessions[-1]
         slice_start, slice_end = self.sessions.searchsorted((start, end))
         return (start, end), self.sessions[slice_start:slice_end]
 
@@ -3280,26 +3291,13 @@ class ExchangeCalendarTestBaseProposal:
             tm.assert_index_equal(m(block[0], block[-1]), block)
 
         # tests where start and end are non-session dates
-        non_sessions = ans.non_sessions
-        if not non_sessions.empty:
+        if len(ans.non_sessions) > 1:
             # test that range within which there are no sessions returns empty
-            non_sessions_run = ans.non_sessions_run
-            start, end = non_sessions_run[0], non_sessions_run[-1]
-            assert m(start, end).empty
+            assert m(*ans.non_sessions_range).empty
 
             # test range defined with start and end as non-sessions
             (start, end), sessions = ans.sessions_range_defined_by_non_sessions
             tm.assert_index_equal(m(start, end), sessions)
-
-    def test_minutes_for_sessions_in_range(self, all_calendars_with_answers):
-        cal, ans = all_calendars_with_answers
-        m = no_parsing(cal.minutes_for_sessions_in_range)
-
-        block_minutes = ans.session_block_minutes
-        for name, block in ans.session_block_generator():
-            ans_minutes = block_minutes[name]
-            cal_minutes = m(block[0], block[-1])
-            tm.assert_index_equal(ans_minutes, cal_minutes)
 
     def test_sessions_window(self, default_calendar_with_answers):
         cal, ans = default_calendar_with_answers
@@ -3335,13 +3333,73 @@ class ExchangeCalendarTestBaseProposal:
         assert m(ans.sessions[0], ans.sessions[0]) == 1
 
         # tests where start and end are non-session dates
-        non_sessions = ans.non_sessions
-        if not non_sessions.empty:
+        if len(ans.non_sessions) > 1:
             # test that range within which there are no sessions returns 0
-            non_sessions_run = ans.non_sessions_run
-            start, end = non_sessions_run[0], non_sessions_run[-1]
-            assert m(start, end) == 0
+            assert m(*ans.non_sessions_range) == 0
 
             # test range defined with start and end as non_sessions
             (start, end), sessions = ans.sessions_range_defined_by_non_sessions
             assert m(start, end) == len(sessions)
+
+    def test_minutes_for_sessions_in_range(self, all_calendars_with_answers):
+        cal, ans = all_calendars_with_answers
+        m = no_parsing(cal.minutes_for_sessions_in_range)
+
+        block_minutes = ans.session_block_minutes
+        for name, block in ans.session_block_generator():
+            ans_minutes = block_minutes[name]
+            cal_minutes = m(block[0], block[-1])
+            tm.assert_index_equal(ans_minutes, cal_minutes)
+
+        # tests where start and end are non-session dates
+        if len(ans.non_sessions) > 1:
+            # test that range within which there are no sessions returns empty
+            assert m(*ans.non_sessions_range).empty
+
+            # test range defined with start and end as non-sessions
+            (start, end), sessions = ans.sessions_range_defined_by_non_sessions
+            minutes = ans.get_sessions_minutes(sessions[0], sessions[-1])
+            tm.assert_index_equal(m(start, end), minutes)
+
+    def test_session_opens_closes_in_range(self, default_calendar_with_answers):
+        """Test methods that return range of open / close times.
+
+        Tests methods:
+            session_opens_in_range
+            session_closes_in_range
+        """
+        cal, ans = default_calendar_with_answers
+        m_opens = no_parsing(cal.session_opens_in_range)
+        m_closes = no_parsing(cal.session_closes_in_range)
+
+        # test where start and end are sessions
+        start, end = ans.sessions[10], ans.sessions[-10]
+        tm.assert_series_equal(m_opens(start, end), ans.opens[10:-9], check_freq=False)
+        tm.assert_series_equal(
+            m_closes(start, end), ans.closes[10:-9], check_freq=False
+        )
+
+        # test session blocks
+        for _, block in ans.session_block_generator():
+            tm.assert_series_equal(
+                m_opens(block[0], block[-1]), ans.opens[block], check_freq=False
+            )
+            tm.assert_series_equal(
+                m_closes(block[0], block[-1]), ans.closes[block], check_freq=False
+            )
+
+        # tests where start and end are non-session dates
+        if len(ans.non_sessions) > 1:
+            # test that range within which there are no sessions returns empty
+            start, end = ans.non_sessions_range
+            assert m_opens(start, end).empty
+            assert m_closes(start, end).empty
+
+            # test range defined with start and end as non-sessions
+            (start, end), sessions = ans.sessions_range_defined_by_non_sessions
+            tm.assert_series_equal(
+                m_opens(start, end), ans.opens[sessions], check_freq=False
+            )
+            tm.assert_series_equal(
+                m_closes(start, end), ans.closes[sessions], check_freq=False
+            )
