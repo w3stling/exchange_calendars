@@ -16,14 +16,17 @@ NANOSECONDS_PER_MINUTE = int(6e10)
 NP_NAT = pd.NaT.value
 
 # Use Date type where input does not need to represent an actual session
-# and will be parsed by parse_date
+# and will be parsed by parse_date.
 Date = typing.Union[pd.Timestamp, str, int, float, datetime.datetime]
 # Use Session type where input should represent an actual session and will
-# be parsed by parse_session
+# be parsed by parse_session.
 Session = Date
 # Use Minute type where input does not need to represent an actual trading
-# minute and will be parsed by parse_timestamp
+# minute and will be parsed by parse_timestamp.
 Minute = typing.Union[pd.Timestamp, str, int, float, datetime.datetime]
+# Use TradingMinute where input should represent a trading minute and will
+# be parsed by parse_trading_minute.
+TradingMinute = Minute
 
 
 def next_divider_idx(dividers: np.ndarray, minute_val: int) -> int:
@@ -185,6 +188,39 @@ def parse_timestamp(
             raise errors.MinuteOutOfBounds(calendar, ts, param_name)
 
     return ts
+
+
+def parse_trading_minute(
+    calendar: ExchangeCalendar, minute: TradingMinute, param_name: str
+) -> pd.Timestamp:
+    """Parse input intended to represent a trading minute.
+
+    Parameters
+    ----------
+    calendar
+       Calendar which `minute` must be a trading minute of.
+
+    minute
+        Input to be parsed as a trading minute. Must be valid input to
+        pd.Timestamp and represent a trading minute of `calendar`.
+
+    param_name
+        Name of a parameter that was to receive a trading minute.
+
+    Raises
+    ------
+    Errors as `parse_timestamp` and additionally:
+
+    exchange_calendars.errors.NotTradingMinuteError
+        If `minute` parses to a valid timestamp although timestamp does not
+        represent a trading minute of `calendar`.
+    """
+    minute = parse_timestamp(minute, param_name)
+    # don't check via is_trading_minute to allow for more specific error
+    # message if `minute` is out-of-bounds
+    if minute.value not in calendar.all_minutes_nanos:
+        raise errors.NotTradingMinuteError(calendar, minute, param_name)
+    return minute
 
 
 def parse_date(

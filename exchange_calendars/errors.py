@@ -189,6 +189,51 @@ class DateOutOfBounds(ValueError):
         return msg
 
 
+class NotTradingMinuteError(ValueError):
+    """A timestamp assumed as a trading minute is not a trading minute.
+
+    Parameters
+    ----------
+    calendar
+        Calendar for which `minute` assumed as a trading minute.
+
+    minute
+        Minute assumed as a trading minute.
+
+    param_name
+        Name of a parameter that was to receive a trading minute.
+    """
+
+    def __init__(
+        self,
+        calendar: ExchangeCalendar,
+        minute: pd.Timestamp,
+        param_name: str,
+    ):
+        self.calendar = calendar
+        self.minute = minute
+        self.param_name = param_name
+
+    def __str__(self) -> str:
+        msg = (
+            f"Parameter `{self.param_name}` takes a trading minute although"
+            f" received input that parsed to '{self.minute}' which"
+        )
+        if self.minute < self.calendar.first_trading_minute:
+            msg += (
+                " is earlier than the first trading minute of calendar"
+                f" '{self.calendar.name}' ('{self.calendar.first_session}')."
+            )
+        elif self.minute > self.calendar.last_session:
+            msg += (
+                " is later than the last trading minute of calendar"
+                f" '{self.calendar.name}' ('{self.calendar.last_session}')."
+            )
+        else:
+            msg += f" is not a trading minute of calendar '{self.calendar.name}'."
+        return msg
+
+
 class MinuteOutOfBounds(ValueError):
     """A minute required to be within bounds of trading minutes is not.
 

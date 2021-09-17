@@ -39,7 +39,9 @@ from .calendar_helpers import (
     Session,
     Date,
     Minute,
+    TradingMinute,
     parse_timestamp,
+    parse_trading_minute,
     parse_session,
     parse_date,
 )
@@ -637,30 +639,69 @@ class ExchangeCalendar(ABC):
 
     @property
     def all_sessions(self) -> pd.DatetimeIndex:
+        """All calendar sessions."""
         return self.schedule.index
 
     @property
     def opens(self) -> pd.Series:
+        """Open time of each session.
+
+        Returns
+        -------
+        pd.Series
+            index : pd.DatetimeIndex
+                All sessions.
+            dtype : datetime64[ns]
+                Open time of corresponding session. NB Times are UTC
+                although dtype is timezone-naive.
+        """
         return self.schedule.market_open
 
     @property
     def closes(self) -> pd.Series:
+        """Close time of each session.
+
+        Returns
+        -------
+        pd.Series
+            index : pd.DatetimeIndex
+                All sessions.
+            dtype : datetime64[ns]
+                Close time of corresponding session. NB Times are UTC
+                although dtype is timezone-naive.
+        """
         return self.schedule.market_close
 
     @property
-    def late_opens(self) -> pd.DatetimeIndex:
-        return self._late_opens
-
-    @property
-    def early_closes(self) -> pd.DatetimeIndex:
-        return self._early_closes
-
-    @property
     def break_starts(self) -> pd.Series:
+        """Break start time of each session.
+
+        Returns
+        -------
+        pd.Series
+            index : pd.DatetimeIndex
+                All sessions.
+            dtype : datetime64[ns]
+                Break-start time of corresponding session. NB Times are UTC
+                although dtype is timezone-naive. Value is missing
+                (pd.NaT) for any session that does not have a break.
+        """
         return self.schedule.break_start
 
     @property
     def break_ends(self) -> pd.Series:
+        """Break end time of each session.
+
+        Returns
+        -------
+        pd.Series
+            index : pd.DatetimeIndex
+                All sessions.
+            dtype : datetime64[ns]
+                Break-end time of corresponding session.  NB Times are UTC
+                although dtype is timezone-naive. Value is missing
+                (pd.NaT) for any session that does not have a break.
+        """
         return self.schedule.break_end
 
     @functools.lru_cache(maxsize=1)  # cache last request
@@ -751,10 +792,12 @@ class ExchangeCalendar(ABC):
 
     @property
     def first_session(self) -> pd.Timestamp:
+        """First calendar session."""
         return self.all_sessions[0]
 
     @property
     def last_session(self) -> pd.Timestamp:
+        """Last calendar session."""
         return self.all_sessions[-1]
 
     @property
@@ -801,6 +844,22 @@ class ExchangeCalendar(ABC):
         if _parse and end is not None:
             end = self._parse_session_range_end(end)
         return self.break_starts[start:end].notna().any()
+
+    @property
+    def late_opens(self) -> pd.DatetimeIndex:
+        """Sessions that open later than the normal open.
+
+        NB. Normal open as defined by `open_times`.
+        """
+        return self._late_opens
+
+    @property
+    def early_closes(self) -> pd.DatetimeIndex:
+        """Sessions that close earlier than the normal close.
+
+        NB. Normal open as defined by `close_times`.
+        """
+        return self._early_closes
 
     # Methods that interrogate a given session.
 
@@ -1042,20 +1101,23 @@ class ExchangeCalendar(ABC):
 
     # Methods that interrogate a date.
 
-    def is_session(self, dt):
-        """
-        Given a dt, returns whether it's a valid session label.
+    def is_session(self, dt: Date, _parse: bool = True) -> bool:
+        """Query if a date is a valid session.
 
         Parameters
         ----------
-        dt: pd.Timestamp
-            The dt that is being tested.
+        dt
+            Date to be queried.
 
-        Returns
-        -------
+        Return
+        ------
         bool
-            Whether the given dt is a valid session label.
+            True if `dt` is a session, False otherwise.
+            Returns False if `dt` is earlier than the first calendar
+            session or later than the last calendar session.
         """
+        if _parse:
+            dt = parse_date(dt, "dt")
         return dt in self.schedule.index
 
     def date_to_session_label(
@@ -1521,24 +1583,46 @@ class ExchangeCalendar(ABC):
 
         return self.all_minutes[start_idx:end_idx]
 
-    def minutes_window(self, start_dt: pd.Timestamp, count: int):
-        start_dt_nanos = start_dt.value
-        start_idx = self.all_minutes_nanos.searchsorted(start_dt_nanos)
+    def minutes_window(
+        self, start_dt: TradingMinute, count: int, _parse: bool = True
+    ) -> pd.DatetimeIndex:
+        """Return block of given size of consecutive trading minutes.
 
-        # searchsorted finds the index of the minute **on or after** start_dt.
-        # If the latter, push back to the prior minute.
-        if self.all_minutes_nanos[start_idx] != start_dt_nanos:
-            start_idx -= 1
+        Parameters
+        ----------
+        start_dt
+            Minute representing the first (if `count` positive) or last
+            (if `count` negative) minute of minutes window.
 
-        if start_idx < 0 or start_idx >= len(self.all_minutes_nanos):
-            raise KeyError("Can't start minute window at {}".format(start_dt))
+        count
+            Number of mintues to include in window in addition to
+                `start_dt` (i.e. 0 will return block of length 1 with
+                `start_dt` as only value).
+            Positive to return block of minutes from `start_dt`
+            Negative to return block of minutes to `start_dt`.
+        """
+        if _parse:
+            start_dt = parse_trading_minute(self, start_dt, "start_dt")
 
+        start_idx = self.all_minutes_nanos.searchsorted(start_dt.value)
         end_idx = start_idx + count
 
-        if start_idx > end_idx:
-            return self.all_minutes[(end_idx + 1) : (start_idx + 1)]
-        else:
-            return self.all_minutes[start_idx:end_idx]
+        if end_idx < 0:
+            raise ValueError(
+                f"Minutes window cannot begin before the calendar's first"
+                f" trading minute ({self.first_trading_minute}). `count`"
+                f" cannot be lower than {count - end_idx} for `start`"
+                f" '{start_dt}'."
+            )
+        elif end_idx >= len(self.all_minutes_nanos):
+            raise ValueError(
+                f"Minutes window cannot end after the calendar's last"
+                f" trading minute ({self.last_trading_minute}). `count`"
+                f" cannot be higher than"
+                f" {count - (end_idx - len(self.all_minutes_nanos) + 1)} for"
+                f" `start` '{start_dt}'."
+            )
+        return self.all_minutes[min(start_idx, end_idx) : max(start_idx, end_idx) + 1]
 
     def minute_index_to_session_labels(
         self,
@@ -1676,14 +1760,14 @@ class ExchangeCalendar(ABC):
         ----------
         session_label
             Session representing the first (if `count` positive) or last
-            (if `count` negative) session of session block.
+            (if `count` negative) session of session window.
 
         count
-            Number of sessions to include in block in addition to
-                `session_label` (i.e. 0 will return block of length 1 with
+            Number of sessions to include in window in addition to
+                `session_label` (i.e. 0 will return window of length 1 with
                 `session_label` as only value).
-            Positive to return block of sessions from `session_label`
-            Negative to return block of sessions to `session_label`.
+            Positive to return window of sessions from `session_label`
+            Negative to return window of sessions to `session_label`.
         """
         if _parse:
             session_label = parse_session(self, session_label, "session_label")

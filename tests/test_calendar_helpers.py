@@ -97,6 +97,11 @@ def session() -> abc.Iterator[str]:
 
 
 @pytest.fixture
+def trading_minute() -> abc.Iterator[str]:
+    yield "2021-06-02 05:30"
+
+
+@pytest.fixture
 def minute_too_early(calendar, one_minute) -> abc.Iterator[pd.Timestamp]:
     yield calendar.first_trading_minute - one_minute
 
@@ -233,3 +238,27 @@ def test_parse_session(
         errors.NotSessionError, match="is later than the last session of calendar"
     ):
         m.parse_session(calendar, date_too_late, param_name)
+
+
+def test_parse_trading_minute(
+    calendar, trading_minute, minute, minute_too_early, minute_too_late, param_name
+):
+    ts = m.parse_trading_minute(calendar, trading_minute, param_name)
+    assert ts == pd.Timestamp(trading_minute, tz="UTC")
+
+    with pytest.raises(
+        errors.NotTradingMinuteError, match="not a trading minute of calendar"
+    ):
+        m.parse_trading_minute(calendar, minute, param_name)
+
+    with pytest.raises(
+        errors.NotTradingMinuteError,
+        match="is earlier than the first trading minute of calendar",
+    ):
+        m.parse_trading_minute(calendar, minute_too_early, param_name)
+
+    with pytest.raises(
+        errors.NotTradingMinuteError,
+        match="is later than the last trading minute of calendar",
+    ):
+        m.parse_trading_minute(calendar, minute_too_late, param_name)
