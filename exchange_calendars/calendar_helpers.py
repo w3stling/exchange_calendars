@@ -115,6 +115,7 @@ def parse_timestamp(
     utc: bool = True,
     raise_oob: bool = False,
     calendar: ExchangeCalendar | None = None,
+    side: str | None = None,
 ) -> pd.Timestamp:
     """Parse input intended to represent either a date or a minute.
 
@@ -140,7 +141,15 @@ def parse_timestamp(
 
     calendar
         ExchangeCalendar against which to evaluate out-of-bounds timestamps.
-        Only requried if `raise_oob` True.
+        Only requried if `raise_oob` True of if relying on `calendar` for
+        `side`.
+
+    side : optional, {None, 'left', 'right', 'both', 'neither'}
+        The side that determines which minutes at a session's bounds are
+        considered as trading minutes (as `ExchangeCalendar` 'side'
+        parameter). Only required if `calendar` is not passed or if do not
+        wish to rely on `calendar.side`. Ignored if `timestamp` is accurate
+        to minute resolution.
 
     Raises
     ------
@@ -177,9 +186,22 @@ def parse_timestamp(
         ts = ts.tz_localize("UTC") if ts.tz is None else ts.tz_convert("UTC")
 
     if ts.second or ts.microsecond or ts.nanosecond:
-        # in conditional clause to only execute if required - very expensive and
-        # otherwise drastically slows testing.
-        ts = ts.floor("T")
+        if side is None and calendar is None:
+            raise ValueError(
+                "`side` or `calendar` must be passed if `timestamp` has a"
+                " non-zero second (or more accurate) component. `timestamp`"
+                f" parsed as '{ts}'."
+            )
+        side = side if side is not None else calendar.side
+        if side == "left":
+            ts = ts.floor("T")
+        elif side == "right":
+            ts = ts.ceil("T")
+        else:
+            raise ValueError(
+                "`timestamp` cannot have a non-zero second (or more accurate)"
+                f" component for `side` '{side}'. `timestamp` parsed as '{ts}'."
+            )
 
     if raise_oob:
         if calendar is None:
@@ -215,7 +237,7 @@ def parse_trading_minute(
         If `minute` parses to a valid timestamp although timestamp does not
         represent a trading minute of `calendar`.
     """
-    minute = parse_timestamp(minute, param_name)
+    minute = parse_timestamp(minute, param_name, calendar=calendar)
     # don't check via is_trading_minute to allow for more specific error
     # message if `minute` is out-of-bounds
     if minute.value not in calendar.all_minutes_nanos:
@@ -268,12 +290,15 @@ def parse_date(
         timestamp is before `calendar`'s first session or after
         `calendar`'s last session.
     """
-    ts = parse_timestamp(date, param_name, utc=False)
+    # side "left" to get it through 'second' handling. Has undesirable effect of
+    # allowing `date` to be defined with a second (or more accurate) compoment
+    # if it falls within the minute that follows midnight.
+    ts = parse_timestamp(date, param_name, utc=False, side="left")
 
     if not (ts.tz is None or ts.tz.zone == "UTC"):
         raise ValueError(
-            f"Parameter `{param_name}` parsed as '{ts}' although a Date must be"
-            f" timezone naive or have timezone as 'UTC'."
+            f"Parameter `{param_name}` received with timezone defined as '{ts.tz.zone}'"
+            f" although a Date must be timezone naive or have timezone as 'UTC'."
         )
 
     if not ts == ts.normalize():

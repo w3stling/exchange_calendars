@@ -92,6 +92,16 @@ def date_mult(request, calendar) -> abc.Iterator[str | pd.Timestamp]:
 
 
 @pytest.fixture
+def second() -> abc.Iterator[str]:
+    yield "2021-06-02 23:01:30"
+
+
+@pytest.fixture(params=["left", "right", "both", "neither"])
+def sides(request) -> abc.Iterator[str]:
+    yield request.param
+
+
+@pytest.fixture
 def session() -> abc.Iterator[str]:
     yield "2021-06-02"
 
@@ -141,6 +151,23 @@ def test_parse_timestamp_with_minute(minute_mult, param_name, utc):
     else:
         assert dt == pd.Timestamp("2021-06-02 23:00", tz="UTC")
     assert dt == dt.floor("T")
+
+
+def test_parse_timestamp_with_second(second, sides, param_name):
+    side = sides
+    if side not in ["right", "left"]:
+        error_msg = re.escape(
+            "`timestamp` cannot have a non-zero second (or more accurate)"
+            f" component for `side` '{side}'."
+        )
+        with pytest.raises(ValueError, match=error_msg):
+            m.parse_timestamp(second, param_name, utc, side=side)
+    else:
+        parsed = m.parse_timestamp(second, param_name, side=side)
+        if side == "left":
+            assert parsed == pd.Timestamp("2021-06-02 23:01", tz="UTC")
+        else:
+            assert parsed == pd.Timestamp("2021-06-02 23:02", tz="UTC")
 
 
 def test_parse_timestamp_error_malformed(malformed, param_name):

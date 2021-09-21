@@ -1497,7 +1497,7 @@ class ExchangeCalendar(ABC):
             If `dt` is not a trading minute and `direction` is "none".
         """
         if _parse:
-            minute = parse_timestamp(dt, "dt").value
+            minute = parse_timestamp(dt, "dt", calendar=self).value
         else:
             minute = dt.value
 
