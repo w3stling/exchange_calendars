@@ -523,7 +523,7 @@ class ExchangeCalendarTestBase(object):
             not_sessions = dates[~dates.isin(sessions)][:5]
             for not_session in not_sessions:
                 error_msg = (
-                    f"`date` '{not_session}' is not a session label. Consider"
+                    f"`date` '{not_session}' does not represent a session. Consider"
                     " passing a `direction`."
                 )
                 with pytest.raises(ValueError, match=re.escape(error_msg)):
@@ -3238,7 +3238,7 @@ class ExchangeCalendarTestBaseProposal:
         if not ans.non_sessions.empty:
             for non_session in ans.non_sessions[0 : None : len(ans.non_sessions) // 9]:
                 error_msg = (
-                    f"`date` '{non_session}' is not a session label. Consider"
+                    f"`date` '{non_session}' does not represent a session. Consider"
                     " passing a `direction`."
                 )
                 with pytest.raises(ValueError, match=re.escape(error_msg)):

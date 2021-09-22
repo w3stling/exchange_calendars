@@ -1173,7 +1173,7 @@ class ExchangeCalendar(ABC):
             return self.all_sessions[idx]
         elif direction == "none":
             raise ValueError(
-                f"`date` '{date}' is not a session label. Consider passing"
+                f"`date` '{date}' does not represent a session. Consider passing"
                 " a `direction`."
             )
         else:
@@ -1509,7 +1509,7 @@ class ExchangeCalendar(ABC):
                 raise ValueError(
                     "Received `minute` as '{0}' although this is earlier than the"
                     " calendar's first trading minute ({1}). Consider passing"
-                    " `direction` as 'next' to get first session label.".format(
+                    " `direction` as 'next' to get first session.".format(
                         pd.Timestamp(minute, tz="UTC"), self.first_trading_minute
                     )
                 )
@@ -1522,7 +1522,7 @@ class ExchangeCalendar(ABC):
                 raise ValueError(
                     "Received `minute` as '{0}' although this is later than the"
                     " calendar's last trading minute ({1}). Consider passing"
-                    " `direction` as 'previous' to get last session label.".format(
+                    " `direction` as 'previous' to get last session.".format(
                         pd.Timestamp(minute, tz="UTC"), self.last_trading_minute
                     )
                 )
@@ -1539,7 +1539,7 @@ class ExchangeCalendar(ABC):
             if not self.is_open_on_minute(minute, ignore_breaks=True):
                 # if the exchange is closed, blow up
                 raise ValueError(
-                    "Received `minute` as '{0}' although this is not an exchange"
+                    "Received `minute` as '{0}' although this is not a trading"
                     " minute. Consider passing `direction` as 'next' or"
                     " 'previous'.".format(pd.Timestamp(minute, tz="UTC"))
                 )
