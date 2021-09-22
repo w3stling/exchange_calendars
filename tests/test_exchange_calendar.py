@@ -2886,7 +2886,7 @@ class ExchangeCalendarTestBaseProposal:
             "last_am_minutes",
             "first_pm_minutes",
         ):
-            ans_minutes = getattr(ans, prop).dt.tz_convert(None)
+            ans_minutes = getattr(ans, prop)
             cal_minutes = getattr(cal, "all_" + prop)
             tm.assert_series_equal(ans_minutes, cal_minutes, check_freq=False)
 

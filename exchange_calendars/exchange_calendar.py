@@ -738,7 +738,7 @@ class ExchangeCalendar(ABC):
 
     def _minutes_as_series(self, nanos: np.ndarray, name: str) -> pd.Series:
         """Convert trading minute nanos to pd.Series."""
-        ser = pd.Series(pd.DatetimeIndex(nanos), index=self.all_sessions)
+        ser = pd.Series(pd.DatetimeIndex(nanos, tz="UTC"), index=self.all_sessions)
         ser.name = name
         return ser
 
