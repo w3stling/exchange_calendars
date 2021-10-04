@@ -1,11 +1,17 @@
+from __future__ import annotations
 from unittest import TestCase
+from collections import abc
 
+import pytest
 import pandas as pd
 from pytz import UTC
 
 from exchange_calendars.exchange_calendar_xlon import XLONExchangeCalendar
 
-from .test_exchange_calendar import ExchangeCalendarTestBase
+from .test_exchange_calendar import (
+    ExchangeCalendarTestBase,
+    ExchangeCalendarTestBaseProposal,
+)
 
 
 class XLONCalendarTestCase(ExchangeCalendarTestBase, TestCase):
@@ -94,3 +100,13 @@ class XLONCalendarTestCase(ExchangeCalendarTestBase, TestCase):
             self.assertEqual(
                 half_day_close_time, half_day + pd.Timedelta(hours=12, minutes=30)
             )
+
+
+class TestXLONCalendar(ExchangeCalendarTestBaseProposal):
+    @pytest.fixture(scope="class")
+    def calendar_cls(self) -> abc.Iterator[XLONExchangeCalendar]:
+        yield XLONExchangeCalendar
+
+    @pytest.fixture(scope="class")
+    def max_session_hours(self) -> abc.Iterator[int | float]:
+        yield 8.5
