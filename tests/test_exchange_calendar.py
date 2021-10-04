@@ -2615,6 +2615,47 @@ class ExchangeCalendarTestBaseProposal:
         yield request.param
 
     @pytest.fixture(scope="class")
+    def valid_overrides(self) -> abc.Iterator[list[str]]:
+        """Names of methods that can be overriden by a subclass."""
+        yield [
+            "name",
+            "bound_start",
+            "bound_end",
+            "_bound_start_error_msg",
+            "_bound_end_error_msg",
+            "default_start",
+            "default_end",
+            "tz",
+            "open_times",
+            "break_start_times",
+            "break_end_times",
+            "close_times",
+            "weekmask",
+            "open_offset",
+            "close_offset",
+            "regular_holidays",
+            "adhoc_holidays",
+            "special_opens",
+            "special_opens_adhoc",
+            "special_closes",
+            "special_closes_adhoc",
+            "special_weekmasks",
+            "special_offsets",
+            "special_offsets_adhoc",
+        ]
+
+    @pytest.fixture(scope="class")
+    def non_valid_overrides(self, valid_overrides) -> abc.Iterator[list[str]]:
+        """Names of methods that cannot be overriden by a subclass."""
+        yield [
+            name
+            for name in dir(ExchangeCalendar)
+            if name not in valid_overrides
+            and not name.startswith("__")
+            and not name == "_abc_impl"
+        ]
+
+    @pytest.fixture(scope="class")
     def daylight_savings_dates(
         self, default_calendar
     ) -> abc.Iterator[list[pd.Timestamp]]:
@@ -2725,6 +2766,11 @@ class ExchangeCalendarTestBaseProposal:
     # --- TESTS ---
 
     # Tests for calendar definition and construction methods.
+
+    def test_base_integrity(self, calendar_cls, non_valid_overrides):
+        cls = calendar_cls
+        for name in non_valid_overrides:
+            assert getattr(cls, name) == getattr(ExchangeCalendar, name)
 
     def test_calculated_against_csv(self, default_calendar_with_answers):
         calendar, ans = default_calendar_with_answers
