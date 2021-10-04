@@ -275,8 +275,7 @@ class ExchangeCalendar(ABC):
         # Apply special offsets first
         self._calculate_and_overwrite_special_offsets(_all_days, start, end)
 
-        # `Series`s mapping sessions with nonstandard opens/closes to
-        # the open/close time.
+        # Series mapping sessions with nonstandard opens/closes.
         _special_opens = self._calculate_special_opens(start, end)
         _special_closes = self._calculate_special_closes(start, end)
 
@@ -332,14 +331,8 @@ class ExchangeCalendar(ABC):
         self.first_trading_session = _all_days[0]
         self.last_trading_session = _all_days[-1]
 
-        self._late_opens = pd.DatetimeIndex(
-            _special_opens.map(lambda x: self.minute_index_to_session_labels(x, "both"))
-        )
-        self._early_closes = pd.DatetimeIndex(
-            _special_closes.map(
-                lambda x: self.minute_index_to_session_labels(x, "both")
-            )
-        )
+        self._late_opens = _special_opens.index
+        self._early_closes = _special_closes.index
 
     # Methods and properties that define calendar and which should be
     # overriden or extended, if and as required, by subclass.
@@ -847,17 +840,17 @@ class ExchangeCalendar(ABC):
 
     @property
     def late_opens(self) -> pd.DatetimeIndex:
-        """Sessions that open later than the normal open.
+        """Sessions that open later than the prevailing normal open.
 
-        NB. Normal open as defined by `open_times`.
+        NB. Prevailing normal open as defined by `open_times`.
         """
         return self._late_opens
 
     @property
     def early_closes(self) -> pd.DatetimeIndex:
-        """Sessions that close earlier than the normal close.
+        """Sessions that close earlier than the prevailing normal close.
 
-        NB. Normal open as defined by `close_times`.
+        NB. Prevailing normal close as defined by `close_times`.
         """
         return self._early_closes
 
@@ -2008,7 +2001,9 @@ class ExchangeCalendar(ABC):
         merged = regular + ad_hoc
         if not merged:
             # Concat barfs if the input has length 0.
-            return pd.Series([], dtype="datetime64[ns, UTC]")
+            return pd.Series(
+                [], index=pd.DatetimeIndex([], tz="UTC"), dtype="datetime64[ns, UTC]"
+            )
 
         result = pd.concat(merged).sort_index()
         result = result.loc[(result >= start_date) & (result <= end_date)]
