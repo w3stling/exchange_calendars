@@ -177,7 +177,11 @@ class TestXHKGCalendar(ExchangeCalendarTestBase):
             "2017-12-26",  # The day after Christmas
         ]
 
-        yield lunar_2003 + lunar_2018 + lunar_2017
+        typhoon_days = [
+            "2021-10-13"
+        ]
+
+        yield lunar_2003 + lunar_2018 + lunar_2017 + typhoon_days
 
     @pytest.fixture
     def early_closes_sample(self):

@@ -224,6 +224,7 @@ HKAdhocClosures = [
     # pd.Timestamp(2017-06-12'),  # 台风苗柏1702,期货夜盘17:35休市
     pd.Timestamp("2017-08-23"),  # 台风天鸽1713
     pd.Timestamp("2020-10-13"),  # 台风浪卡2016
+    pd.Timestamp("2021-10-13"),  # https://www.hkex.com.hk/News/Market-Communications/2021/2110132news?sc_lang=en
 ]
 
 
