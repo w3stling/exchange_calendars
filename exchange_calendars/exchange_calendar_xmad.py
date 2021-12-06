@@ -69,8 +69,10 @@ Christmas = christmas()
 BoxingDay = boxing_day()
 
 NewYearsEveThrough2010 = new_years_eve(end_date="2011")
-NewYearsEveEarlyClose2012Onwards = new_years_eve(
+NewYearsEveFrom2021 = new_years_eve(start_date="2021")
+NewYearsEveEarlyClose2012To2020 = new_years_eve(
     start_date="2012",
+    end_date="2021",
     days_of_week=(WEEKDAYS),
 )
 
@@ -134,6 +136,7 @@ class XMADExchangeCalendar(ExchangeCalendar):
                 Christmas,
                 BoxingDay,
                 NewYearsEveThrough2010,
+                NewYearsEveFrom2021
             ]
         )
 
@@ -145,7 +148,7 @@ class XMADExchangeCalendar(ExchangeCalendar):
                 HolidayCalendar(
                     [
                         ChristmasEveEarlyClose2012To2020,
-                        NewYearsEveEarlyClose2012Onwards,
+                        NewYearsEveEarlyClose2012To2020,
                     ]
                 ),
             )
