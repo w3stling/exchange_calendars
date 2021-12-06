@@ -42,7 +42,11 @@ class TestXMADCalendar(ExchangeCalendarTestBase):
             "2004-11-01",  # All Saints Day
             "2004-12-06",  # Constitution Day
             "2004-12-08",  # Immaculate Conception
-            "2010-12-31",  # New Year's Eve
+            #
+            # New Year's Eve was a holiday through to 2010, then became an early
+            # close, and then went back to being a full day's holiday from 2021.
+            "2010-12-31",
+            "2021-12-31"
         ]
 
     @pytest.fixture
@@ -72,7 +76,11 @@ class TestXMADCalendar(ExchangeCalendarTestBase):
             "2005-11-01",  # All Saints Day
             "2005-12-06",  # Constitution Day
             "2005-12-08",  # Immaculate Conception
-            "2012-12-31",  # New Year's Eve
+
+            # New Year's Eve was holiday through to 2010, but then became an early
+            # close after that, before becoming a full market holiday again in 2021.
+            "2012-12-31",
+            "2020-12-31"
         ]
 
     @pytest.fixture
