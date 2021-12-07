@@ -1,7 +1,8 @@
 from __future__ import annotations
-import typing
-import datetime
+
 import contextlib
+import datetime
+import typing
 
 import numpy as np
 import pandas as pd
@@ -19,12 +20,15 @@ NP_NAT = pd.NaT.value
 # Use Date type where input does not need to represent an actual session
 # and will be parsed by parse_date.
 Date = typing.Union[pd.Timestamp, str, int, float, datetime.datetime]
+
 # Use Session type where input should represent an actual session and will
 # be parsed by parse_session.
 Session = Date
+
 # Use Minute type where input does not need to represent an actual trading
 # minute and will be parsed by parse_timestamp.
 Minute = typing.Union[pd.Timestamp, str, int, float, datetime.datetime]
+
 # Use TradingMinute where input should represent a trading minute and will
 # be parsed by parse_trading_minute.
 TradingMinute = Minute

@@ -10,30 +10,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import annotations
-from datetime import time
-import typing
-import re
+
 import functools
 import itertools
 import pathlib
+import re
+import typing
 from collections import abc
+from datetime import time
 
-import pytest
+import numpy as np
 import pandas as pd
 import pandas.testing as tm
-import numpy as np
+import pytest
 import pytz
 from pytz import UTC
 from toolz import concat
 
+from exchange_calendars import errors
 from exchange_calendars.calendar_utils import (
     ExchangeCalendarDispatcher,
     _default_calendar_aliases,
     _default_calendar_factories,
 )
-from exchange_calendars.utils import pandas_utils
-from exchange_calendars import errors
 from exchange_calendars.exchange_calendar import ExchangeCalendar, days_at_time
+from exchange_calendars.utils import pandas_utils
+
 from .test_utils import T
 
 
@@ -771,7 +773,7 @@ class Answers:
 
         if is_break_col:
             if column_.isna().all():
-                return [pd.DatetimeIndex([], tz=UTC)] * 4
+                return [pd.DatetimeIndex([], tz=UTC)] * 2
             column_ = column_.fillna(method="ffill").fillna(method="bfill")
 
         diff = (column_.shift(-1) - column_)[:-1]
@@ -3429,6 +3431,37 @@ class ExchangeCalendarTestBase:
             expected = expected_1.union(expected_2)
             rtrn = f(from_, count)
             tm.assert_index_equal(expected, rtrn)
+
+    def test_minutes_distance(self, all_calendars_with_answers, one_minute):
+        cal, ans = all_calendars_with_answers
+        f = no_parsing(cal.minutes_distance)
+
+        for mins in ans.session_block_minutes.values():
+            if mins.empty:
+                continue
+            mins = mins[7:-7]
+            distance = len(mins)
+            assert f(mins[0], mins[-1]) == distance
+            assert f(mins[-1], mins[0]) == -distance
+
+        # test for same start / end
+        assert f(ans.trading_minute, ans.trading_minute) == 1
+
+        # tests where start and end are non-trading minutes
+        if ans.non_trading_minutes:
+            # test that range within which there are no minutes returns 0
+            assert f(*ans.non_trading_minutes[0][0]) == 0
+
+            # test range defined with start and end as non-trading minutes
+            sessions = ans.sessions_with_gap_before.intersection(
+                ans.sessions_with_gap_after
+            )
+            if not sessions.empty:
+                session = sessions[0]
+                distance = len(ans.get_sessions_minutes(session, 1))
+                start = ans.first_minutes[session] - one_minute
+                end = ans.last_minutes[session] + one_minute
+                assert f(start, end) == distance
 
     def test_minutes_to_sessions(self, all_calendars_with_answers):
         calendar, ans = all_calendars_with_answers

@@ -13,10 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import annotations
-from abc import ABC, abstractproperty
-from collections import OrderedDict
+
 import functools
 import warnings
+from abc import ABC, abstractproperty
+from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
@@ -27,27 +28,28 @@ from pandas.tseries.offsets import CustomBusinessDay
 from pytz import UTC
 
 from exchange_calendars import errors
+
 from .calendar_helpers import (
-    NP_NAT,
     NANOSECONDS_PER_MINUTE,
-    compute_minutes,
-    one_minute_later,
-    one_minute_earlier,
-    next_divider_idx,
-    previous_divider_idx,
-    Session,
+    NP_NAT,
     Date,
     Minute,
+    Session,
     TradingMinute,
+    _TradingIndex,
+    compute_minutes,
+    next_divider_idx,
+    one_minute_earlier,
+    one_minute_later,
+    parse_date,
+    parse_session,
     parse_timestamp,
     parse_trading_minute,
-    parse_session,
-    parse_date,
-    _TradingIndex,
+    previous_divider_idx,
 )
+from .pandas_extensions.offsets import MultipleWeekmaskCustomBusinessDay
 from .utils.memoize import lazyval
 from .utils.pandas_utils import days_at_time
-from .pandas_extensions.offsets import MultipleWeekmaskCustomBusinessDay
 
 GLOBAL_DEFAULT_START = pd.Timestamp.now(tz=UTC).floor("D") - pd.DateOffset(years=20)
 # Give an aggressive buffer for logic that needs to use the next trading
@@ -1884,6 +1886,32 @@ class ExchangeCalendar(ABC):
                 f" `start` '{start_dt}'."
             )
         return self.minutes[min(start_idx, end_idx) : max(start_idx, end_idx) + 1]
+
+    def minutes_distance(self, start: Minute, end: Minute, _parse: bool = True) -> int:
+        """Return the number of minutes in a range.
+
+        Parameters
+        ----------
+        start
+            Start of minute range (range inclusive of `start`).
+
+        end
+            End of minute range (range inclusive of `end`).
+
+        Returns
+        -------
+        int
+            Number of minutes in minute range, If `start` is later than
+            `end` then return will be negated.
+        """
+        if _parse:
+            start = parse_timestamp(start, "start", self)
+            end = parse_timestamp(end, "end", self)
+        negate = end < start
+        if negate:
+            start, end = end, start
+        slc = self._get_minutes_slice(start, end, _parse=False)
+        return slc.start - slc.stop if negate else slc.stop - slc.start
 
     def minutes_to_sessions(self, minutes: pd.DatetimeIndex) -> pd.DatetimeIndex:
         """Return sessions corresponding to multiple trading minutes.
