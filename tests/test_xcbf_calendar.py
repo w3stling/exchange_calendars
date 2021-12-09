@@ -21,6 +21,7 @@ class TestXCBFCalendar(ExchangeCalendarTestBase):
             "2016-01-01",  # new years: jan 1
             "2016-01-18",  # mlk: jan 18
             "2016-02-15",  # presidents: feb 15
+            "2016-03-25",  # good friday: mar 25
             "2016-05-30",  # mem day: may 30
             "2016-07-04",  # independence day: july 4
             "2016-09-05",  # labor day: sep 5
@@ -37,15 +38,6 @@ class TestXCBFCalendar(ExchangeCalendarTestBase):
             "2007-01-02",  # - apr 27 1994
             "2012-10-29",  # - june 11 2004
             "2012-10-30",  # - jan 2 2007
-        ]
-
-    @pytest.fixture
-    def non_holidays_sample(self):
-        yield [
-            # Good Friday is not a holiday when Christas Day or New Year's Day falls
-            # on a Friday.
-            "2015-04-03",
-            "2016-03-25",
         ]
 
     @pytest.fixture
