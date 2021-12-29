@@ -71,6 +71,12 @@ class TestXKRXCalendar(ExchangeCalendarTestBase):
             # Hangul Proclamation Day on Saturday
             # so the next monday becomes alternative holiday
             "2021-10-11",
+            # korean thanks giving day on sunday
+            # so the next monday becomes alternative holiday
+            "2022-09-12",
+            # Hangul Proclamation Day on Saturday
+            # so the next monday becomes alternative holiday
+            "2022-10-10",
         ]
 
     @pytest.fixture
