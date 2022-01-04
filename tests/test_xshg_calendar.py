@@ -45,5 +45,8 @@ class TestXSHGCalendar(ExchangeCalendarTestBase):
             "2017-10-06",
 
             # 2020
-            "2020-01-31"
+            "2020-01-31",
+
+            # 2022
+            "2022-01-31"
         ]
