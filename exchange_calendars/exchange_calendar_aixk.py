@@ -207,7 +207,14 @@ class AIXKExchangeCalendar(ExchangeCalendar):
             pd.Timestamp("2020-12-18"),
             # Bridge Day between Weekend - Capital City day
             pd.Timestamp("2021-06-05"),
+            # New Year holiday
+            pd.Timestamp("2022-01-03"),
+            pd.Timestamp("2022-01-04"),
             # Bridge Day between Weekend - Women's day
             pd.Timestamp("2022-03-07"),
+            # Defender's day
+            pd.Timestamp("2022-05-10"),
+            # Bridge Day between Weekend - Constitution day
+            pd.Timestamp("2022-08-29"),
         ]
         return list(chain(misc_holidays, eid_al_adha_first_day))
