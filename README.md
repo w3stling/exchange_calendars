@@ -22,9 +22,6 @@ Quite a bit! (Please offer any feedback at the [3.4 discussion](https://github.c
 * Some calendar methods have been renamed to improve consistency (table of changes [here](#Methods-renamed-in-version-34)) [#85](https://github.com/gerrymanoim/exchange_calendars/issues/85). The previous names will continue to be available until version 4.0. NOTE: Some newly named methods have also made changes to parameter names, for example from `session_label` to `session` and from `start_session_label` to `start`.
 * Under-the-bonnet work has sped up many methods.
 * A test suite overhaul ([#71](https://github.com/gerrymanoim/exchange_calendars/pull/71), [#92](https://github.com/gerrymanoim/exchange_calendars/pull/92), [#96](https://github.com/gerrymanoim/exchange_calendars/pull/96)) has made it simpler to define and test calendars.
-* As ever, specific calendars have been updated and improved. Thank you to those who have contributed since the last release:
-  * XKRX improvements by [@elbakramer](https://github.com/elbakramer) [#78](https://github.com/gerrymanoim/exchange_calendars/pull/78).
-  * XBOM corrections by [@rajeshyogeshwar](https://github.com/rajeshyogeshwar) [#97](https://github.com/gerrymanoim/exchange_calendars/pull/97).
 
 ## Installation
 
@@ -220,7 +217,7 @@ ecal XNYS 1 2020
 | market_break_starts_nanos | break_starts_nanos |
 | market_break_ends_nanos | break_ends_nanos |
 
-## What to expect in 4.0? (January 2022)
+## What to expect in 4.0? (February/March 2022)
 Major anticipated changes in 4.0 include the following (see the [path to 4.0](https://github.com/gerrymanoim/exchange_calendars/issues/61) for a fuller list):
 * Changes to the timezone of returned sessions and times (these changes are not yet set in stone - please have your say [here](https://github.com/gerrymanoim/exchange_calendars/issues/42)).
   * Schedule times to change from tz-naive to "UTC".
