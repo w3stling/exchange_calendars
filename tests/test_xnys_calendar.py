@@ -33,6 +33,10 @@ class TestXNYSCalendar(ExchangeCalendarTestBase):
             "2006-11-23",  # November has 5 Thursdays
             # Holidays falling on a weekend and subsequently made up on Monday.
             "2012-01-02",  # New Year's Day fell on Sunday.
+            # Juneteenth 2022-2024
+            "2022-06-20",
+            "2023-06-19",
+            "2024-06-19"
         ]
 
     @pytest.fixture
