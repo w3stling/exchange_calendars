@@ -17,7 +17,7 @@ class TestXSHGCalendar(ExchangeCalendarTestBase):
 
     @pytest.fixture
     def start_bound(self):
-        yield T("1999-01-01")
+        yield T("1990-12-03")
 
     @pytest.fixture
     def end_bound(self):
