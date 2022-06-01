@@ -14,10 +14,13 @@
 # limitations under the License.
 from __future__ import annotations
 
+import datetime
 import functools
 import warnings
-from abc import ABC, abstractproperty
-from collections import OrderedDict
+from abc import ABC, abstractmethod
+import collections
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -47,7 +50,6 @@ from .calendar_helpers import (
     parse_trading_minute,
     previous_divider_idx,
 )
-from .pandas_extensions.offsets import MultipleWeekmaskCustomBusinessDay
 from .utils.memoize import lazyval
 from .utils.pandas_utils import days_at_time
 
@@ -131,6 +133,11 @@ class deprecate:
             else:
                 msg += f" Use `{self.alt}`."
         return msg
+
+
+class HolidayCalendar(AbstractHolidayCalendar):
+    def __init__(self, rules):
+        super(HolidayCalendar, self).__init__(rules=rules)
 
 
 class ExchangeCalendar(ABC):
@@ -278,8 +285,8 @@ class ExchangeCalendar(ABC):
             self.close_offset,
         )
 
-        # Apply special offsets first
-        self._calculate_and_overwrite_special_offsets(_all_days, start, end)
+        # Apply any special offsets first
+        self.apply_special_offsets(_all_days, start, end)
 
         # Series mapping sessions with nonstandard opens/closes.
         _special_opens = self._calculate_special_opens(start, end)
@@ -309,7 +316,7 @@ class ExchangeCalendar(ABC):
             break_ends = self._break_ends.tz_localize(None)
         self.schedule = DataFrame(
             index=_all_days,
-            data=OrderedDict(
+            data=collections.OrderedDict(
                 [
                     ("market_open", self._opens.tz_localize(None)),
                     ("break_start", break_starts),
@@ -333,7 +340,8 @@ class ExchangeCalendar(ABC):
     # Methods and properties that define calendar and which should be
     # overriden or extended, if and as required, by subclass.
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def name(self) -> str:
         raise NotImplementedError()
 
@@ -412,50 +420,103 @@ class ExchangeCalendar(ABC):
         else:
             return min(GLOBAL_DEFAULT_END, self.bound_end)
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def tz(self):
         raise NotImplementedError()
 
-    @abstractproperty
-    def open_times(self):
-        """
-        Returns a list of tuples of (start_date, open_time).  If the open
-        time is constant throughout the calendar, use None for the start_date.
+    @property
+    @abstractmethod
+    def open_times(self) -> Sequence[tuple[pd.Timestamp | None, datetime.time]]:
+        """Local open time(s).
+
+        Returns
+        -------
+        Sequence[tuple[pd.Timestamp | None, datetime.time]]:
+            Sequence of tuples representing (start_date, open_time) where:
+                start_date: date from which `open_time` applies. None for
+                    first item.
+                open_time: exchange's local open time.
+
+        Notes
+        -----
+        Examples for concreting `open_times` on a subclass.
+
+        Example where open time is constant throughout period covered by
+        calendar:
+            open_times = ((None, datetime.time(9)),)
+
+        Example where open times have varied over period covered by
+        calendar:
+            open_times = (
+                (None, time(9, 30)),
+                (pd.Timestamp("1978-04-01"), datetime.time(10, 0)),
+                (pd.Timestamp("1986-04-01"), datetime.time(9, 40)),
+                (pd.Timestamp("1995-01-01"), datetime.time(9, 30)),
+                (pd.Timestamp("1998-12-07"), datetime.time(9, 0)),
+            )
         """
         raise NotImplementedError()
 
     @property
-    def break_start_times(self):
-        """
-        Returns a optional list of tuples of (start_date, break_start_time).
-        If the break start time is constant throughout the calendar, use None
-        for the start_date. If there is no break, return `None`.
+    def break_start_times(
+        self,
+    ) -> None | Sequence[tuple[pd.Timestamp | None, datetime.time]]:
+        """Local break start time(s).
+
+        As `close_times` although times represent the close of the morning
+        subsession. None if exchange does not observe a break.
         """
         return None
 
     @property
-    def break_end_times(self):
-        """
-        Returns a optional list of tuples of (start_date, break_end_time).  If
-        the break end time is constant throughout the calendar, use None for
-        the start_date. If there is no break, return `None`.
+    def break_end_times(
+        self,
+    ) -> None | Sequence[tuple[pd.Timestamp | None, datetime.time]]:
+        """Local break end time(s).
+
+        As `open_times` although times represent the open of the afternoon
+        subsession. None if exchange does not observe a break.
         """
         return None
 
-    @abstractproperty
-    def close_times(self):
-        """
-        Returns a list of tuples of (start_date, close_time).  If the close
-        time is constant throughout the calendar, use None for the start_date.
+    @property
+    @abstractmethod
+    def close_times(self) -> Sequence[tuple[pd.Timestamp | None, datetime.time]]:
+        """Local close time(s).
+
+        Returns
+        -------
+        Sequence[tuple[pd.Timestamp | None, datetime.time]]:
+            Sequence of tuples representing (start_date, close_time) where:
+                start_date: date from which `close_time` applies. None for
+                    first item.
+                close_time: exchange's local close time.
+
+        Notes
+        -----
+        Examples for concreting `close_times` on a subclass.
+
+        Example where close time is constant throughout period covered by
+        calendar:
+            close_times = ((None, time(17, 30)),)
+
+        Example where close times have varied over period covered by
+        calendar:
+            close_times = (
+                (None, datetime.time(17, 30)),
+                (pd.Timestamp("1986-04-01"), datetime.time(17, 20)),
+                (pd.Timestamp("1995-01-01"), datetime.time(17, 0)),
+                (pd.Timestamp("2016-08-01"), datetime.time(17, 30)),
+            )
         """
         raise NotImplementedError()
 
     @property
-    def weekmask(self):
-        """
-        String indicating the days of the week on which the market is open.
+    def weekmask(self) -> str:
+        """Indicator of weekdays on which the exchange is open.
 
-        Default is '1111100' (i.e., Monday-Friday).
+        Default is '1111100' (i.e. Monday-Friday).
 
         See Also
         --------
@@ -464,105 +525,144 @@ class ExchangeCalendar(ABC):
         return "1111100"
 
     @property
-    def open_offset(self):
-        return 0
+    def open_offset(self) -> int:
+        """Day offset of open time(s) relative to session.
 
-    @property
-    def close_offset(self):
-        return 0
-
-    @property
-    def regular_holidays(self):
-        """
         Returns
         -------
-        pd.AbstractHolidayCalendar: a calendar containing the regular holidays
-        for this calendar
+        int
+            0 if the date components of local open times are as the
+            corresponding session labels.
+
+            -1 if the date components of local open times are the day
+            before the corresponding session labels.
         """
+        return 0
+
+    @property
+    def close_offset(self) -> int:
+        """Day offset of close time(s) relative to session.
+
+        Returns
+        -------
+        int
+            0 if the date components of local close times are as the
+            corresponding session labels.
+
+            1 if the date components of local close times are the day
+            after the corresponding session labels.
+        """
+        return 0
+
+    @property
+    def regular_holidays(self) -> HolidayCalendar | None:
+        """Holiday calendar representing calendar's regular holidays."""
         return None
 
     @property
-    def adhoc_holidays(self):
-        """
+    def adhoc_holidays(self) -> list[pd.Timestamp]:
+        """List of non-regular holidays.
+
         Returns
         -------
-        list: A list of tz-naive timestamps representing unplanned closes.
+        list[pd.Timestamp]
+            List of tz-naive timestamps representing non-regular holidays.
         """
         return []
 
     @property
-    def special_opens(self):
-        """
-        A list of special open times and corresponding HolidayCalendars.
+    def special_opens(self) -> list[tuple[datetime.time, HolidayCalendar]]:
+        """Regular non-standard open times.
+
+        Example of what would be defined as a special open:
+            "EVERY YEAR on national lie-in day the exchange opens
+            at 13:00 rather than the standard 09:00".
 
         Returns
         -------
-        list: List of (time, AbstractHolidayCalendar) tuples
+        list[tuple[datetime.time, HolidayCalendar]]:
+            list of tuples each describing a regular non-standard open
+            time:
+                [0] datetime.time: regular non-standard open time.
+                [1] HolidayCalendar: holiday calendar describing occurence.
         """
         return []
 
     @property
-    def special_opens_adhoc(self):
-        """
+    def special_opens_adhoc(
+        self,
+    ) -> list[tuple[datetime.time, pd.Timestamp | list[pd.Timestamp]]]:
+        """Adhoc non-standard open times.
+
+        Defines non-standard open times that cannot be otherwise codified
+        within within `special_opens`.
+
+        Example of an event to define as an adhoc special open:
+            "On 2022-02-14 due to a typhoon the exchange opened at 13:00,
+            rather than the standard 09:00".
+
         Returns
         -------
-        list: List of (time, DatetimeIndex) tuples that represent special
-         closes that cannot be codified into rules.
+        list[tuple[datetime.time, pd.Timestamp | list[pd.Timestamp]]]:
+            List of tuples each describing an adhoc non-standard open time:
+                [0] datetime.time: non-standard open time.
+                [1] pd.Timestamp | list[pd.Timestamp]: date or dates
+                    corresponding with the non-standard open time.
         """
         return []
 
     @property
-    def special_closes(self):
-        """
-        A list of special close times and corresponding HolidayCalendars.
+    def special_closes(self) -> list[tuple[datetime.time, HolidayCalendar]]:
+        """Regular non-standard close times.
+
+        Example of what would be defined as a special close:
+            "On christmas eve the exchange closes at 14:00 rather than
+            the standard 17:00".
 
         Returns
         -------
-        list: List of (time, AbstractHolidayCalendar) tuples
+        list[tuple[datetime.time, HolidayCalendar]]:
+            list of tuples each describing a regular non-standard close
+            time:
+                [0] datetime.time: regular non-standard close time.
+                [1] HolidayCalendar: holiday calendar describing occurence.
         """
         return []
 
     @property
-    def special_closes_adhoc(self):
-        """
+    def special_closes_adhoc(
+        self,
+    ) -> list[tuple[datetime.time, pd.Timestamp | list[pd.Timestamp]]]:
+        """Adhoc non-standard close times.
+
+        Defines non-standard close times that cannot be otherwise codified
+        within within `special_closes`.
+
+        Example of an event to define as an adhoc special close:
+            "On 2022-02-19 due to a typhoon the exchange closed at 12:00,
+            rather than the standard 16:00".
+
         Returns
         -------
-        list: List of (time, DatetimeIndex) tuples that represent special
-         closes that cannot be codified into rules.
+        list[tuple[datetime.time, pd.Timestamp | list[pd.Timestamp]]]:
+            List of tuples each describing an adhoc non-standard close
+            time:
+                [0] datetime.time: non-standard close time.
+                [1] pd.Timestamp | list[pd.Timestamp]: date or dates
+                    corresponding with the non-standard close time.
         """
         return []
 
-    @property
-    def special_weekmasks(self):
-        """
-        Returns
-        -------
-        list: List of (date, date, str) tuples that represent special
-         weekmasks that applies between dates.
-        """
-        return []
+    def apply_special_offsets(self, _all_days, start, end) -> None:
+        """Hook for subclass to apply changes.
 
-    @property
-    def special_offsets(self):
-        """
-        Returns
-        -------
-        list: List of (timedelta, timedelta, timedelta, timedelta, AbstractHolidayCalendar) tuples
-         that represent special open, break_start, break_end, close offsets
-         and corresponding HolidayCalendars.
-        """
-        return []
+        Method executed by constructor prior to overwritting special dates.
 
-    @property
-    def special_offsets_adhoc(self):
+        Notes
+        -----
+        Incorporated to provide hook to `exchange_calendar_xkrx`.
         """
-        Returns
-        -------
-        list: List of (timedelta, timedelta, timedelta, timedelta, DatetimeIndex) tuples
-         that represent special open, break_start, break_end, close offsets
-         and corresponding DatetimeIndexes.
-        """
-        return []
+        return None
 
     # ------------------------------------------------------------------
     # -- NO method below this line should be overriden on a subclass! --
@@ -572,19 +672,11 @@ class ExchangeCalendar(ABC):
 
     @lazyval
     def day(self):
-        if self.special_weekmasks:
-            return MultipleWeekmaskCustomBusinessDay(
-                holidays=self.adhoc_holidays,
-                calendar=self.regular_holidays,
-                weekmask=self.weekmask,
-                weekmasks=self.special_weekmasks,
-            )
-        else:
-            return CustomBusinessDay(
-                holidays=self.adhoc_holidays,
-                calendar=self.regular_holidays,
-                weekmask=self.weekmask,
-            )
+        return CustomBusinessDay(
+            holidays=self.adhoc_holidays,
+            calendar=self.regular_holidays,
+            weekmask=self.weekmask,
+        )
 
     @classmethod
     def valid_sides(cls) -> list[str]:
@@ -855,9 +947,10 @@ class ExchangeCalendar(ABC):
 
     def _get_session_idx(self, session: Date, _parse=True) -> int:
         """Index position of a session."""
-        if _parse:
-            session = parse_session(self, session)
-        return self.sessions_nanos.searchsorted(session.value, side="left")
+        session_ = parse_session(self, session) if _parse else session
+        if TYPE_CHECKING:
+            assert isinstance(session_, pd.Timestamp)
+        return self.sessions_nanos.searchsorted(session_.value, side="left")
 
     def session_open(self, session_label: Session, _parse: bool = True) -> pd.Timestamp:
         """Return open time for a given session."""
@@ -1118,11 +1211,12 @@ class ExchangeCalendar(ABC):
                 otherwise index position of session that immediately
                 follows `date`.
         """
-        if _parse:
-            date = parse_date(date, "date", self)
-        return self.sessions_nanos.searchsorted(date.value, side="left")
+        date_ = parse_date(date, "date", self) if _parse else date
+        if TYPE_CHECKING:
+            assert isinstance(date_, pd.Timestamp)
+        return self.sessions_nanos.searchsorted(date_.value, side="left")
 
-    def _date_oob(self, date: Date) -> bool:
+    def _date_oob(self, date: pd.Timestamp) -> bool:
         """Is `date` out-of-bounds."""
         return (
             date.value < self.sessions_nanos[0] or date.value > self.sessions_nanos[-1]
@@ -2505,137 +2599,6 @@ class ExchangeCalendar(ABC):
             end,
         )
 
-    def _overwrite_special_offsets(
-        self,
-        session_labels,
-        opens_or_closes,
-        calendars,
-        ad_hoc_dates,
-        start_date,
-        end_date,
-        strict=False,
-    ):
-        # Short circuit when nothing to apply.
-        if opens_or_closes is None or not len(opens_or_closes):
-            return
-
-        len_m, len_oc = len(session_labels), len(opens_or_closes)
-        if len_m != len_oc:
-            raise ValueError(
-                "Found misaligned dates while building calendar.\n"
-                "Expected session_labels to be the same length as "
-                "open_or_closes but,\n"
-                "len(session_labels)=%d, len(open_or_closes)=%d" % (len_m, len_oc)
-            )
-
-        regular = []
-        for offset, calendar in calendars:
-            days = calendar.holidays(start_date, end_date)
-            series = pd.Series(
-                index=pd.DatetimeIndex(days, tz=UTC),
-                data=offset,
-            )
-            regular.append(series)
-
-        ad_hoc = []
-        for offset, datetimes in ad_hoc_dates:
-            series = pd.Series(
-                index=pd.to_datetime(datetimes, utc=True),
-                data=offset,
-            )
-            ad_hoc.append(series)
-
-        merged = regular + ad_hoc
-        if not merged:
-            return pd.Series([], dtype="timedelta64[ns]")
-
-        result = pd.concat(merged).sort_index()
-        offsets = result.loc[(result.index >= start_date) & (result.index <= end_date)]
-
-        # Find the array indices corresponding to each special date.
-        indexer = session_labels.get_indexer(offsets.index)
-
-        # -1 indicates that no corresponding entry was found.  If any -1s are
-        # present, then we have special dates that doesn't correspond to any
-        # trading day.
-        if -1 in indexer and strict:
-            bad_dates = list(offsets.index[indexer == -1])
-            raise ValueError("Special dates %s are not trading days." % bad_dates)
-
-        special_opens_or_closes = opens_or_closes[indexer] + offsets
-
-        # Short circuit when nothing to apply.
-        if not len(special_opens_or_closes):
-            return
-
-        # NOTE: This is a slightly dirty hack.  We're in-place overwriting the
-        # internal data of an Index, which is conceptually immutable.  Since we're
-        # maintaining sorting, this should be ok, but this is a good place to
-        # sanity check if things start going haywire with calendar computations.
-        opens_or_closes.values[indexer] = special_opens_or_closes.values
-
-    def _calculate_and_overwrite_special_offsets(self, session_labels, start, end):
-        _special_offsets = self.special_offsets
-        _special_offsets_adhoc = self.special_offsets_adhoc
-
-        _special_open_offsets = [
-            (t[0], t[-1]) for t in _special_offsets if t[0] is not None
-        ]
-        _special_open_offsets_adhoc = [
-            (t[0], t[-1]) for t in _special_offsets_adhoc if t[0] is not None
-        ]
-        _special_break_start_offsets = [
-            (t[1], t[-1]) for t in _special_offsets if t[1] is not None
-        ]
-        _special_break_start_offsets_adhoc = [
-            (t[1], t[-1]) for t in _special_offsets_adhoc if t[1] is not None
-        ]
-        _special_break_end_offsets = [
-            (t[2], t[-1]) for t in _special_offsets if t[2] is not None
-        ]
-        _special_break_end_offsets_adhoc = [
-            (t[2], t[-1]) for t in _special_offsets_adhoc if t[2] is not None
-        ]
-        _special_close_offsets = [
-            (t[3], t[-1]) for t in _special_offsets if t[3] is not None
-        ]
-        _special_close_offsets_adhoc = [
-            (t[3], t[-1]) for t in _special_offsets_adhoc if t[3] is not None
-        ]
-
-        self._overwrite_special_offsets(
-            session_labels,
-            self._opens,
-            _special_open_offsets,
-            _special_open_offsets_adhoc,
-            start,
-            end,
-        )
-        self._overwrite_special_offsets(
-            session_labels,
-            self._break_starts,
-            _special_break_start_offsets,
-            _special_break_start_offsets_adhoc,
-            start,
-            end,
-        )
-        self._overwrite_special_offsets(
-            session_labels,
-            self._break_ends,
-            _special_break_end_offsets,
-            _special_break_end_offsets_adhoc,
-            start,
-            end,
-        )
-        self._overwrite_special_offsets(
-            session_labels,
-            self._closes,
-            _special_close_offsets,
-            _special_close_offsets_adhoc,
-            start,
-            end,
-        )
-
     # Deprecated methods to be removed in release 4.0.
 
     @deprecate(renamed=False)
@@ -2956,8 +2919,3 @@ def _remove_breaks_for_special_dates(
     # maintaining sorting, this should be ok, but this is a good place to
     # sanity check if things start going haywire with calendar computations.
     break_start_or_end.values[indexer] = NP_NAT
-
-
-class HolidayCalendar(AbstractHolidayCalendar):
-    def __init__(self, rules):
-        super(HolidayCalendar, self).__init__(rules=rules)
