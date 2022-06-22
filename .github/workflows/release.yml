@@ -45,4 +45,4 @@ jobs:
     - name: Install and test running
       run: |
         pip install exchange_calendars
-        python -c 'import exchange_calendars;print(exchange_calendars.__version__)'
+        # python -c 'import exchange_calendars;print(exchange_calendars.__version__)'
