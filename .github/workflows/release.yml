@@ -14,7 +14,7 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Install dependencies
+    - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
         pip install build
@@ -30,12 +30,19 @@ jobs:
         repository_url: https://test.pypi.org/legacy/
         skip_existing: true
 
-    - name: Install from test and test running
+    - name: Install from testpypi and import
       run: |
-        echo "Will wait 10s" && sleep 10s
-        # pip install --extra-index-url https://test.pypi.org/simple exchange_calendars==${{ github.ref_name }}
-        # python -c 'import exchange_calendars;print(exchange_calendars.__version__)'
-        # pip uninstall -y exchange_calendars
+        i=0
+        while (($i<12)) && [ "${{ github.ref_name }}" != $(pip index versions -i https://test.pypi.org/simple --pre exchange_calendars | cut -d'(' -f2 | cut -d')' -f1 | sed 1q) ];\
+          do echo waiting for package to appear in test index, sleeping 5s; sleep 5s; let i++; done
+        pip install --index-url https://test.pypi.org/simple exchange_calendars==${{ github.ref_name }} --no-deps
+        pip install -r etc/requirements.txt
+        python -c 'import exchange_calendars;print(exchange_calendars.__version__)'
+
+    - name: Clean pip
+      run: |
+        pip uninstall -y exchange_calendars
+        pip cache purge
 
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
@@ -43,9 +50,10 @@ jobs:
         user: __token__
         password: ${{ secrets.pypi_password }}
 
-    - name: Install and test running
+    - name: Install and import
       run: |
-        pip cache purge
-        echo "Will wait 10s" && sleep 10s
-        # pip install --index-url https://pypi.org/simple exchange_calendars==${{ github.ref_name }}
-        # python -c 'import exchange_calendars;print(exchange_calendars.__version__)'
+        i=0
+        while (($i<12)) && [ "${{ github.ref_name }}" != $(pip index versions -i https://pypi.org/simple --pre exchange_calendars | cut -d'(' -f2 | cut -d')' -f1 | sed 1q) ];\
+          do echo waiting for package to appear in index, sleeping 5s; sleep 5s; let i++; done
+        pip install --index-url https://pypi.org/simple exchange_calendars==${{ github.ref_name }}
+        python -c 'import exchange_calendars;print(exchange_calendars.__version__)'
