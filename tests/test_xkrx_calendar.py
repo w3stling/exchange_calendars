@@ -81,7 +81,9 @@ class TestXKRXCalendar(ExchangeCalendarTestBase):
             "2022-10-10",
             # Buddha's birthday was on 27th May (Saturday),
             # so the next monday becomes alternative holiday
-            "2023-05-29"
+            "2023-05-29",
+            # Temporary Public Holiday (Added to create a 6-day long holiday period)
+            "2025-01-27",
         ]
 
     @pytest.fixture

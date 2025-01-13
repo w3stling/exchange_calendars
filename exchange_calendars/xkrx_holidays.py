@@ -1144,6 +1144,7 @@ manually_added_holidays = pd.DatetimeIndex(
         "2023-05-29",  # Buddha's birthday holiday in lieu
         "2023-10-02",  # Extra day for Chuseok holiday
         "2024-04-10",  # Parliamentary election day
+        "2025-01-27",  # Temporary Public Holiday (Added to create a 6-day long holiday period)
     ]
 )
 
