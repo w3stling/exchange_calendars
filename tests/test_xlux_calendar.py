@@ -3,7 +3,6 @@ import pandas as pd
 
 from exchange_calendars.exchange_calendar_xlux import XLUXExchangeCalendar
 from .test_exchange_calendar import ExchangeCalendarTestBase
-from .test_utils import T
 
 
 class TestXLUXCalendar(ExchangeCalendarTestBase):
