@@ -44,7 +44,7 @@ class XLUXExchangeCalendar(ExchangeCalendar):
 
     # Source: https://www.luxse.com/trading/opening-hours-and-closing-days
 
-    name = "XLUX" # Luxembourg Stock Exchange
+    name = "XLUX"  # Luxembourg Stock Exchange
     tz = ZoneInfo("Europe/Luxembourg")
     open_times = ((None, time(9, 0)),)
     close_times = ((None, time(17, 30)),)
