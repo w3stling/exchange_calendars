@@ -38,6 +38,7 @@ from .exchange_calendar_xkrx import XKRXExchangeCalendar
 from .exchange_calendar_xlim import XLIMExchangeCalendar
 from .exchange_calendar_xlis import XLISExchangeCalendar
 from .exchange_calendar_xlon import XLONExchangeCalendar
+from .exchange_calendar_xlux import XLUXExchangeCalendar
 from .exchange_calendar_xmad import XMADExchangeCalendar
 from .exchange_calendar_xmex import XMEXExchangeCalendar
 from .exchange_calendar_xmil import XMILExchangeCalendar
@@ -99,6 +100,7 @@ _default_calendar_factories = {
     "XLIM": XLIMExchangeCalendar,
     "XLIS": XLISExchangeCalendar,
     "XLON": XLONExchangeCalendar,
+    "XLUX": XLUXExchangeCalendar,
     "XMAD": XMADExchangeCalendar,
     "XMEX": XMEXExchangeCalendar,
     "XMIL": XMILExchangeCalendar,
@@ -157,6 +159,7 @@ _default_calendar_aliases = {
     "SSE": "XSHG",
     "TASE": "XTAE",
     "BVB": "XBSE",
+    "LUXSE": "XLUX",
 }
 
 default_calendar_names = sorted(_default_calendar_factories.keys())
