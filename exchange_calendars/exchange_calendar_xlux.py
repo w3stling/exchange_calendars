@@ -47,7 +47,7 @@ class XLUXExchangeCalendar(ExchangeCalendar):
     name = "XLUX"  # Luxembourg Stock Exchange
     tz = ZoneInfo("Europe/Luxembourg")
     open_times = ((None, time(9, 0)),)
-    close_times = ((None, time(17, 30)),)
+    close_times = ((None, time(17, 40)),)
     regular_early_close = time(14, 5)
 
     @property
