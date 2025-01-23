@@ -59,20 +59,34 @@ ConstitutionDay = Holiday(
 ImmaculateConception = immaculate_conception(end_date="2005")
 
 ChristmasEveThrough2010 = christmas_eve(end_date="2011")
-ChristmasEveFrom2021 = christmas_eve(start_date="2021")
+ChristmasEve2021to2023 = christmas_eve(
+    start_date="2021",
+    end_date="2024",
+)
 ChristmasEveEarlyClose2012To2020 = christmas_eve(
     start_date="2012",
     end_date="2021",
+    days_of_week=(WEEKDAYS),
+)
+ChristmasEveEarlyCloseFrom2024 = christmas_eve(
+    start_date="2024",
     days_of_week=(WEEKDAYS),
 )
 Christmas = christmas()
 BoxingDay = boxing_day()
 
 NewYearsEveThrough2010 = new_years_eve(end_date="2011")
-NewYearsEveFrom2021 = new_years_eve(start_date="2021")
+NewYearsEve2021to2023 = new_years_eve(
+    start_date="2021",
+    end_date="2024"
+)
 NewYearsEveEarlyClose2012To2020 = new_years_eve(
     start_date="2012",
     end_date="2021",
+    days_of_week=(WEEKDAYS),
+)
+NewYearsEveEarlyCloseFrom2024 = new_years_eve(
+    start_date="2024",
     days_of_week=(WEEKDAYS),
 )
 
@@ -80,6 +94,7 @@ NewYearsEveEarlyClose2012To2020 = new_years_eve(
 class XMADExchangeCalendar(ExchangeCalendar):
     """
     Calendar for the Madrid Stock Exchange (Bolsa de Madrid).
+    https://www.bolsasymercados.es/bme-exchange/en/Trading/Trading-Calendar
 
     Open Time: 9:00 AM, CET (Central European Time)
     Close Time: 5:30 PM, CET (Central European Time)
@@ -103,8 +118,8 @@ class XMADExchangeCalendar(ExchangeCalendar):
       - New Year's Eve (until 2010, inclusive)
 
     Early Closes:
-      - Christmas Eve (2012 to 2020, inclusive)
-      - New Year's Eve (2012 and after)
+      - Christmas Eve (2012 to 2020, inclusive and from 2024)
+      - New Year's Eve (2012 to 2020 inclusive and from 2024)
     """
 
     regular_early_close = time(14, 00)
@@ -132,11 +147,11 @@ class XMADExchangeCalendar(ExchangeCalendar):
                 ConstitutionDay,
                 ImmaculateConception,
                 ChristmasEveThrough2010,
-                ChristmasEveFrom2021,
+                ChristmasEve2021to2023,
                 Christmas,
                 BoxingDay,
                 NewYearsEveThrough2010,
-                NewYearsEveFrom2021,
+                NewYearsEve2021to2023,
             ]
         )
 
@@ -148,7 +163,9 @@ class XMADExchangeCalendar(ExchangeCalendar):
                 HolidayCalendar(
                     [
                         ChristmasEveEarlyClose2012To2020,
+                        ChristmasEveEarlyCloseFrom2024,
                         NewYearsEveEarlyClose2012To2020,
+                        NewYearsEveEarlyCloseFrom2024,
                     ]
                 ),
             )
