@@ -576,16 +576,23 @@ precomputed_shanghai_holidays = pd.to_datetime(
         "2024-10-04",
         "2024-10-07",
         "2025-01-01",
+        "2025-01-28",
         "2025-01-29",
         "2025-01-30",
         "2025-01-31",
         "2025-02-03",
+        "2025-02-04",
         "2025-04-04",
         "2025-05-01",
+        "2025-05-02",
+        "2025-05-05",
+        "2025-06-02",
         "2025-10-01",
         "2025-10-02",
         "2025-10-03",
-        "2025-10-04",
+        "2025-10-06",
+        "2025-10-07",
+        "2025-10-08",
     ]
 )
 
@@ -593,6 +600,7 @@ precomputed_shanghai_holidays = pd.to_datetime(
 class XSHGExchangeCalendar(PrecomputedExchangeCalendar):
     """
     Exchange calendar for the Shanghai Stock Exchange (XSHG, XSSC, SSE).
+    http://english.sse.com.cn/start/trading/schedule/
 
     Open time: 9:30 Asia/Shanghai
     Lunch break: 11:30 - 13:00 Asia/Shanghai
