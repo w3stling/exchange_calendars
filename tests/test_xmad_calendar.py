@@ -31,9 +31,10 @@ class TestXMADCalendar(ExchangeCalendarTestBase):
             #
             # Christmas Eve was observed as a full day, and then became a half
             # day from 2010 until 2020, and then went back to being a full day
-            # from 2021
+            # from 2021, and then became a half day from 2024.
             "2010-12-24",
             "2021-12-24",
+            "2023-12-24",
             #
             # Last observance of holidays that subsequently ceased to be observed.
             "2006-01-06",  # Epiphany
@@ -44,9 +45,11 @@ class TestXMADCalendar(ExchangeCalendarTestBase):
             "2004-12-08",  # Immaculate Conception
             #
             # New Year's Eve was a holiday through to 2010, then became an early
-            # close, and then went back to being a full day's holiday from 2021.
+            # close, and then went back to being a full day's holiday from 2021,
+            # and then became an early close from 2024.
             "2010-12-31",
             "2021-12-31",
+            "2023-12-31",
         ]
 
     @pytest.fixture
@@ -64,7 +67,8 @@ class TestXMADCalendar(ExchangeCalendarTestBase):
             # so the market is closed on the previous Friday).
             "2010-12-27",
             #
-            # Christmas Eve was an early close from 2012-12-24 to 2020-12-24
+            # Christmas Eve was an early close from 2012-12-24 to 2020-12-24,
+            # and from 2024-12-24
             "2012-12-24",
             "2020-12-24",
             #
@@ -77,7 +81,8 @@ class TestXMADCalendar(ExchangeCalendarTestBase):
             "2005-12-06",  # Constitution Day
             "2005-12-08",  # Immaculate Conception
             # New Year's Eve was holiday through to 2010, but then became an early
-            # close after that, before becoming a full market holiday again in 2021.
+            # close after that, before becoming a full market holiday again in 2021,
+            # then became an early close in 2024.
             "2012-12-31",
             "2020-12-31",
         ]
@@ -85,10 +90,15 @@ class TestXMADCalendar(ExchangeCalendarTestBase):
     @pytest.fixture
     def early_closes_sample(self):
         yield [
-            # Christmas Eve was an early close from 2012-12-24, to 2020-12-24
+            # Christmas Eve was an early close from 2012 to 2020 and from 2024
             "2012-12-24",
             "2020-12-24",
-            "2012-12-31",  # New Year's Eve
+            "2024-12-24",
+            "2025-12-24",
+            "2012-12-31",  # New Year's Eve was an early close from 2012 to 2020 and from 2024
+            "2020-12-31",
+            "2024-12-31",
+            "2025-12-31",
         ]
 
     @pytest.fixture
