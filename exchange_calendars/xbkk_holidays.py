@@ -144,6 +144,7 @@ new_years_bridge_days = [
     pd.Timestamp("2009-01-02"),
     pd.Timestamp("2013-12-30"),
     pd.Timestamp("2015-01-02"),
+    pd.Timestamp("2023-12-29"),
 ]
 
 asanha_bucha_bridge_days = [
@@ -154,11 +155,14 @@ asanha_bucha_bridge_days = [
 queens_birthday_bridge_days = [
     pd.Timestamp("2010-08-13"),
     pd.Timestamp("2014-08-11"),
+    pd.Timestamp("2025-06-02"),
+    pd.Timestamp("2025-08-11"),
 ]
 
 coronation_bridge_days = [
     pd.Timestamp("2015-05-04"),
     pd.Timestamp("2016-05-06"),
+    pd.Timestamp("2023-05-05"),
 ]
 
 vesak_bridge_days = [
@@ -175,6 +179,12 @@ misc_adhoc = [
     pd.Timestamp("2010-05-21"),  # Closure Due to Security Concerns
     pd.Timestamp("2012-04-09"),  # Bank Holiday
     pd.Timestamp("2017-10-26"),  # Cremation of King Bhumibol
+    pd.Timestamp("2021-02-12"),  # Special Holiday
+    pd.Timestamp("2021-09-24"),  # Special Holiday
+    pd.Timestamp("2021-10-22"),  # Substitution for Chulalongkorn Day
+    pd.Timestamp("2022-07-29"),  # Special Holiday
+    pd.Timestamp("2022-10-14"),  # Special Holiday
+    pd.Timestamp("2024-04-12"),  # Special Holiday
 ]
 
 # Lunar Holidays
@@ -225,6 +235,12 @@ makha_bucha = pd.to_datetime(
         "2018-03-01",
         "2019-02-19",
         "2020-02-10",
+        "2021-02-26",
+        "2022-02-16",
+        "2023-03-06",
+        "2024-02-26",
+        "2025-02-12",
+        "2026-03-03"
     ]
 )
 
@@ -272,6 +288,12 @@ vesak = pd.to_datetime(
         "2018-05-29",
         "2019-05-20",
         "2020-05-06",
+        "2021-05-26",
+        "2022-05-16",
+        "2023-06-05",
+        "2024-05-22",
+        "2025-05-12",
+        "2026-06-01",
     ]
 )
 
@@ -319,5 +341,11 @@ asanha_bucha = pd.to_datetime(
         "2018-07-27",
         "2019-07-16",
         "2020-07-06",
+        "2021-07-26",
+        "2022-07-13",
+        "2023-08-01",
+        "2024-07-22",
+        "2025-07-10",
+        "2026-07-29",
     ]
 )

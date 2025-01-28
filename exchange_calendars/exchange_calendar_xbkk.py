@@ -51,6 +51,7 @@ from .xbkk_holidays import (
 class XBKKExchangeCalendar(ExchangeCalendar):
     """
     Calendar for the Stock Exchange of Thailand in Bangkok.
+    https://www.set.or.th/en/about/event-calendar/holiday
 
     Open Time: 10:00 AM, Indochina Time (ICT)
     Close Time: 4:30 PM, Indochina Time (ICT)
