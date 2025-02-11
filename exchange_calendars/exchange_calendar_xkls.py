@@ -47,7 +47,8 @@ from .xkls_holidays import (
 class XKLSExchangeCalendar(ExchangeCalendar):
     """
     Exchange calendar for the Malaysia Stock Exchange (XKLS).
-
+    https://www.bursamalaysia.com/about_bursa/about_us/calendar
+    
     Open Time: 9:00 AM, MYT
     Close Time: 5:00 PM, MYT
 
