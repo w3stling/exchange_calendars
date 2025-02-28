@@ -16,6 +16,7 @@ NationalDayOfSaudiArabia = Holiday("National Day of Saudi Arabia", month=9, day=
 EidAlAdhaHoliday = pd.to_datetime(
     np.concatenate(
         [
+            pd.date_range("2025-06-04", "2025-06-09"),
             pd.date_range("2024-06-13", "2024-06-23"),
             pd.date_range("2023-06-27", "2023-07-02"),
             pd.date_range("2022-07-07", "2022-07-13"),
@@ -27,6 +28,7 @@ EidAlAdhaHoliday = pd.to_datetime(
 EidAlFiterHoliday = pd.to_datetime(
     np.concatenate(
         [
+            pd.date_range("2025-03-27", "2024-04-02"),
             pd.date_range("2024-04-05", "2024-04-15"),
             pd.date_range("2023-04-18", "2023-04-25"),
             pd.date_range("2022-04-28", "2022-05-08"),
@@ -56,7 +58,7 @@ class XSAUExchangeCalendar(ExchangeCalendar):
 
     @classmethod
     def bound_max(cls) -> pd.Timestamp:
-        return pd.Timestamp("2024-12-31")
+        return pd.Timestamp("2025-12-31")
 
     @property
     def regular_holidays(self):
