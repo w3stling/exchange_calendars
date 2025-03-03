@@ -1,8 +1,4 @@
-from datetime import (
-    time,
-    datetime,
-    timedelta,
-)
+from datetime import time
 from itertools import chain
 from zoneinfo import ZoneInfo
 
@@ -19,17 +15,6 @@ from .exchange_calendar import (
     HolidayCalendar,
     ExchangeCalendar,
 )
-
-
-def weekend_plus_two_days(dt: datetime) -> datetime:
-    """
-    If the holiday falls on a Saturday or Sunday,
-    it is observed two days later.
-    Otherwise, no holiday is observed.
-    """
-    if dt.weekday() == 5 or dt.weekday() == 6:
-        return dt + timedelta(2)
-    return None
 
 
 NewYearsDay = new_years_day()
