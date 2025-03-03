@@ -14,6 +14,12 @@ from pandas.tseries.holiday import (
     next_workday,
 )
 
+from .common_holidays import new_years_day, eid_al_adha_first_day
+from .exchange_calendar import (
+    HolidayCalendar,
+    ExchangeCalendar,
+)
+
 
 def weekend_plus_two_days(dt: datetime) -> datetime:
     """
@@ -24,13 +30,6 @@ def weekend_plus_two_days(dt: datetime) -> datetime:
     if dt.weekday() == 5 or dt.weekday() == 6:
         return dt + timedelta(2)
     return None
-
-
-from .common_holidays import new_years_day, eid_al_adha_first_day
-from .exchange_calendar import (
-    HolidayCalendar,
-    ExchangeCalendar,
-)
 
 
 NewYearsDay = new_years_day()
