@@ -72,7 +72,7 @@ pytest-xdist==3.6.1
     # via exchange_calendars (pyproject.toml)
 python-dateutil==2.9.0.post0
     # via pandas
-pytz==2024.2
+pytz==2025.1
     # via pandas
 six==1.17.0
     # via python-dateutil
@@ -85,7 +85,7 @@ tomli==2.2.1
     #   pytest
 toolz==1.0.0
     # via exchange_calendars (pyproject.toml)
-tzdata==2024.2
+tzdata==2025.1
     # via exchange_calendars (pyproject.toml)
 wheel==0.45.1
     # via pip-tools
