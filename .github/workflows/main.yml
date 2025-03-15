@@ -36,11 +36,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r etc/${{matrix.requirements_file}}
         pip install -e .
-    - name: Check formatting with black
+    - name: Set path to Python timezone data
       run: |
-        PYTHONTZPATH=$(python -c "import os; print(os.path.dirname(os.__file__))")  
-        echo "PYTHONPATH=$PYTHONTZPATH"
-        echo "PYTHONPATH=$PYTHONTZPATH" >> $GITHUB_ENV
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          python -c "print('Windows!!!')"
+        else
+          PYTHONTZPATH=$(python -c "import os; print(os.path.dirname(os.__file__))")  
+          echo "PYTHONTZPATH=$PYTHONTZPATH"
+          echo "PYTHONTZPATH=$PYTHONTZPATH" >> $GITHUB_ENV
+        fi
+
     - name: Lint with flake8
       run: |
         flake8
