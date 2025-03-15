@@ -13,7 +13,7 @@ RUN pip3 --disable-pip-version-check --no-cache-dir install ipython \
    && pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements_dev.txt \
    && rm -rf /tmp/pip-tmp
 
-# Set the environment variable PYTHONTZPATH to specify the path to Python's timezone data files
+# Set PYTHONTZPATH environment variable to use python tzdata
 RUN python -c 'import os; print("export PYTHONTZPATH=\"" + os.path.dirname(os.__file__) + "\"")' >> /home/vscode/.profile
 
 # [Optional] Uncomment this section to install additional OS packages.
