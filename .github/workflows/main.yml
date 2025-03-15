@@ -36,6 +36,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r etc/${{matrix.requirements_file}}
         pip install -e .
+    - name: Check formatting with black
+      run: |
+        PYTHONTZPATH=$(python -c "import os; print(os.path.dirname(os.__file__))")  
+        echo "PYTHONPATH=$PYTHONTZPATH" >> $GITHUB_ENV
     - name: Lint with flake8
       run: |
         flake8
