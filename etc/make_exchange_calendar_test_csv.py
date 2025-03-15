@@ -26,6 +26,7 @@ where:
 import os
 import sys
 import pathlib
+import tzdata
 
 import pandas as pd
 
@@ -81,6 +82,7 @@ if not python_tzdata_path:
     python_tzdata_path = os.path.dirname(os.__file__)
     print(f"Setting PYTHONTZPATH to {python_tzdata_path}")
     os.putenv('PYTHONTZPATH', python_tzdata_path)
+print(f"Using tzdata version: {tzdata.IANA_VERSION}")
 
 print(f"Writing test CSV file to {path}")
 df.to_csv(path, date_format="%Y-%m-%dT%H:%M:%SZ")
