@@ -48,6 +48,10 @@ jobs:
           $PYTHONTZPATH = python -c "import os; print(os.path.dirname(os.__file__))"
           echo "PYTHONTZPATH=$PYTHONTZPATH"
           echo "PYTHONTZPATH=$PYTHONTZPATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+    - if: runner.os == 'Windows'
+      name: Debug - Show all environment variables
+      run: |
+        Get-ChildItem env: | Sort-Object Name
     - name: Lint with flake8
       run: |
         flake8
