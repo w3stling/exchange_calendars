@@ -22,6 +22,7 @@ where:
             "existing" to use last session of any exising csv file.
             "default" to use calendar's default end date.
 """
+
 import os
 import sys
 import pathlib
@@ -72,7 +73,7 @@ df = pd.DataFrame(
     index=cal.closes.index,
 )
 
-# Set the PYTHONTZPATH environment variable to use Python's tzdata package instead of the operating system's tzdata.
+# Set PYTHONTZPATH environment variable to use Python's tzdata package instead of the operating system's tzdata.
 # This is to ensure that everyone uses the same version of timezone data on all platforms when testing.
 python_tzdata_path = os.getenv('PYTHONTZPATH')
 print(f"Is environment variable PYTHONTZPATH set? {'Yes' if os.getenv('PYTHONTZPATH') else 'No'}")
