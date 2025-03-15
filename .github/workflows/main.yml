@@ -37,12 +37,11 @@ jobs:
         pip install -r etc/${{matrix.requirements_file}}
         pip install -e .
     - name: Set path to Python timezone data
+      if: runner.os != 'Windows'
       run: |
-        if [ "$RUNNER_OS" != "Windows" ]; then
           PYTHONTZPATH=$(python -c "import os; print(os.path.dirname(os.__file__))")  
           echo "PYTHONTZPATH=$PYTHONTZPATH"
           echo "PYTHONTZPATH=$PYTHONTZPATH" >> $GITHUB_ENV
-        fi
     - name: Lint with flake8
       run: |
         flake8
