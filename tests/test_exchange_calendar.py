@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import tzdata
 from collections import abc
 from datetime import time
 import functools
@@ -38,12 +36,6 @@ from exchange_calendars.exchange_calendar import ExchangeCalendar, days_at_time
 from exchange_calendars.utils import pandas_utils
 
 from .test_utils import T
-
-
-tzdata_path = os.path.join(os.path.dirname(tzdata.__file__), 'zoneinfo')
-os.environ['PYTHONTZPATH'] = tzdata_path
-print(f"3 PYTHONTZPATH set to: {os.environ['PYTHONTZPATH']}")
-print(f"3 tzdata_path: {tzdata_path}")
 
 
 class FakeCalendar(ExchangeCalendar):
