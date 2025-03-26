@@ -43,6 +43,7 @@ def only_friday(dt: datetime.datetime) -> datetime.datetime | None:
     """
     return dt if dt.weekday() == FRIDAY else None
 
+
 def ninoy_aquino_day_observed(dt: datetime.datetime) -> datetime.datetime | None:
     """
     In 2024, Ninoy Aquino Day is observed on 2024-08-23 instead of 2024-08-21.
@@ -55,6 +56,7 @@ def ninoy_aquino_day_observed(dt: datetime.datetime) -> datetime.datetime | None
         return special_years[dt.year]
     return dt
 
+
 def bonifacio_day_observed(dt: datetime.datetime) -> datetime.datetime | None:
     """
     In 2023, Bonifacio Day is observed on 2023-11-27 instead of 2023-11-30.
@@ -66,6 +68,7 @@ def bonifacio_day_observed(dt: datetime.datetime) -> datetime.datetime | None:
     if dt.year in special_years:
         return special_years[dt.year]
     return dt
+
 
 # All pre-2011 holidays are pre-computed, so we define Holidays starting
 # in 2011.
