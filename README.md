@@ -202,62 +202,63 @@ See the [minutes tutorial](docs/tutorials/minutes.ipynb) for a detailed explanat
 | Exchange                        | ISO Code | Country        | Version Added | Exchange Website (English)                                   |
 |---------------------------------|----------| -------------- |---------------| ------------------------------------------------------------ |
 | New York Stock Exchange         | XNYS     | USA            | 1.0           | https://www.nyse.com/index                                   |
-| CBOE Futures                    | XCBF     | USA            | 1.0           | https://markets.cboe.com/us/futures/overview/                |
-| Chicago Mercantile Exchange     | CMES     | USA            | 1.0           | https://www.cmegroup.com/                                    |
+| CBOE Futures                    | XCBF     | USA            | 1.0           | https://markets.cboe.com/us/futures/overview                 |
+| Chicago Mercantile Exchange     | CMES     | USA            | 1.0           | https://www.cmegroup.com                                     |
 | ICE US                          | IEPA     | USA            | 1.0           | https://www.theice.com/index                                 |
-| Toronto Stock Exchange          | XTSE     | Canada         | 1.0           | https://www.tsx.com/                                         |
-| BMF Bovespa                     | BVMF     | Brazil         | 1.0           | http://www.b3.com.br/en_us/                                  |
-| London Stock Exchange           | XLON     | England        | 1.0           | https://www.londonstockexchange.com/                         |
-| Euronext Amsterdam              | XAMS     | Netherlands    | 1.2           | https://www.euronext.com/en/regulation/amsterdam             |
-| Euronext Brussels               | XBRU     | Belgium        | 1.2           | https://www.euronext.com/en/regulation/brussels              |
-| Euronext Lisbon                 | XLIS     | Portugal       | 1.2           | https://www.euronext.com/en/regulation/lisbon                |
-| Euronext Paris                  | XPAR     | France         | 1.2           | https://www.euronext.com/en/regulation/paris                 |
-| Frankfurt Stock Exchange        | XFRA     | Germany        | 1.2           | http://en.boerse-frankfurt.de/                               |
+| Toronto Stock Exchange          | XTSE     | Canada         | 1.0           | https://www.tsx.com                                          |
+| BMF Bovespa                     | BVMF     | Brazil         | 1.0           | https://www.b3.com.br/en_us                                  |
+| London Stock Exchange           | XLON     | England        | 1.0           | https://www.londonstockexchange.com                          |
+| Euronext Amsterdam              | XAMS     | Netherlands    | 1.2           | https://www.euronext.com/en/markets/amsterdam                |
+| Euronext Brussels               | XBRU     | Belgium        | 1.2           | https://www.euronext.com/en/markets/brussels                 |
+| Euronext Lisbon                 | XLIS     | Portugal       | 1.2           | https://www.euronext.com/en/markets/lisbon                   |
+| Euronext Paris                  | XPAR     | France         | 1.2           | https://www.euronext.com/en/markets/paris                    |
+| Frankfurt Stock Exchange        | XFRA     | Germany        | 1.2           | https://www.boerse-frankfurt.de/en                           |
 | SIX Swiss Exchange              | XSWX     | Switzerland    | 1.2           | https://www.six-group.com/en/home.html                       |
-| Tokyo Stock Exchange            | XTKS     | Japan          | 1.2           | https://www.jpx.co.jp/english/                               |
-| Australian Securities Exchange  | XASX     | Australia      | 1.3           | https://www.asx.com.au/                                      |
+| Tokyo Stock Exchange            | XTKS     | Japan          | 1.2           | https://www.jpx.co.jp/english                                |
+| Australian Securities Exchange  | XASX     | Australia      | 1.3           | https://www.asx.com.au                                       |
 | Bolsa de Madrid                 | XMAD     | Spain          | 1.3           | https://www.bolsamadrid.es                                   |
 | Borsa Italiana                  | XMIL     | Italy          | 1.3           | https://www.borsaitaliana.it                                 |
-| New Zealand Exchange            | XNZE     | New Zealand    | 1.3           | https://www.nzx.com/                                         |
-| Wiener Borse                    | XWBO     | Austria        | 1.3           | https://www.wienerborse.at/en/                               |
+| New Zealand Exchange            | XNZE     | New Zealand    | 1.3           | https://www.nzx.com                                          |
+| Wiener Borse                    | XWBO     | Austria        | 1.3           | https://www.wienerborse.at/en                                |
 | Hong Kong Stock Exchange        | XHKG     | Hong Kong      | 1.3           | https://www.hkex.com.hk/?sc_lang=en                          |
-| Copenhagen Stock Exchange       | XCSE     | Denmark        | 1.4           | http://www.nasdaqomxnordic.com/                              |
-| Helsinki Stock Exchange         | XHEL     | Finland        | 1.4           | http://www.nasdaqomxnordic.com/                              |
-| Stockholm Stock Exchange        | XSTO     | Sweden         | 1.4           | http://www.nasdaqomxnordic.com/                              |
-| Oslo Stock Exchange             | XOSL     | Norway         | 1.4           | https://www.oslobors.no/ob_eng/                              |
-| Irish Stock Exchange            | XDUB     | Ireland        | 1.4           | http://www.ise.ie/                                           |
+| Copenhagen Stock Exchange       | XCSE     | Denmark        | 1.4           | https://www.nasdaqomxnordic.com                              |
+| Helsinki Stock Exchange         | XHEL     | Finland        | 1.4           | https://www.nasdaqomxnordic.com                              |
+| Stockholm Stock Exchange        | XSTO     | Sweden         | 1.4           | https://www.nasdaqomxnordic.com                              |
+| Oslo Stock Exchange             | XOSL     | Norway         | 1.4           | https://www.oslobors.no/ob_eng                               |
+| Irish Stock Exchange            | XDUB     | Ireland        | 1.4           | https://www.ise.ie                                           |
 | Bombay Stock Exchange           | XBOM     | India          | 1.5           | https://www.bseindia.com                                     |
 | Singapore Exchange              | XSES     | Singapore      | 1.5           | https://www.sgx.com                                          |
-| Shanghai Stock Exchange         | XSHG     | China          | 1.5           | http://english.sse.com.cn                                    |
-| Korea Exchange                  | XKRX     | South Korea    | 1.6           | http://global.krx.co.kr                                      |
-| Iceland Stock Exchange          | XICE     | Iceland        | 1.7           | http://www.nasdaqomxnordic.com/                              |
-| Poland Stock Exchange           | XWAR     | Poland         | 1.9           | http://www.gpw.pl                                            |
-| Santiago Stock Exchange         | XSGO     | Chile          | 1.9           | https://www.bolsadesantiago.com/                             |
-| Colombia Securities Exchange    | XBOG     | Colombia       | 1.9           | https://www.bvc.com.co/nueva/https://www.bvc.com.co/nueva/   |
+| Shanghai Stock Exchange         | XSHG     | China          | 1.5           | https://english.sse.com.cn                                   |
+| Korea Exchange                  | XKRX     | South Korea    | 1.6           | https://global.krx.co.kr                                     |
+| Iceland Stock Exchange          | XICE     | Iceland        | 1.7           | https://www.nasdaqomxnordic.com                              |
+| Poland Stock Exchange           | XWAR     | Poland         | 1.9           | https://www.gpw.pl                                           |
+| Santiago Stock Exchange         | XSGO     | Chile          | 1.9           | https://www.bolsadesantiago.com                              |
+| Colombia Securities Exchange    | XBOG     | Colombia       | 1.9           | https://www.bvc.com.co/nueva                                 |
 | Mexican Stock Exchange          | XMEX     | Mexico         | 1.9           | https://www.bmv.com.mx                                       |
 | Lima Stock Exchange             | XLIM     | Peru           | 1.9           | https://www.bvl.com.pe                                       |
-| Prague Stock Exchange           | XPRA     | Czech Republic | 1.9           | https://www.pse.cz/en/                                       |
-| Budapest Stock Exchange         | XBUD     | Hungary        | 1.10          | https://bse.hu/                                              |
-| Athens Stock Exchange           | ASEX     | Greece         | 1.10          | http://www.helex.gr/                                         |
-| Istanbul Stock Exchange         | XIST     | Turkey         | 1.10          | https://www.borsaistanbul.com/en/                            |
-| Johannesburg Stock Exchange     | XJSE     | South Africa   | 1.10          | https://www.jse.co.za/z                                      |
-| Malaysia Stock Exchange         | XKLS     | Malaysia       | 1.11          | http://www.bursamalaysia.com/market/                         |
-| Moscow Exchange                 | XMOS     | Russia         | 1.11          | https://www.moex.com/en/                                     |
-| Philippine Stock Exchange       | XPHS     | Philippines    | 1.11          | https://www.pse.com.ph/                                      |
-| Stock Exchange of Thailand      | XBKK     | Thailand       | 1.11          | https://www.set.or.th/set/mainpage.do?language=en&country=US |
-| Indonesia Stock Exchange        | XIDX     | Indonesia      | 1.11          | https://www.idx.co.id/                                       |
-| Taiwan Stock Exchange Corp.     | XTAI     | Taiwan         | 1.11          | https://www.twse.com.tw/en/                                  |
-| Buenos Aires Stock Exchange     | XBUE     | Argentina      | 1.11          | https://www.bcba.sba.com.ar/                                 |
-| Pakistan Stock Exchange         | XKAR     | Pakistan       | 1.11          | https://www.psx.com.pk/                                      |
-| Xetra                           | XETR     | Germany        | 2.1           | https://www.xetra.com/                                       |
-| Tel Aviv Stock Exchange         | XTAE     | Israel         | 2.1           | https://www.tase.co.il/                                      |
-| Astana International Exchange   | AIXK     | Kazakhstan     | 3.2           | https://www.aix.kz/                                          |
-| Bucharest Stock Exchange        | XBSE     | Romania        | 3.2           | https://www.bvb.ro/                                          |
-| Saudi Stock Exchange            | XSAU     | Saudi Arabia   | 4.2           | https://www.saudiexchange.sa/                                |
+| Prague Stock Exchange           | XPRA     | Czech Republic | 1.9           | https://www.pse.cz/en                                        |
+| Budapest Stock Exchange         | XBUD     | Hungary        | 1.10          | https://bse.hu                                               |
+| Athens Stock Exchange           | ASEX     | Greece         | 1.10          | https://www.athexgroup.gr/en                                 |
+| Istanbul Stock Exchange         | XIST     | Turkey         | 1.10          | https://www.borsaistanbul.com/en                             |
+| Johannesburg Stock Exchange     | XJSE     | South Africa   | 1.10          | https://www.jse.co.za                                        |
+| Malaysia Stock Exchange         | XKLS     | Malaysia       | 1.11          | https://www.bursamalaysia.com                                |
+| Moscow Exchange                 | XMOS     | Russia         | 1.11          | https://www.moex.com/en                                      |
+| Philippine Stock Exchange       | XPHS     | Philippines    | 1.11          | https://www.pse.com.ph                                       |
+| Stock Exchange of Thailand      | XBKK     | Thailand       | 1.11          | https://www.set.or.th/en/home                                |
+| Indonesia Stock Exchange        | XIDX     | Indonesia      | 1.11          | https://www.idx.co.id                                        |
+| Taiwan Stock Exchange Corp.     | XTAI     | Taiwan         | 1.11          | https://www.twse.com.tw/en                                   |
+| Buenos Aires Stock Exchange     | XBUE     | Argentina      | 1.11          | https://www.byma.com.ar                                      |
+| Pakistan Stock Exchange         | XKAR     | Pakistan       | 1.11          | https://www.psx.com.pk                                       |
+| Xetra                           | XETR     | Germany        | 2.1           | https://www.xetra.com                                        |
+| Tel Aviv Stock Exchange         | XTAE     | Israel         | 2.1           | https://www.tase.co.il/en                                    |
+| Astana International Exchange   | AIXK     | Kazakhstan     | 3.2           | https://www.aix.kz                                           |
+| Bucharest Stock Exchange        | XBSE     | Romania        | 3.2           | https://www.bvb.ro                                           |
+| Saudi Stock Exchange            | XSAU     | Saudi Arabia   | 4.2           | https://www.saudiexchange.sa                                 |
 | European Energy Exchange AG     | XEEE     | Germany        | 4.5.5         | https://www.eex.com                                          |
 | Hamburg Stock Exchange          | XHAM     | Germany        | 4.5.5         | https://www.boerse-hamburg.de                                |
 | Duesseldorf Stock Exchange      | XDUS     | Germany        | 4.5.5         | https://www.boerse-duesseldorf.de                            |
-| Luxembourg Stock Exchange       | XLUX     | Luxembourg     | 4.8           | https://www.luxse.com/                                       |
+| Luxembourg Stock Exchange       | XLUX     | Luxembourg     | 4.8           | https://www.luxse.com                                        |
+| Vilnius Stock Exchange          | XLIT     | Lithuania      | 4.11          | https://nasdaqbaltic.com                                     |
 
 > Note that exchange calendars are defined by their [ISO-10383](https://www.iso20022.org/10383/iso-10383-market-identifier-codes) market identifier code.
 
