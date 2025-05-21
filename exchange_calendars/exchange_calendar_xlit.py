@@ -1,6 +1,7 @@
 from datetime import time
 from zoneinfo import ZoneInfo
 
+import pandas as pd
 from pandas.tseries.holiday import EasterMonday, GoodFriday, Holiday
 
 from .common_holidays import (
@@ -8,7 +9,6 @@ from .common_holidays import (
     ascension_day,
     assumption_day,
     boxing_day,
-    christmas,
     christmas_eve,
     european_labour_day,
     new_years_day,
@@ -22,7 +22,6 @@ AscensionDay = ascension_day()
 AssumptionDay = assumption_day()
 AllSaintsDay = all_saints_day()
 ChristmasEve = christmas_eve()
-Christmas = christmas()
 BoxingDay = boxing_day()
 NewYearsEve = new_years_eve()
 
@@ -55,7 +54,6 @@ class XLITExchangeCalendar(ExchangeCalendar):
       - All Saints' Day (Nov 1)
       - All Souls' Day (Nov 2)
       - Christmas Eve (Dec 24)
-      - Christmas Day (Dec 25)
       - Boxing Day (Dec 26)
       - New Year's Eve (Dec 31)
     """
@@ -81,7 +79,12 @@ class XLITExchangeCalendar(ExchangeCalendar):
             AllSaintsDay,
             AllSoulsDay,
             ChristmasEve,
-            Christmas,
             BoxingDay,
             NewYearsEve,
         ])
+
+    @property
+    def adhoc_holidays(self):
+        return [
+            pd.Timestamp("2023-12-25"),  # Additional Day off
+        ]
