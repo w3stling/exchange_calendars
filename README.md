@@ -258,6 +258,7 @@ See the [minutes tutorial](docs/tutorials/minutes.ipynb) for a detailed explanat
 | Hamburg Stock Exchange          | XHAM     | Germany        | 4.5.5         | https://www.boerse-hamburg.de                                |
 | Duesseldorf Stock Exchange      | XDUS     | Germany        | 4.5.5         | https://www.boerse-duesseldorf.de                            |
 | Luxembourg Stock Exchange       | XLUX     | Luxembourg     | 4.8           | https://www.luxse.com/                                       |
+| Tallinn Stock Exchange          | XTAL     | Estonia        | 4.11          | https://nasdaqbaltic.com                                     |
 
 > Note that exchange calendars are defined by their [ISO-10383](https://www.iso20022.org/10383/iso-10383-market-identifier-codes) market identifier code.
 
