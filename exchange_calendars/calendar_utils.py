@@ -37,6 +37,7 @@ from .exchange_calendar_xkls import XKLSExchangeCalendar
 from .exchange_calendar_xkrx import XKRXExchangeCalendar
 from .exchange_calendar_xlim import XLIMExchangeCalendar
 from .exchange_calendar_xlis import XLISExchangeCalendar
+from .exchange_calendar_xlit import XLITExchangeCalendar
 from .exchange_calendar_xlon import XLONExchangeCalendar
 from .exchange_calendar_xlux import XLUXExchangeCalendar
 from .exchange_calendar_xmad import XMADExchangeCalendar
@@ -100,6 +101,7 @@ _default_calendar_factories = {
     "XKRX": XKRXExchangeCalendar,
     "XLIM": XLIMExchangeCalendar,
     "XLIS": XLISExchangeCalendar,
+    "XLIT": XLITExchangeCalendar,
     "XLON": XLONExchangeCalendar,
     "XLUX": XLUXExchangeCalendar,
     "XMAD": XMADExchangeCalendar,
