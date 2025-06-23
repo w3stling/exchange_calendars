@@ -4,6 +4,7 @@ from pandas.tseries.holiday import FR, DateOffset, Easter, Holiday
 from pandas.tseries.offsets import Day
 
 from .exchange_calendar import MONDAY, TUESDAY
+from .pandas_extensions.offsets import OrthodoxEaster
 
 
 def new_years_day(start_date=None, end_date=None, observance=None, days_of_week=None):
@@ -138,6 +139,39 @@ def corpus_christi(start_date=None, end_date=None):
         month=1,
         day=1,
         offset=[Easter(), Day(60)],
+        start_date=start_date,
+        end_date=end_date,
+    )
+
+
+def orthodox_good_friday(start_date=None, end_date=None):
+    return Holiday(
+        "Good Friday",
+        month=1,
+        day=1,
+        offset=[OrthodoxEaster(), -Day(2)],
+        start_date=start_date,
+        end_date=end_date,
+    )
+
+
+def orthodox_easter_monday(start_date=None, end_date=None):
+    return Holiday(
+        "Easter Monday",
+        month=1,
+        day=1,
+        offset=[OrthodoxEaster(), Day(1)],
+        start_date=start_date,
+        end_date=end_date,
+    )
+
+
+def orthodox_easter_tuesday(start_date=None, end_date=None):
+    return Holiday(
+        "Easter Tuesday",
+        month=1,
+        day=1,
+        offset=[OrthodoxEaster(), Day(2)],
         start_date=start_date,
         end_date=end_date,
     )
