@@ -12,7 +12,8 @@ from pandas.tseries.holiday import (
 )
 from .common_holidays import (
     new_years_day,
-    orthodox_easter,
+    orthodox_good_friday,
+    orthodox_easter_monday,
 )
 from .exchange_calendar import HolidayCalendar, ExchangeCalendar
 
@@ -31,8 +32,8 @@ NewYearsDay2 = Holiday("New Year's Day", month=1, day=2, observance=sunday_to_mo
 OrthodoxChristmas = Holiday("Christmas Holiday", month=1, day=7)
 StatehoodDay = Holiday("Statehood Day of Serbia", month=2, day=15, observance=sunday_to_tuesday)
 StatehoodDay2 = Holiday("Statehood Day of Serbia Holiday", month=2, day=16, observance=sunday_to_monday)
-OrthodoxGoodFriday = orthodox_easter() - timedelta(2)
-OrthodoxEasterMonday = orthodox_easter() + timedelta(1)
+OrthodoxGoodFriday = orthodox_good_friday()
+OrthodoxEasterMonday = orthodox_easter_monday()
 LabourDay = Holiday("Labour Day", month=5, day=1, observance=sunday_to_tuesday)
 LabourDay2 = Holiday("Labour Day Holiday", month=5, day=2, observance=sunday_to_monday)
 ArmisticeDay = Holiday("Armistice Day", month=11, day=11, observance=sunday_to_monday)
@@ -69,6 +70,8 @@ class XBELExchangeCalendar(ExchangeCalendar):
             OrthodoxChristmas,
             StatehoodDay,
             StatehoodDay2,
+            OrthodoxGoodFriday,
+            OrthodoxEasterMonday,
             LabourDay,
             LabourDay2,
             ArmisticeDay,
@@ -100,7 +103,5 @@ class XBELExchangeCalendar(ExchangeCalendar):
         return list(
             chain(
                 misc_adhoc_holidays,
-                OrthodoxGoodFriday,
-                OrthodoxEasterMonday,
             )
         )
