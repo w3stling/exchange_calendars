@@ -261,6 +261,7 @@ See the [minutes tutorial](docs/tutorials/minutes.ipynb) for a detailed explanat
 | Tallinn Stock Exchange          | XTAL     | Estonia        | 4.11          | https://nasdaqbaltic.com                                     |
 | Riga Stock Exchange             | XRIS     | Latvia         | 4.11          | https://nasdaqbaltic.com                                     |
 | Vilnius Stock Exchange          | XLIT     | Lithuania      | 4.11          | https://nasdaqbaltic.com                                     |
+| Bermuda Stock Exchange          | XBDA     | Bermuda        | 4.12          | https://www.bsx.com/                                         |
 
 > Note that exchange calendars are defined by their [ISO-10383](https://www.iso20022.org/10383/iso-10383-market-identifier-codes) market identifier code.
 
