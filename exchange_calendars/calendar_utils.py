@@ -7,6 +7,7 @@ from .exchange_calendar import ExchangeCalendar
 from .exchange_calendar_aixk import AIXKExchangeCalendar
 from .exchange_calendar_asex import ASEXExchangeCalendar
 from .exchange_calendar_bvmf import BVMFExchangeCalendar
+from .exchange_calendar_xcys import XCYSExchangeCalendar
 from .exchange_calendar_cmes import CMESExchangeCalendar
 from .exchange_calendar_iepa import IEPAExchangeCalendar
 from .exchange_calendar_xams import XAMSExchangeCalendar
@@ -74,6 +75,7 @@ _default_calendar_factories = {
     "AIXK": AIXKExchangeCalendar,
     "ASEX": ASEXExchangeCalendar,
     "BVMF": BVMFExchangeCalendar,
+    "XCYS": XCYSExchangeCalendar,
     "CMES": CMESExchangeCalendar,
     "IEPA": IEPAExchangeCalendar,
     "XAMS": XAMSExchangeCalendar,
