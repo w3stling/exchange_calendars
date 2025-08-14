@@ -262,7 +262,7 @@ See the [minutes tutorial](docs/tutorials/minutes.ipynb) for a detailed explanat
 | Riga Stock Exchange             | XRIS     | Latvia         | 4.11          | https://nasdaqbaltic.com                                     |
 | Vilnius Stock Exchange          | XLIT     | Lithuania      | 4.11          | https://nasdaqbaltic.com                                     |
 | Zagreb Stock Exchange           | XZAG     | Croatia        | 4.12          | https://www.zse.hr/en                                        |
-
+| Bermuda Stock Exchange          | XBDA     | Bermuda        | 4.12          | https://www.bsx.com                                          |
 
 > Note that exchange calendars are defined by their [ISO-10383](https://www.iso20022.org/10383/iso-10383-market-identifier-codes) market identifier code.
 
