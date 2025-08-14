@@ -1,6 +1,3 @@
-# https://github.com/pandas-dev/pandas/blob/master/pandas/tseries/offsets.py
-# https://github.com/pandas-dev/pandas/blob/master/pandas/_libs/tslibs/offsets.pyx
-
 from datetime import datetime, timedelta
 
 import toolz
@@ -314,7 +311,7 @@ class SingleConstructorOffset(BaseOffset):
 
 
 class OrthodoxEaster(SingleConstructorOffset):
-    """Add commentMore actions
+    """
     DateOffset for the Orthodox Easter holiday.
     """
 
