@@ -70,25 +70,27 @@ class XLJUExchangeCalendar(ExchangeCalendar):
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            NewYearHoliday,
-            NewYearHolidayBefore2013,
-            PreserenDay,
-            GoodFriday,
-            EasterMonday,
-            ResistanceDay,
-            LabourDay,
-            LabourDay2,
-            StatehoodDay,
-            AssumptionDay,
-            ReformationDay,
-            AllSaintsDay,
-            ChristmasEve,
-            Christmas,
-            IndependenceUnityDay,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                NewYearHoliday,
+                NewYearHolidayBefore2013,
+                PreserenDay,
+                GoodFriday,
+                EasterMonday,
+                ResistanceDay,
+                LabourDay,
+                LabourDay2,
+                StatehoodDay,
+                AssumptionDay,
+                ReformationDay,
+                AllSaintsDay,
+                ChristmasEve,
+                Christmas,
+                IndependenceUnityDay,
+                NewYearsEve,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
