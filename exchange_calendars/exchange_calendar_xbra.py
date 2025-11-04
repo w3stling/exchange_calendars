@@ -26,7 +26,9 @@ EasterMonday = EasterMonday
 LabourDay = european_labour_day()
 VictoryDay = Holiday("Victory Day", month=5, day=8)
 SaintsCyrilMethodius = Holiday("Saints Cyril and Methodius Day", month=7, day=5)
-SlovakNationalUprising = Holiday("Slovak National Uprising Anniversary", month=8, day=29)
+SlovakNationalUprising = Holiday(
+    "Slovak National Uprising Anniversary", month=8, day=29
+)
 ConstitutionDay = Holiday("Constitution Day", month=9, day=1, end_date="2024")
 VirginMary = Holiday("Day of Our Lady of Sorrows", month=9, day=15)
 AllSaintsDay = all_saints_day()
@@ -71,28 +73,32 @@ class XBRAExchangeCalendar(ExchangeCalendar):
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            Epiphany,
-            GoodFriday,
-            EasterMonday,
-            LabourDay,
-            VictoryDay,
-            SaintsCyrilMethodius,
-            SlovakNationalUprising,
-            ConstitutionDay,
-            VirginMary,
-            AllSaintsDay,
-            StruggleForFreedom,
-            ChristmasEve,
-            Christmas,
-            BoxingDay,
-            NewYearsEve,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                Epiphany,
+                GoodFriday,
+                EasterMonday,
+                LabourDay,
+                VictoryDay,
+                SaintsCyrilMethodius,
+                SlovakNationalUprising,
+                ConstitutionDay,
+                VirginMary,
+                AllSaintsDay,
+                StruggleForFreedom,
+                ChristmasEve,
+                Christmas,
+                BoxingDay,
+                NewYearsEve,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
         return [
             pd.Timestamp("2018-01-02"),  # Independent Slovakia, 25th anniversary
-            pd.Timestamp("2018-10-30"),  # 100th anniversary of the adoption of the Declaration of the Slovak Nation
+            pd.Timestamp(
+                "2018-10-30"
+            ),  # 100th anniversary of the adoption of the Declaration of the Slovak Nation
         ]
