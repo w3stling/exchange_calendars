@@ -98,7 +98,7 @@ class XBELExchangeCalendar(ExchangeCalendar):
             ),  # Trading system maintenance, statistics and data migration
             pd.Timestamp(
                 "2025-11-10"
-            ),  # Relocation of CSD’s servers and network equipment to a new address
+            ),  # Relocation of CSDs servers and network equipment to a new address
             pd.Timestamp("2025-01-06"),  # Security improvement of the trading platform
             pd.Timestamp("2025-01-03"),  # Security improvement of the trading platform
             pd.Timestamp(
