@@ -21,8 +21,6 @@ from .exchange_calendar import HolidayCalendar, ExchangeCalendar
 
 NewYearsDay = new_years_day()
 Epiphany = epiphany()
-GoodFriday = GoodFriday
-EasterMonday = EasterMonday
 LabourDay = european_labour_day()
 VictoryDay = Holiday("Victory Day", month=5, day=8)
 SaintsCyrilMethodius = Holiday("Saints Cyril and Methodius Day", month=7, day=5)
@@ -100,5 +98,6 @@ class XBRAExchangeCalendar(ExchangeCalendar):
             pd.Timestamp("2018-01-02"),  # Independent Slovakia, 25th anniversary
             pd.Timestamp(
                 "2018-10-30"
-            ),  # 100th anniversary of the adoption of the Declaration of the Slovak Nation
+            ),  # 100th anniversary of the adoption of the Declaration of
+            # the Slovak Nation
         ]
