@@ -88,6 +88,7 @@ class XBELExchangeCalendar(ExchangeCalendar):
         # Exchange calendar 2021: https://www.belex.rs/data/2020/10/00117713_E.pdf
         misc_adhoc_holidays = [
             pd.Timestamp("2025-12-31"),  # Trading system maintenance, statistics and data migration
+            pd.Timestamp("2025-11-10"),  # Relocation of CSD’s servers and network equipment to a new address
             pd.Timestamp("2025-01-06"),  # Security improvement of the trading platform
             pd.Timestamp("2025-01-03"),  # Security improvement of the trading platform
             pd.Timestamp("2024-12-31"),  # Trading system maintenance, statistics and data migration
