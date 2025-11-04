@@ -21,8 +21,6 @@ NewYearsDay = new_years_day()
 NewYearHoliday = Holiday("New Year Holiday", month=1, day=2, start_date="2017")
 NewYearHolidayBefore2013 = Holiday("New Year Holiday", month=1, day=2, end_date="2013")
 PreserenDay = Holiday("Prešeren Day", month=2, day=8)
-GoodFriday = GoodFriday
-EasterMonday = EasterMonday
 ResistanceDay = Holiday("Resistance Day", month=4, day=27)
 LabourDay = Holiday("Labour Day", month=5, day=1)
 LabourDay2 = Holiday("Labour Day (Second Day)", month=5, day=2)
