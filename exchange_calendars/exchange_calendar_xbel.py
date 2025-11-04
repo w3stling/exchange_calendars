@@ -30,8 +30,12 @@ def sunday_to_tuesday(dt: datetime) -> datetime:
 NewYearsDay = new_years_day(observance=sunday_to_tuesday)
 NewYearsDay2 = Holiday("New Year's Day", month=1, day=2, observance=sunday_to_monday)
 OrthodoxChristmas = Holiday("Christmas Holiday", month=1, day=7)
-StatehoodDay = Holiday("Statehood Day of Serbia", month=2, day=15, observance=sunday_to_tuesday)
-StatehoodDay2 = Holiday("Statehood Day of Serbia Holiday", month=2, day=16, observance=sunday_to_monday)
+StatehoodDay = Holiday(
+    "Statehood Day of Serbia", month=2, day=15, observance=sunday_to_tuesday
+)
+StatehoodDay2 = Holiday(
+    "Statehood Day of Serbia Holiday", month=2, day=16, observance=sunday_to_monday
+)
 OrthodoxGoodFriday = orthodox_good_friday()
 OrthodoxEasterMonday = orthodox_easter_monday()
 LabourDay = Holiday("Labour Day", month=5, day=1, observance=sunday_to_tuesday)
@@ -64,18 +68,20 @@ class XBELExchangeCalendar(ExchangeCalendar):
 
     @property
     def regular_holidays(self):
-        return HolidayCalendar([
-            NewYearsDay,
-            NewYearsDay2,
-            OrthodoxChristmas,
-            StatehoodDay,
-            StatehoodDay2,
-            OrthodoxGoodFriday,
-            OrthodoxEasterMonday,
-            LabourDay,
-            LabourDay2,
-            ArmisticeDay,
-        ])
+        return HolidayCalendar(
+            [
+                NewYearsDay,
+                NewYearsDay2,
+                OrthodoxChristmas,
+                StatehoodDay,
+                StatehoodDay2,
+                OrthodoxGoodFriday,
+                OrthodoxEasterMonday,
+                LabourDay,
+                LabourDay2,
+                ArmisticeDay,
+            ]
+        )
 
     @property
     def adhoc_holidays(self):
@@ -87,19 +93,33 @@ class XBELExchangeCalendar(ExchangeCalendar):
         # Exchange calendar 2022: https://www.belex.rs/data/2021/11/00124168_E.pdf
         # Exchange calendar 2021: https://www.belex.rs/data/2020/10/00117713_E.pdf
         misc_adhoc_holidays = [
-            pd.Timestamp("2025-12-31"),  # Trading system maintenance, statistics and data migration
-            pd.Timestamp("2025-11-10"),  # Relocation of CSD’s servers and network equipment to a new address
+            pd.Timestamp(
+                "2025-12-31"
+            ),  # Trading system maintenance, statistics and data migration
+            pd.Timestamp(
+                "2025-11-10"
+            ),  # Relocation of CSD’s servers and network equipment to a new address
             pd.Timestamp("2025-01-06"),  # Security improvement of the trading platform
             pd.Timestamp("2025-01-03"),  # Security improvement of the trading platform
-            pd.Timestamp("2024-12-31"),  # Trading system maintenance, statistics and data migration
-            pd.Timestamp("2024-01-08"),  # Day off for the second day of Orthodox Christmas
-            pd.Timestamp("2023-12-29"),  # Trading system maintenance, statistics and data migration
+            pd.Timestamp(
+                "2024-12-31"
+            ),  # Trading system maintenance, statistics and data migration
+            pd.Timestamp(
+                "2024-01-08"
+            ),  # Day off for the second day of Orthodox Christmas
+            pd.Timestamp(
+                "2023-12-29"
+            ),  # Trading system maintenance, statistics and data migration
             pd.Timestamp("2023-01-06"),  # Market closed
             pd.Timestamp("2023-01-05"),  # Market closed
             pd.Timestamp("2023-01-04"),  # Market closed
-            pd.Timestamp("2022-12-30"),  # Trading system maintenance, statistics and data migration
+            pd.Timestamp(
+                "2022-12-30"
+            ),  # Trading system maintenance, statistics and data migration
             pd.Timestamp("2021-01-08"),  # Trading platform security upgrade
-            pd.Timestamp("2021-12-31"),  # Trading system maintenance, statistics and data migration
+            pd.Timestamp(
+                "2021-12-31"
+            ),  # Trading system maintenance, statistics and data migration
         ]
         return list(
             chain(
