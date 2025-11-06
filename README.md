@@ -264,6 +264,7 @@ See the [minutes tutorial](docs/tutorials/minutes.ipynb) for a detailed explanat
 | Cyprus Stock Exchange           | XCYS     | Cyprus         | 4.11.1        | https://www.cse.com.cy/en-GB/home                            |
 | Bermuda Stock Exchange          | XBDA     | Bermuda        | 4.11.1        | https://www.bsx.com                                          |
 | Zagreb Stock Exchange           | XZAG     | Croatia        | 4.11.1        | https://www.zse.hr/en                                        |
+| Belgrade Stock Exchange         | XBEL     | Serbian        | 4.11.2        | https://www.belex.rs/eng                                     |
 
 
 > Note that exchange calendars are defined by their [ISO-10383](https://www.iso20022.org/10383/iso-10383-market-identifier-codes) market identifier code.
