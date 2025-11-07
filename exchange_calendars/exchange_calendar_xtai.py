@@ -188,6 +188,7 @@ def bridge_fri(
     dt += ONE_DAY
     return dt if (dt.weekday() == FRIDAY and checker(dt)) else None
 
+
 bridge_mon_2014_thr_2023 = partial(bridge_mon, checker=check_between_2013_2024)
 bridge_fri_2014_thr_2023 = partial(bridge_fri, checker=check_between_2013_2024)
 
@@ -238,11 +239,8 @@ WomenAndChildrensDayExtraFri = Holiday(
 LabourDay = european_labour_day(observance=nearest_weekday_from_2014)
 
 TeachersDay = Holiday(
-    "Teachers' Day",
-    month=9,
-    day=28,
-    start_date="2025",
-    observance=nearest_workday)
+    "Teachers' Day", month=9, day=28, start_date="2025", observance=nearest_workday
+)
 
 NationalDay = Holiday(
     "National Day of the Republic of China",
