@@ -267,7 +267,7 @@ See the [minutes tutorial](docs/tutorials/minutes.ipynb) for a detailed explanat
 | Ljubljana Stock Exchange        | XLJU     | Slovenia       | 4.11.3        | https://ljse.si/en                                           |
 | Bratislava Stock Exchange       | XBRA     | Slovakia       | 4.11.3        | https://www.bsse.sk/bcpb/en                                  |
 | Belgrade Stock Exchange         | XBEL     | Serbia         | 4.11.3        | https://www.belex.rs/eng                                     |
-| Eurex                           | XEUR     | Germany        | 4.12.1        | https://www.eurex.com/ex-en/                                 |
+| Eurex                           | XEUR     | Germany        | 4.13.2        | https://www.eurex.com/ex-en/                                 |
 
 
 > Note that exchange calendars are defined by their [ISO-10383](https://www.iso20022.org/10383/iso-10383-market-identifier-codes) market identifier code.
