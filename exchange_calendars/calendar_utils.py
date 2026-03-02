@@ -29,7 +29,6 @@ from .exchange_calendar_xdus import XDUSExchangeCalendar
 from .exchange_calendar_xeee import XEEEExchangeCalendar
 from .exchange_calendar_xetr import XETRExchangeCalendar
 from .exchange_calendar_xeur import XEURExchangeCalendar
-
 from .exchange_calendar_xfra import XFRAExchangeCalendar
 from .exchange_calendar_xham import XHAMExchangeCalendar
 from .exchange_calendar_xhel import XHELExchangeCalendar
