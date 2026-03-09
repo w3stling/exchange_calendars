@@ -267,6 +267,7 @@ See the [minutes tutorial](docs/tutorials/minutes.ipynb) for a detailed explanat
 | Ljubljana Stock Exchange        | XLJU     | Slovenia       | 4.11.3        | https://ljse.si/en                                           |
 | Bratislava Stock Exchange       | XBRA     | Slovakia       | 4.11.3        | https://www.bsse.sk/bcpb/en                                  |
 | Belgrade Stock Exchange         | XBEL     | Serbia         | 4.11.3        | https://www.belex.rs/eng                                     |
+| Eurex                           | XEUR     | Germany        | 4.13.2        | https://www.eurex.com/ex-en/                                 |
 | Börse Stuttgart                 | XSTU     | Germany        | 4.13.2        | https://www.boerse-stuttgart.de/en                           |
 
 
